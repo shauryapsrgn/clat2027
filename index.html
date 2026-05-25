@@ -538,32 +538,50 @@ body::before {
   position: relative; display: inline-block;
   min-width: 100%;
 }
-#pdfCanvas { display: block; pointer-events: none; }
-#pdfCanvasFs { display: block; pointer-events: none; }
+#pdfCanvas { display: block; }
+#pdfCanvasFs { display: block; }
+
+/* pdf.js v3.x textLayer — required structure for selection */
 .pdf-text-layer {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%;
-  overflow: hidden; opacity: 1;
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.25;
   line-height: 1;
-  pointer-events: auto;
-  user-select: text;
-  -webkit-user-select: text;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 2;
+  cursor: text;
 }
-.pdf-text-layer > span {
+.pdf-text-layer.empty { opacity: 0; }
+.pdf-text-layer span,
+.pdf-text-layer br {
   color: transparent;
   position: absolute;
   white-space: pre;
   cursor: text;
   transform-origin: 0% 0%;
-  user-select: text;
-  -webkit-user-select: text;
 }
-.pdf-text-layer ::selection { background: rgba(255,220,0,0.55); }
+.pdf-text-layer span.markedContent {
+  top: 0; height: 0;
+}
+.pdf-text-layer .highlight {
+  margin: -1px; padding: 1px;
+  background-color: rgba(180,0,170,0.25);
+  border-radius: 4px;
+}
+.pdf-text-layer ::selection { background: rgba(255,220,0,0.55); color: transparent; }
+.pdf-text-layer ::-moz-selection { background: rgba(255,220,0,0.55); color: transparent; }
+
 .pdf-text-layer .highlight-mark {
   background: rgba(255,220,0,0.45);
   border-radius: 2px;
   position: absolute;
   pointer-events: none;
+  mix-blend-mode: multiply;
 }
 .pdf-text-layer .search-mark {
   background: rgba(255,120,50,0.5);
@@ -601,21 +619,38 @@ body::before {
 .pdf-fs-viewer::-webkit-scrollbar-thumb { background: var(--accent-dim); }
 .pdf-fs-page-container { position: relative; display: inline-block; }
 .pdf-text-layer-fs {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%;
-  overflow: hidden; opacity: 1; line-height: 1;
-  pointer-events: auto;
-  user-select: text;
-  -webkit-user-select: text;
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.25;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 2;
+  cursor: text;
 }
-.pdf-text-layer-fs > span {
-  color: transparent; position: absolute;
-  white-space: pre; cursor: text;
+.pdf-text-layer-fs.empty { opacity: 0; }
+.pdf-text-layer-fs span,
+.pdf-text-layer-fs br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
   transform-origin: 0% 0%;
-  user-select: text;
-  -webkit-user-select: text;
 }
-.pdf-text-layer-fs ::selection { background: rgba(255,220,0,0.55); }
+.pdf-text-layer-fs span.markedContent { top: 0; height: 0; }
+.pdf-text-layer-fs .highlight-mark {
+  background: rgba(255,220,0,0.45);
+  border-radius: 2px;
+  position: absolute;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.pdf-text-layer-fs ::selection { background: rgba(255,220,0,0.55); color: transparent; }
+.pdf-text-layer-fs ::-moz-selection { background: rgba(255,220,0,0.55); color: transparent; }
 
 /* ══ VOCAB BOX ══ */
 .vocab-section { padding: 2rem 3rem 2.5rem; border-bottom: 1px solid var(--border); }
@@ -1132,7 +1167,7 @@ body::before {
 <div class="pdf-section reveal">
   <p class="section-label">Document Reader</p>
   <p class="section-heading" style="margin-bottom:0.8rem;"><em>PDF</em> Viewer</p>
-  <p class="pdf-hint">Select text then press <strong style="color:var(--accent);">H</strong> to highlight yellow &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">Ctrl+F</strong> fullscreen &nbsp;&middot;&nbsp; Arrow keys navigate pages</p>
+  <p class="pdf-hint">Select text + press <strong style="color:var(--accent);">H</strong> to highlight &nbsp;&middot;&nbsp; Re-select a highlight + <strong style="color:var(--accent);">H</strong> to remove it &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">Ctrl+F</strong> fullscreen &nbsp;&middot;&nbsp; Arrows turn pages</p>
   <div class="pdf-toolbar">
     <label class="pdf-upload-label" for="pdfFileInput">&#8593; Upload PDF</label>
     <input type="file" id="pdfFileInput" accept=".pdf" />
@@ -1661,25 +1696,48 @@ function renderPDFPage(){
 }
 
 function renderTextLayer(page, vp, layerId, isFs){
-  page.getTextContent().then(function(tc){
-    var layer=document.getElementById(layerId);
-    layer.innerHTML='';
-    layer.style.width=vp.width+'px';
-    layer.style.height=vp.height+'px';
-    if(!isFs) pdfCurrentPageText=tc.items;
+  return page.getTextContent().then(function(tc){
+    var layer = document.getElementById(layerId);
+    layer.innerHTML = '';
+    /* size the layer to match canvas exactly */
+    layer.style.width = vp.width + 'px';
+    layer.style.height = vp.height + 'px';
+    /* CRITICAL for pdf.js v3: scale factor CSS variable */
+    layer.style.setProperty('--scale-factor', vp.scale);
+    if(!isFs) pdfCurrentPageText = tc.items;
     try {
-      pdfjsLib.renderTextLayer({
-        textContent:tc,
-        container:layer,
-        viewport:vp,
-        textDivs:[]
+      var task = pdfjsLib.renderTextLayer({
+        textContentSource: tc,
+        container: layer,
+        viewport: vp,
+        textDivs: []
       });
-    } catch(e){}
-    /* pdf.js 3.x renderTextLayer return value varies — just use setTimeout */
-    setTimeout(function(){
-      redrawHighlights();
-      if(pdfSearchResults.length) highlightSearchInLayer();
-    }, 150);
+      var p = task && task.promise ? task.promise : Promise.resolve();
+      return p.then(function(){
+        redrawHighlights();
+        if(pdfSearchResults.length) highlightSearchInLayer();
+      }).catch(function(){
+        /* still try to render highlights */
+        setTimeout(function(){
+          redrawHighlights();
+          if(pdfSearchResults.length) highlightSearchInLayer();
+        }, 100);
+      });
+    } catch(e) {
+      /* Fallback for older API signature */
+      try {
+        pdfjsLib.renderTextLayer({
+          textContent: tc,
+          container: layer,
+          viewport: vp,
+          textDivs: []
+        });
+      } catch(e2) {}
+      setTimeout(function(){
+        redrawHighlights();
+        if(pdfSearchResults.length) highlightSearchInLayer();
+      }, 200);
+    }
   });
 }
 
@@ -1716,45 +1774,102 @@ function zoomFit(){
   });
 }
 
-/* ── HIGHLIGHTS ── */
-/* Stores selected text per page; on redraw, marks matching spans yellow */
+/* ── HIGHLIGHTS ──
+   Stores actual geometric rectangles from each selection.
+   Re-selecting an existing highlight + H removes it (toggle). */
 function applyHighlight(){
-  var sel=window.getSelection();
-  if(!sel||sel.isCollapsed||!sel.toString().trim()) return;
-  var selectedText=sel.toString().trim();
-  if(!pdfHighlights[pdfCurPage]) pdfHighlights[pdfCurPage]=[];
-  /* avoid exact duplicates */
-  var already=pdfHighlights[pdfCurPage].some(function(h){ return h.text===selectedText; });
-  if(!already) pdfHighlights[pdfCurPage].push({text:selectedText});
-  safeSet('pdfHL',pdfHighlights);
+  var sel = window.getSelection();
+  if(!sel || sel.isCollapsed || !sel.toString().trim()) return;
+
+  /* Find the active text layer (normal or fullscreen) */
+  var layerId = pdfFsOpen ? 'pdfTextLayerFs' : 'pdfTextLayer';
+  var layer = document.getElementById(layerId);
+  if(!layer) return;
+
+  /* Verify the selection is actually inside this text layer */
+  var anchor = sel.anchorNode;
+  if(!anchor || !layer.contains(anchor.nodeType === 1 ? anchor : anchor.parentNode)) return;
+
+  /* Convert client rects to layer-relative coordinates */
+  var layerRect = layer.getBoundingClientRect();
+  var newRects = [];
+  for(var i = 0; i < sel.rangeCount; i++){
+    var range = sel.getRangeAt(i);
+    var rects = range.getClientRects();
+    for(var j = 0; j < rects.length; j++){
+      var r = rects[j];
+      /* skip degenerate rects */
+      if(r.width < 1 || r.height < 1) continue;
+      newRects.push({
+        left:   r.left   - layerRect.left,
+        top:    r.top    - layerRect.top,
+        width:  r.width,
+        height: r.height
+      });
+    }
+  }
+  if(!newRects.length) return;
+
+  /* TOGGLE: check if this selection overlaps an existing highlight.
+     If most new rects are inside existing highlight rects → remove that highlight. */
+  if(!pdfHighlights[pdfCurPage]) pdfHighlights[pdfCurPage] = [];
+  var existing = pdfHighlights[pdfCurPage];
+  var removedAny = false;
+  for(var hi = existing.length - 1; hi >= 0; hi--){
+    var hRects = existing[hi].rects || [];
+    /* normalise stored rects to current scale */
+    var sr = existing[hi].scale ? (pdfScale / existing[hi].scale) : 1;
+    var overlapCount = 0;
+    newRects.forEach(function(nr){
+      var nrCenterX = nr.left + nr.width / 2;
+      var nrCenterY = nr.top + nr.height / 2;
+      var inside = hRects.some(function(hr){
+        var hl = hr.left * sr, ht = hr.top * sr, hw = hr.width * sr, hh = hr.height * sr;
+        return nrCenterX >= hl - 2 && nrCenterX <= hl + hw + 2
+            && nrCenterY >= ht - 2 && nrCenterY <= ht + hh + 2;
+      });
+      if(inside) overlapCount++;
+    });
+    /* If majority of new selection sits inside this highlight, remove it */
+    if(overlapCount / newRects.length > 0.5){
+      existing.splice(hi, 1);
+      removedAny = true;
+    }
+  }
+
+  if(!removedAny){
+    /* Add new highlight with geometric rectangles + the scale they were captured at */
+    existing.push({
+      rects: newRects,
+      scale: pdfScale,
+      text:  sel.toString().trim().substring(0, 200) /* kept for reference only */
+    });
+  }
+
+  safeSet('pdfHL', pdfHighlights);
   sel.removeAllRanges();
   redrawHighlights();
 }
 
 function redrawHighlights(){
-  ['pdfTextLayer','pdfTextLayerFs'].forEach(function(layerId){
-    var layer=document.getElementById(layerId); if(!layer) return;
-    layer.querySelectorAll('.hl-mark').forEach(function(el){el.remove();});
-    var pageHL=pdfHighlights[pdfCurPage]||[];
+  ['pdfTextLayer', 'pdfTextLayerFs'].forEach(function(layerId){
+    var layer = document.getElementById(layerId); if(!layer) return;
+    layer.querySelectorAll('.hl-mark').forEach(function(el){ el.remove(); });
+    var pageHL = pdfHighlights[pdfCurPage] || [];
     if(!pageHL.length) return;
-    var spans=Array.from(layer.querySelectorAll('span'));
-    pageHL.forEach(function(h){
-      var query=h.text.toLowerCase();
-      var words=query.split(/\s+/).filter(function(w){return w.length>2;});
-      spans.forEach(function(span){
-        var st=span.textContent.toLowerCase();
-        var match=st.includes(query)||(words.length>1&&words.every(function(w){return st.includes(w);}));
-        if(!match && words.length) match=words.some(function(w){return w.length>4&&st.includes(w);});
-        if(!match) return;
-        /* use offsetTop/Left — reliable regardless of scroll position */
-        var div=document.createElement('div');
-        div.className='hl-mark';
-        div.style.cssText='position:absolute;background:rgba(255,220,0,0.55);'
-          +'pointer-events:none;border-radius:1px;'
-          +'left:'+span.offsetLeft+'px;'
-          +'top:'+span.offsetTop+'px;'
-          +'width:'+span.offsetWidth+'px;'
-          +'height:'+span.offsetHeight+'px;';
+    pageHL.forEach(function(h, idx){
+      /* Rescale rectangles if user has zoomed since highlight was made */
+      var scaleRatio = h.scale ? (pdfScale / h.scale) : 1;
+      (h.rects || []).forEach(function(r){
+        var div = document.createElement('div');
+        div.className = 'hl-mark';
+        div.dataset.hlIdx = idx;
+        div.style.cssText = 'position:absolute;background:rgba(255,220,0,0.45);'
+          + 'pointer-events:none;border-radius:2px;mix-blend-mode:multiply;'
+          + 'left:'   + (r.left   * scaleRatio) + 'px;'
+          + 'top:'    + (r.top    * scaleRatio) + 'px;'
+          + 'width:'  + (r.width  * scaleRatio) + 'px;'
+          + 'height:' + (r.height * scaleRatio) + 'px;';
         layer.appendChild(div);
       });
     });
@@ -1762,8 +1877,8 @@ function redrawHighlights(){
 }
 
 function clearHighlights(){
-  pdfHighlights[pdfCurPage]=[];
-  safeSet('pdfHL',pdfHighlights);
+  pdfHighlights[pdfCurPage] = [];
+  safeSet('pdfHL', pdfHighlights);
   redrawHighlights();
 }
 
