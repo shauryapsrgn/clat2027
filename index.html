@@ -1167,7 +1167,7 @@ body::before {
 <div class="pdf-section reveal">
   <p class="section-label">Document Reader</p>
   <p class="section-heading" style="margin-bottom:0.8rem;"><em>PDF</em> Viewer</p>
-  <p class="pdf-hint">Select text + press <strong style="color:var(--accent);">H</strong> to highlight &nbsp;&middot;&nbsp; Re-select a highlight + <strong style="color:var(--accent);">H</strong> to remove it &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">Ctrl+F</strong> fullscreen &nbsp;&middot;&nbsp; Arrows turn pages</p>
+  <p class="pdf-hint">Select + <strong style="color:var(--accent);">H</strong> highlights · re-select + <strong style="color:var(--accent);">H</strong> removes · <strong style="color:var(--accent);">=</strong> zoom in · <strong style="color:var(--accent);">−</strong> zoom out · <strong style="color:var(--accent);">0</strong> reset · <strong style="color:var(--accent);">F</strong> fit · <strong style="color:var(--accent);">Ctrl+F</strong> fullscreen · arrows turn pages</p>
   <div class="pdf-toolbar">
     <label class="pdf-upload-label" for="pdfFileInput">&#8593; Upload PDF</label>
     <input type="file" id="pdfFileInput" accept=".pdf" />
@@ -1748,28 +1748,43 @@ function changePDFPage(d){
 
 /* page input */
 function setupPageInputs(){
-  ['pdfPageInput','pdfPageInputFs'].forEach(function(id){
-    document.getElementById(id).addEventListener('keydown',function(e){
-      if(e.key==='Enter'){
-        var v=parseInt(this.value);
-        if(v>=1&&v<=pdfTotalPages){ pdfCurPage=v; renderPDFPage(); }
+  ['pdfPageInput', 'pdfPageInputFs'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        var v = parseInt(this.value, 10);
+        if(!isNaN(v)){
+          v = Math.max(1, Math.min(pdfTotalPages, v));
+          if(v !== pdfCurPage){ pdfCurPage = v; renderPDFPage(); }
+          this.value = v;
+        }
+        this.blur();
       }
+    });
+    /* On blur, restore valid value */
+    el.addEventListener('blur', function(){
+      this.value = pdfCurPage;
     });
   });
 }
 setupPageInputs();
 
 function zoomPDF(delta){
-  pdfScale=Math.max(0.5,Math.min(4,pdfScale+delta));
+  if(!pdfDoc) return;
+  pdfScale = Math.max(0.4, Math.min(5, pdfScale + delta));
+  updateZoomUI();
   renderPDFPage();
 }
 
 function zoomFit(){
   if(!pdfDoc) return;
   pdfDoc.getPage(pdfCurPage).then(function(page){
-    var vp=page.getViewport({scale:1});
-    var wrap=document.getElementById(pdfFsOpen?'pdfFsViewer':'pdfViewerWrap');
-    pdfScale=(wrap.clientWidth-32)/vp.width;
+    var vp = page.getViewport({ scale: 1 });
+    var wrap = document.getElementById(pdfFsOpen ? 'pdfFsViewer' : 'pdfViewerWrap');
+    var availableWidth = wrap.clientWidth - 40; /* allow for scrollbar + padding */
+    pdfScale = Math.max(0.4, Math.min(5, availableWidth / vp.width));
+    updateZoomUI();
     renderPDFPage();
   });
 }
@@ -1884,22 +1899,34 @@ function clearHighlights(){
 
 /* ── SEARCH ── */
 function pdfSearchRun(){
-  var q=document.getElementById('pdfSearchInput').value.trim().toLowerCase();
-  document.getElementById('pdfSearchCount').textContent='';
-  document.getElementById('pdfSearchCountFs').textContent='';
-  if(!pdfDoc||!q){ pdfSearchResults=[]; clearSearchMarks(); return; }
-  /* search across all pages by extracting text */
-  var results=[];
-  var chain=Promise.resolve();
-  for(var p=1;p<=pdfTotalPages;p++){
+  /* Sync FS input value back if user typed in FS */
+  var qMain = document.getElementById('pdfSearchInput').value.trim();
+  var qFs = document.getElementById('pdfSearchInputFs').value.trim();
+  var q = (qFs && qFs !== qMain) ? qFs : qMain;
+  if(q){
+    document.getElementById('pdfSearchInput').value = q;
+    document.getElementById('pdfSearchInputFs').value = q;
+  }
+  q = q.toLowerCase();
+  document.getElementById('pdfSearchCount').textContent = '';
+  document.getElementById('pdfSearchCountFs').textContent = '';
+  if(!pdfDoc || !q){ pdfSearchResults = []; clearSearchMarks(); return; }
+
+  document.getElementById('pdfSearchCount').textContent = 'Searching…';
+  document.getElementById('pdfSearchCountFs').textContent = 'Searching…';
+
+  var results = [];
+  var chain = Promise.resolve();
+  for(var p = 1; p <= pdfTotalPages; p++){
     (function(pg){
-      chain=chain.then(function(){
+      chain = chain.then(function(){
         return pdfDoc.getPage(pg).then(function(page){
           return page.getTextContent().then(function(tc){
-            var text=tc.items.map(function(i){return i.str;}).join(' ').toLowerCase();
-            var idx=0;
-            while((idx=text.indexOf(q,idx))!==-1){
-              results.push({page:pg,charIdx:idx}); idx+=q.length;
+            var text = tc.items.map(function(i){ return i.str; }).join(' ').toLowerCase();
+            var idx = 0;
+            while((idx = text.indexOf(q, idx)) !== -1){
+              results.push({ page: pg, charIdx: idx });
+              idx += q.length;
             }
           });
         });
@@ -1907,41 +1934,63 @@ function pdfSearchRun(){
     })(p);
   }
   chain.then(function(){
-    pdfSearchResults=results; pdfSearchIdx=0;
-    var cnt=results.length+' result'+(results.length===1?'':'s');
-    document.getElementById('pdfSearchCount').textContent=cnt;
-    document.getElementById('pdfSearchCountFs').textContent=cnt;
+    pdfSearchResults = results;
+    pdfSearchIdx = 0;
+    var cnt = results.length + ' result' + (results.length === 1 ? '' : 's');
+    document.getElementById('pdfSearchCount').textContent = cnt;
+    document.getElementById('pdfSearchCountFs').textContent = cnt;
     if(results.length){
-      pdfCurPage=results[0].page; renderPDFPage();
+      if(results[0].page !== pdfCurPage){
+        pdfCurPage = results[0].page;
+        renderPDFPage();
+      } else {
+        highlightSearchInLayer();
+      }
+    } else {
+      clearSearchMarks();
     }
   });
 }
 
 function pdfSearchNav(d){
   if(!pdfSearchResults.length) return;
-  pdfSearchIdx=(pdfSearchIdx+d+pdfSearchResults.length)%pdfSearchResults.length;
-  var r=pdfSearchResults[pdfSearchIdx];
-  if(r.page!==pdfCurPage){ pdfCurPage=r.page; renderPDFPage(); }
-  else { highlightSearchInLayer(); }
+  pdfSearchIdx = (pdfSearchIdx + d + pdfSearchResults.length) % pdfSearchResults.length;
+  var r = pdfSearchResults[pdfSearchIdx];
+  /* Update count to show current position */
+  var pos = (pdfSearchIdx + 1) + ' / ' + pdfSearchResults.length;
+  document.getElementById('pdfSearchCount').textContent = pos;
+  document.getElementById('pdfSearchCountFs').textContent = pos;
+  if(r.page !== pdfCurPage){
+    pdfCurPage = r.page;
+    renderPDFPage();
+  } else {
+    highlightSearchInLayer();
+  }
 }
 
 function highlightSearchInLayer(){
-  var q=document.getElementById('pdfSearchInput').value.trim().toLowerCase();
+  var q = document.getElementById('pdfSearchInput').value.trim().toLowerCase();
   if(!q) return;
-  ['pdfTextLayer','pdfTextLayerFs'].forEach(function(layerId){
-    var layer=document.getElementById(layerId); if(!layer) return;
-    layer.querySelectorAll('.srch-mark').forEach(function(el){el.remove();});
-    var spans=layer.querySelectorAll('span');
+  ['pdfTextLayer', 'pdfTextLayerFs'].forEach(function(layerId){
+    var layer = document.getElementById(layerId); if(!layer) return;
+    layer.querySelectorAll('.srch-mark').forEach(function(el){ el.remove(); });
+    var spans = layer.querySelectorAll('span');
     spans.forEach(function(span){
-      if(span.textContent.toLowerCase().includes(q)){
-        var r=span.getBoundingClientRect();
-        var lr=layer.getBoundingClientRect();
-        var div=document.createElement('div');
-        div.className='srch-mark';
-        div.style.cssText='position:absolute;background:rgba(255,160,40,0.45);pointer-events:none;border-radius:2px;'
-          +'left:'+(r.left-lr.left)+'px;top:'+(r.top-lr.top)+'px;width:'+r.width+'px;height:'+r.height+'px;';
-        layer.appendChild(div);
-      }
+      var text = span.textContent.toLowerCase();
+      if(!text.includes(q)) return;
+      var r = span.getBoundingClientRect();
+      var lr = layer.getBoundingClientRect();
+      /* Skip degenerate spans (often markedContent ones with height 0) */
+      if(r.width < 1 || r.height < 1) return;
+      var div = document.createElement('div');
+      div.className = 'srch-mark';
+      div.style.cssText = 'position:absolute;background:rgba(255,160,40,0.45);'
+        + 'pointer-events:none;border-radius:2px;'
+        + 'left:' + (r.left - lr.left) + 'px;'
+        + 'top:'  + (r.top  - lr.top)  + 'px;'
+        + 'width:'  + r.width  + 'px;'
+        + 'height:' + r.height + 'px;';
+      layer.appendChild(div);
     });
   });
 }
@@ -1966,47 +2015,123 @@ function closePDFFullscreen(){
 }
 
 function closePDF(){
-  pdfDoc=null; pdfHighlights={};
-  document.getElementById('pdfEmpty').style.display='block';
-  document.getElementById('pdfViewerWrap').style.display='none';
-  document.getElementById('pdfPageNav').style.display='none';
-  document.getElementById('pdfTextLayer').innerHTML='';
-  var c=document.getElementById('pdfCanvas');
-  c.getContext('2d').clearRect(0,0,c.width,c.height);
-  document.getElementById('pdfSearchCount').textContent='';
+  pdfDoc = null;
+  pdfCurPage = 1;
+  pdfTotalPages = 1;
+  pdfScale = 1.5;
+  pdfHighlights = {};
+  pdfSearchResults = [];
+  pdfSearchIdx = 0;
+  pdfCurrentPageText = null;
+  /* Wipe persisted highlights since they belong to the closed file */
+  safeSet('pdfHL', {});
+
+  document.getElementById('pdfEmpty').style.display = 'block';
+  document.getElementById('pdfViewerWrap').style.display = 'none';
+  document.getElementById('pdfPageNav').style.display = 'none';
+  document.getElementById('pdfTextLayer').innerHTML = '';
+  var c = document.getElementById('pdfCanvas');
+  c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  c.width = 0; c.height = 0;
+  /* Clear fullscreen canvas + layer too */
+  var cfs = document.getElementById('pdfCanvasFs');
+  if(cfs){ cfs.getContext('2d').clearRect(0,0,cfs.width,cfs.height); cfs.width=0; cfs.height=0; }
+  var tlfs = document.getElementById('pdfTextLayerFs');
+  if(tlfs) tlfs.innerHTML = '';
+  document.getElementById('pdfSearchCount').textContent = '';
+  document.getElementById('pdfSearchCountFs').textContent = '';
+  document.getElementById('pdfSearchInput').value = '';
+  document.getElementById('pdfSearchInputFs').value = '';
+  /* Reset file input so the same file can be re-opened */
+  document.getElementById('pdfFileInput').value = '';
   closePDFFullscreen();
+  updateZoomUI();
 }
 
-/* load saved highlights — filter out old rect-based format */
-var rawHL=safeGet('pdfHL',{});
-pdfHighlights={};
+function updateZoomUI(){
+  var z = Math.round(pdfScale * 100) + '%';
+  var el1 = document.getElementById('pdfZoomVal'); if(el1) el1.textContent = z;
+  var el2 = document.getElementById('pdfZoomValFs'); if(el2) el2.textContent = z;
+}
+
+/* load saved highlights — keep only new rect-based format */
+var rawHL = safeGet('pdfHL', {});
+pdfHighlights = {};
 Object.keys(rawHL).forEach(function(pg){
-  var arr=rawHL[pg];
+  var arr = rawHL[pg];
   if(Array.isArray(arr)){
-    var clean=arr.filter(function(h){ return h.text; });
-    if(clean.length) pdfHighlights[pg]=clean;
+    /* Keep entries that have valid rects array; discard legacy text-only entries */
+    var clean = arr.filter(function(h){ return h && Array.isArray(h.rects) && h.rects.length > 0; });
+    if(clean.length) pdfHighlights[pg] = clean;
   }
 });
 
-/* keyboard shortcuts */
-document.addEventListener('keydown',function(e){
-  var tag=document.activeElement.tagName;
-  var inInput=tag==='INPUT'||tag==='TEXTAREA';
-  if(!inInput&&(e.key==='h'||e.key==='H')&&pdfDoc){
+/* keyboard shortcuts for PDF reader */
+document.addEventListener('keydown', function(e){
+  if(!pdfDoc) return;
+  var tag = document.activeElement.tagName;
+  var inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+  if(inInput) return;
+
+  /* Highlight toggle */
+  if(e.key === 'h' || e.key === 'H'){
+    e.preventDefault();
     applyHighlight();
+    return;
   }
-  if((e.ctrlKey||e.metaKey)&&e.key==='f'&&pdfDoc){
-    e.preventDefault(); openPDFFullscreen();
+  /* Fullscreen toggle */
+  if((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')){
+    e.preventDefault();
+    if(pdfFsOpen) closePDFFullscreen(); else openPDFFullscreen();
+    return;
   }
-  if(e.key==='Escape'&&pdfFsOpen){ closePDFFullscreen(); }
-  if(pdfDoc&&!inInput&&!e.ctrlKey&&!e.metaKey){
-    if(e.key==='ArrowRight'||e.key==='PageDown') changePDFPage(1);
-    if(e.key==='ArrowLeft'||e.key==='PageUp') changePDFPage(-1);
+  /* Escape exits fullscreen */
+  if(e.key === 'Escape' && pdfFsOpen){
+    closePDFFullscreen();
+    return;
+  }
+  /* Zoom in: = or + (also handle Ctrl/Cmd combo) */
+  if(e.key === '=' || e.key === '+'){
+    e.preventDefault();
+    zoomPDF(0.25);
+    return;
+  }
+  /* Zoom out: - or _ */
+  if(e.key === '-' || e.key === '_'){
+    e.preventDefault();
+    zoomPDF(-0.25);
+    return;
+  }
+  /* Reset zoom: 0 */
+  if(e.key === '0'){
+    e.preventDefault();
+    pdfScale = 1.5;
+    renderPDFPage();
+    return;
+  }
+  /* Fit width: f (without ctrl) */
+  if((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey){
+    e.preventDefault();
+    zoomFit();
+    return;
+  }
+  /* Page navigation (no modifiers) */
+  if(!e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey){
+    if(e.key === 'ArrowRight' || e.key === 'PageDown'){
+      e.preventDefault();
+      changePDFPage(1);
+    } else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){
+      e.preventDefault();
+      changePDFPage(-1);
+    }
   }
 });
 
-document.getElementById('pdfSearchInput').addEventListener('keydown',function(e){
-  if(e.key==='Enter') pdfSearchRun();
+document.getElementById('pdfSearchInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); pdfSearchRun(); }
+});
+document.getElementById('pdfSearchInputFs').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); pdfSearchRun(); }
 });
 
 /* ══ VOCAB ══ */
