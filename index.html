@@ -939,6 +939,177 @@ body::before {
   .header-inner { grid-template-columns: 1fr; }
   .header-right { display: none; }
 }
+
+/* ══ AI CHATBOT (Ctrl+Q) ══ */
+.chatbot-overlay {
+  display: none;
+  position: fixed;
+  bottom: 20px; right: 20px;
+  width: 380px; max-width: calc(100vw - 40px);
+  height: 540px; max-height: calc(100vh - 40px);
+  background: #0a0a0a;
+  border: 1px solid var(--accent-dim);
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(201,168,76,0.12);
+  z-index: 950;
+  flex-direction: column;
+  overflow: hidden;
+  animation: chatSlideIn 0.25s ease;
+}
+.chatbot-overlay.open { display: flex; }
+@keyframes chatSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chatbot-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.015);
+}
+.chatbot-title {
+  font-family: var(--serif); font-size: 1.05rem; font-weight: 400;
+  font-style: italic; color: var(--accent);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.chatbot-title::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 6px rgba(90,158,122,0.6);
+}
+.chatbot-sub {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--muted); margin-top: 2px;
+}
+.chatbot-actions { display: flex; gap: 0.35rem; }
+.chatbot-action-btn {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: 1px solid var(--border);
+  padding: 0.28rem 0.55rem; cursor: pointer; border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.chatbot-action-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+.chatbot-action-btn.danger:hover { color: var(--red); border-color: rgba(201,112,112,0.4); }
+
+.chatbot-messages {
+  flex: 1; overflow-y: auto;
+  padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem;
+}
+.chatbot-messages::-webkit-scrollbar { width: 3px; }
+.chatbot-messages::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+
+.chat-msg {
+  font-family: var(--serif); font-size: 0.92rem; font-weight: 300;
+  line-height: 1.55; padding: 0.6rem 0.85rem;
+  border-radius: 8px; max-width: 90%;
+  word-wrap: break-word; white-space: pre-wrap;
+}
+.chat-msg.user {
+  align-self: flex-end;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.25);
+  color: var(--parchment);
+}
+.chat-msg.assistant {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  color: var(--parchment);
+}
+.chat-msg.system {
+  align-self: center;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: none; padding: 0.3rem;
+}
+.chat-msg .role-tag {
+  display: block;
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.25rem;
+}
+.chat-msg.assistant .role-tag { color: var(--green); }
+
+.chat-thinking {
+  align-self: flex-start;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0.4rem 0.6rem;
+}
+.chat-thinking::after {
+  content: '...'; animation: dotPulse 1.2s infinite;
+}
+@keyframes dotPulse {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+.chatbot-context {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--accent-dim);
+  padding: 0.4rem 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: rgba(201,168,76,0.04);
+  display: none; align-items: center; justify-content: space-between;
+}
+.chatbot-context.visible { display: flex; }
+.chatbot-context-clear {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-family: var(--mono); font-size: 0.5rem;
+  letter-spacing: 0.1em; text-decoration: underline;
+}
+.chatbot-context-clear:hover { color: var(--red); }
+
+.chatbot-input-row {
+  display: flex; gap: 0.4rem; padding: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.chatbot-input {
+  flex: 1; background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); outline: none;
+  color: var(--parchment); font-family: var(--serif); font-size: 0.95rem;
+  padding: 0.55rem 0.8rem; border-radius: 3px;
+  transition: border-color 0.2s; resize: none;
+  min-height: 38px; max-height: 110px;
+}
+.chatbot-input:focus { border-color: var(--accent-dim); }
+.chatbot-input::placeholder { color: var(--muted); font-style: italic; }
+.chatbot-send-btn {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent);
+  background: none; border: 1px solid rgba(201,168,76,0.35);
+  padding: 0 0.85rem; cursor: pointer; border-radius: 3px;
+  transition: background 0.2s;
+}
+.chatbot-send-btn:hover { background: var(--accent-glow); }
+.chatbot-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.chatbot-hint {
+  font-family: var(--mono); font-size: 0.48rem; letter-spacing: 0.15em;
+  color: rgba(138,128,112,0.5); text-align: center;
+  padding: 0.35rem; border-top: 1px solid var(--border);
+}
+.chatbot-hint kbd {
+  font-family: var(--mono); font-size: 0.46rem;
+  background: rgba(201,168,76,0.08); color: var(--accent);
+  padding: 1px 5px; border-radius: 2px; border: 1px solid rgba(201,168,76,0.2);
+}
+.chatbot-needkey {
+  padding: 1.5rem 1rem; text-align: center;
+  font-family: var(--serif); font-size: 0.95rem; font-style: italic;
+  color: var(--muted); line-height: 1.6;
+}
+.chatbot-needkey a { color: var(--accent); }
+
+@media (max-width: 480px) {
+  .chatbot-overlay {
+    bottom: 0; right: 0; left: 0;
+    width: 100%; max-width: 100%;
+    height: 80vh; border-radius: 0;
+    border-left: none; border-right: none; border-bottom: none;
+  }
+}
 </style>
 </head>
 <body>
@@ -1345,6 +1516,31 @@ body::before {
   </div>
 </div>
 
+
+<!-- ═══ AI CHATBOT (Ctrl+Q) ═══ -->
+<div class="chatbot-overlay" id="chatbotOverlay" role="dialog" aria-label="AI Chatbot">
+  <div class="chatbot-header">
+    <div>
+      <div class="chatbot-title">Ask Lex</div>
+      <div class="chatbot-sub">AI Study Assistant</div>
+    </div>
+    <div class="chatbot-actions">
+      <button class="chatbot-action-btn" onclick="useDocAsContext()" id="chatDocBtn" title="Use the open PDF page as context">+ PDF Context</button>
+      <button class="chatbot-action-btn" onclick="clearChat()">Clear</button>
+      <button class="chatbot-action-btn danger" onclick="closeChatbot()">✕</button>
+    </div>
+  </div>
+  <div class="chatbot-context" id="chatContextBar">
+    <span id="chatContextLabel">PDF page added as context</span>
+    <button class="chatbot-context-clear" onclick="clearChatContext()">remove</button>
+  </div>
+  <div class="chatbot-messages" id="chatMessages"></div>
+  <div class="chatbot-input-row">
+    <textarea class="chatbot-input" id="chatInput" placeholder="Ask anything — legal concepts, doubts, general study help…" rows="1"></textarea>
+    <button class="chatbot-send-btn" id="chatSendBtn" onclick="sendChat()">Send</button>
+  </div>
+  <div class="chatbot-hint"><kbd>Ctrl+Q</kbd> toggle · <kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> new line · <kbd>Esc</kbd> close</div>
+</div>
 
 <!-- ═══ FOOTER ═══ -->
 <footer class="site-footer">
@@ -1825,39 +2021,58 @@ function applyHighlight(){
   }
   if(!newRects.length) return;
 
-  /* TOGGLE: check if this selection overlaps an existing highlight.
-     If most new rects are inside existing highlight rects → remove that highlight. */
+  /* SUBTRACTIVE TOGGLE:
+     If the selection overlaps ANY existing highlight rect → remove just the overlapping rects
+     from those highlights (subtraction). If a highlight ends up empty, drop it entirely.
+     If there's no overlap anywhere → add the selection as a new highlight. */
   if(!pdfHighlights[pdfCurPage]) pdfHighlights[pdfCurPage] = [];
   var existing = pdfHighlights[pdfCurPage];
-  var removedAny = false;
-  for(var hi = existing.length - 1; hi >= 0; hi--){
-    var hRects = existing[hi].rects || [];
-    /* normalise stored rects to current scale */
-    var sr = existing[hi].scale ? (pdfScale / existing[hi].scale) : 1;
-    var overlapCount = 0;
-    newRects.forEach(function(nr){
-      var nrCenterX = nr.left + nr.width / 2;
-      var nrCenterY = nr.top + nr.height / 2;
-      var inside = hRects.some(function(hr){
-        var hl = hr.left * sr, ht = hr.top * sr, hw = hr.width * sr, hh = hr.height * sr;
-        return nrCenterX >= hl - 2 && nrCenterX <= hl + hw + 2
-            && nrCenterY >= ht - 2 && nrCenterY <= ht + hh + 2;
-      });
-      if(inside) overlapCount++;
-    });
-    /* If majority of new selection sits inside this highlight, remove it */
-    if(overlapCount / newRects.length > 0.5){
-      existing.splice(hi, 1);
-      removedAny = true;
-    }
+
+  function rectsOverlap(a, b){
+    /* Allow a small tolerance so adjacent line segments don't false-positive */
+    var tol = 1;
+    return !(a.left + a.width  < b.left + tol ||
+             b.left + b.width  < a.left + tol ||
+             a.top  + a.height < b.top  + tol ||
+             b.top  + b.height < a.top  + tol);
   }
 
-  if(!removedAny){
-    /* Add new highlight with geometric rectangles + the scale they were captured at */
+  /* Determine whether the new selection touches any existing highlight rect */
+  var anyOverlap = false;
+  existing.forEach(function(h){
+    var sr = h.scale ? (pdfScale / h.scale) : 1;
+    (h.rects || []).forEach(function(hr){
+      var scaled = { left: hr.left * sr, top: hr.top * sr, width: hr.width * sr, height: hr.height * sr };
+      if(newRects.some(function(nr){ return rectsOverlap(nr, scaled); })){
+        anyOverlap = true;
+      }
+    });
+  });
+
+  if(anyOverlap){
+    /* Subtract: walk each existing highlight, drop rects that overlap the selection.
+       This means re-selecting a partially-highlighted bulk removes the highlighted part. */
+    var rebuilt = [];
+    existing.forEach(function(h){
+      var sr = h.scale ? (pdfScale / h.scale) : 1;
+      var keptRects = [];
+      (h.rects || []).forEach(function(hr){
+        var scaled = { left: hr.left * sr, top: hr.top * sr, width: hr.width * sr, height: hr.height * sr };
+        var touched = newRects.some(function(nr){ return rectsOverlap(nr, scaled); });
+        if(!touched) keptRects.push(hr); /* keep in original scale */
+      });
+      if(keptRects.length){
+        h.rects = keptRects;
+        rebuilt.push(h);
+      }
+    });
+    pdfHighlights[pdfCurPage] = rebuilt;
+  } else {
+    /* No overlap → add as new highlight */
     existing.push({
       rects: newRects,
       scale: pdfScale,
-      text:  sel.toString().trim().substring(0, 200) /* kept for reference only */
+      text:  sel.toString().trim().substring(0, 200)
     });
   }
 
@@ -2358,6 +2573,216 @@ document.getElementById('vocabLookupInput').addEventListener('keydown', function
 });
 
 updateGroqKeyUI();
+
+/* ══ AI CHATBOT — uses the same Groq key as Dictionary Lookup ══ */
+var chatHistory = JSON.parse(localStorage.getItem('clatChatHistory') || '[]');
+var chatLoading = false;
+var chatContextText = '';
+
+function saveChatHistory(){
+  /* Keep last 50 messages only to avoid bloat */
+  if(chatHistory.length > 50) chatHistory = chatHistory.slice(-50);
+  localStorage.setItem('clatChatHistory', JSON.stringify(chatHistory));
+}
+
+function openChatbot(){
+  var ov = document.getElementById('chatbotOverlay');
+  ov.classList.add('open');
+  if(!GROQ_KEY){
+    showChatNoKeyMessage();
+  } else if(!chatHistory.length){
+    addChatMsg('assistant', 'Hi! I\'m here to help with your CLAT prep. Ask me about legal concepts, current affairs, English grammar, logical reasoning — anything. You can also click "+ PDF Context" to ask questions about the PDF you have open.');
+  } else {
+    renderChat();
+  }
+  setTimeout(function(){ document.getElementById('chatInput').focus(); }, 50);
+}
+
+function closeChatbot(){
+  document.getElementById('chatbotOverlay').classList.remove('open');
+}
+
+function toggleChatbot(){
+  if(document.getElementById('chatbotOverlay').classList.contains('open')) closeChatbot();
+  else openChatbot();
+}
+
+function showChatNoKeyMessage(){
+  var msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = '<div class="chatbot-needkey">'
+    + 'Set up your free Groq API key first.<br><br>'
+    + 'Scroll to <strong style="color:var(--accent);">Dictionary Lookup</strong> in the Vocabulary section and follow the one-time setup instructions.<br><br>'
+    + 'It takes 2 minutes and unlocks both the dictionary <em>and</em> this chatbot.'
+    + '</div>';
+}
+
+function escHChat(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function addChatMsg(role, text){
+  chatHistory.push({ role: role, content: text });
+  saveChatHistory();
+  renderChat();
+}
+
+function renderChat(){
+  var msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = '';
+  chatHistory.forEach(function(m){
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + m.role;
+    var roleLabel = m.role === 'user' ? 'You' : (m.role === 'assistant' ? 'Lex' : '');
+    div.innerHTML = (roleLabel ? '<span class="role-tag">' + roleLabel + '</span>' : '') + escHChat(m.content);
+    msgs.appendChild(div);
+  });
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function clearChat(){
+  if(!chatHistory.length) return;
+  if(confirm('Clear chat history? This cannot be undone.')){
+    chatHistory = [];
+    saveChatHistory();
+    document.getElementById('chatMessages').innerHTML = '';
+    clearChatContext();
+  }
+}
+
+function useDocAsContext(){
+  if(!pdfDoc){
+    addChatMsg('system', 'No PDF is currently open. Upload one first.');
+    return;
+  }
+  pdfDoc.getPage(pdfCurPage).then(function(page){
+    return page.getTextContent();
+  }).then(function(tc){
+    var text = tc.items.map(function(i){ return i.str; }).join(' ');
+    /* Limit context to about 3000 chars to stay well within token limits */
+    if(text.length > 3500) text = text.substring(0, 3500) + '…';
+    chatContextText = text;
+    var bar = document.getElementById('chatContextBar');
+    var label = document.getElementById('chatContextLabel');
+    label.textContent = 'PDF page ' + pdfCurPage + ' added as context (' + text.length + ' chars)';
+    bar.classList.add('visible');
+  });
+}
+
+function clearChatContext(){
+  chatContextText = '';
+  document.getElementById('chatContextBar').classList.remove('visible');
+}
+
+async function sendChat(){
+  if(chatLoading) return;
+  var input = document.getElementById('chatInput');
+  var text = input.value.trim();
+  if(!text) return;
+
+  if(!GROQ_KEY){
+    showChatNoKeyMessage();
+    return;
+  }
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  /* Build user message — prepend context if set */
+  var userVisibleText = text;
+  var userApiText = text;
+  if(chatContextText){
+    userApiText = 'Here is text from a PDF page I\'m studying:\n\n"""\n' + chatContextText + '\n"""\n\nMy question about this: ' + text;
+  }
+
+  addChatMsg('user', userVisibleText);
+
+  /* show thinking indicator */
+  chatLoading = true;
+  document.getElementById('chatSendBtn').disabled = true;
+  var msgs = document.getElementById('chatMessages');
+  var thinking = document.createElement('div');
+  thinking.className = 'chat-thinking';
+  thinking.textContent = 'Lex is thinking';
+  thinking.id = 'chatThinking';
+  msgs.appendChild(thinking);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  /* Build API message history — only the last 12 exchanges to limit tokens */
+  var apiMessages = [{
+    role: 'system',
+    content: 'You are Lex, a friendly study assistant for an Indian student preparing for CLAT 2027 (Common Law Admission Test). Help with legal reasoning, constitutional law basics, current affairs, English grammar, logical reasoning, quantitative techniques, and general study doubts. Be concise, clear, and use plain language. When relevant, give examples. If the user asks about a PDF excerpt provided in their message, focus your answer on that.'
+  }];
+  var recentHistory = chatHistory.slice(-12);
+  recentHistory.forEach(function(m){
+    if(m.role === 'user' || m.role === 'assistant'){
+      apiMessages.push({ role: m.role, content: m.content });
+    }
+  });
+  /* Replace the last user msg with the version that includes context */
+  if(apiMessages[apiMessages.length-1] && apiMessages[apiMessages.length-1].role === 'user'){
+    apiMessages[apiMessages.length-1].content = userApiText;
+  }
+
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + GROQ_KEY
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.6,
+        max_tokens: 800,
+        messages: apiMessages
+      })
+    });
+
+    document.getElementById('chatThinking').remove();
+
+    if(!res.ok){
+      var errBody = await res.text();
+      var errMsg = 'API error (' + res.status + ')';
+      if(res.status === 401) errMsg = 'Invalid API key. Update it in the Dictionary Lookup section.';
+      else if(res.status === 429) errMsg = 'Rate limit reached. Wait a moment and try again.';
+      addChatMsg('assistant', '⚠ ' + errMsg);
+      return;
+    }
+
+    var data = await res.json();
+    var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if(!reply) reply = '(empty response)';
+    addChatMsg('assistant', reply.trim());
+  } catch(e) {
+    var t = document.getElementById('chatThinking'); if(t) t.remove();
+    addChatMsg('assistant', '⚠ Connection failed: ' + e.message);
+  } finally {
+    chatLoading = false;
+    document.getElementById('chatSendBtn').disabled = false;
+    input.focus();
+  }
+}
+
+/* Input handlers */
+document.getElementById('chatInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendChat();
+  } else if(e.key === 'Escape'){
+    closeChatbot();
+  }
+});
+document.getElementById('chatInput').addEventListener('input', function(){
+  /* auto-grow */
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 110) + 'px';
+});
+
+/* Global Ctrl+Q shortcut */
+document.addEventListener('keydown', function(e){
+  if((e.ctrlKey || e.metaKey) && (e.key === 'q' || e.key === 'Q')){
+    e.preventDefault();
+    toggleChatbot();
+  }
+});
 
 </script>
 </body>
