@@ -203,6 +203,207 @@ body::before {
 .ie-btn { color: rgba(201,168,76,0.6); border-left-color: rgba(180,160,120,0.18); }
 .ie-btn:hover { background: rgba(201,168,76,0.06); }
 
+/* Reading Streak button (next to IE search) */
+.reading-streak-btn {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 1.1rem;
+  background: transparent;
+  border: 1px solid rgba(80,150,255,0.30);
+  cursor: pointer;
+  color: rgba(140,190,255,0.85);
+  font-family: var(--mono); font-size: 0.56rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+  white-space: nowrap;
+}
+.reading-streak-btn:hover {
+  background: rgba(80,150,255,0.08);
+  border-color: rgba(80,150,255,0.55);
+  color: rgba(180,210,255,1);
+}
+.rs-icon { font-size: 0.95rem; }
+.rs-label { letter-spacing: 0.2em; }
+.rs-streak {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.6rem; height: 1.4rem; padding: 0 0.45rem;
+  border-radius: 10px;
+  background: rgba(80,150,255,0.18);
+  border: 1px solid rgba(80,150,255,0.4);
+  font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
+  color: rgba(180,210,255,1);
+  letter-spacing: 0.05em;
+}
+.rs-streak.cold {
+  background: rgba(120,120,120,0.10);
+  border-color: rgba(120,120,120,0.3);
+  color: var(--muted);
+}
+.rs-streak.fire::before {
+  content: '\1F525'; margin-right: 0.2rem; font-size: 0.7rem;
+}
+
+/* Reading overlay */
+.reading-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 960;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+  padding: 3rem 1.5rem;
+}
+.reading-overlay.open { display: block; animation: groundFade 0.3s ease; }
+.reading-panel {
+  max-width: 720px; margin: 0 auto;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2.5rem 2.5rem 3rem;
+  position: relative;
+}
+.reading-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-family: var(--mono); font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.reading-close:hover { color: var(--red); border-color: rgba(201,112,112,0.4); }
+.reading-eyebrow {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: rgba(140,190,255,0.7);
+  margin-bottom: 0.7rem;
+}
+.reading-title {
+  font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  margin-bottom: 0.4rem; line-height: 1.15;
+}
+.reading-title em { color: rgba(140,190,255,1); font-style: italic; }
+.reading-sub {
+  font-family: var(--serif); font-size: 1rem; font-style: italic;
+  color: var(--muted); margin-bottom: 1.8rem; line-height: 1.55;
+}
+.reading-streak-display {
+  display: flex; align-items: baseline; gap: 0.6rem;
+  margin-bottom: 1.6rem; padding: 1rem 1.2rem;
+  background: rgba(80,150,255,0.04);
+  border: 1px solid rgba(80,150,255,0.18);
+  border-radius: 3px;
+}
+.reading-streak-num {
+  font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+  font-style: italic; color: rgba(180,210,255,1);
+  line-height: 1;
+}
+.reading-streak-lbl {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--muted);
+}
+.reading-book-wrap, .reading-pages-wrap {
+  margin-bottom: 1.3rem;
+}
+.reading-field-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(140,190,255,0.7);
+  margin-bottom: 0.55rem;
+}
+.reading-book-row, .reading-pages-row {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+}
+.reading-input {
+  flex: 1; min-width: 120px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); outline: none;
+  color: var(--parchment); font-family: var(--mono); font-size: 0.78rem;
+  padding: 0.55rem 0.75rem; border-radius: 2px;
+  transition: border-color 0.2s;
+}
+.reading-input:focus { border-color: rgba(80,150,255,0.55); }
+.reading-input::placeholder { color: var(--muted); font-style: italic; }
+.reading-book-input {
+  flex: 2.5; min-width: 200px;
+  font-family: var(--serif); font-size: 0.95rem; font-style: italic;
+}
+.reading-btn {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: none; cursor: pointer; border-radius: 2px;
+  padding: 0 0.85rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  color: rgba(140,190,255,0.85);
+  border: 1px solid rgba(80,150,255,0.35);
+}
+.reading-btn:hover {
+  background: rgba(80,150,255,0.08);
+  color: rgba(180,210,255,1);
+}
+.reading-btn.muted {
+  color: var(--muted);
+  border-color: var(--border);
+}
+.reading-btn.muted:hover { color: var(--red); border-color: rgba(201,112,112,0.3); }
+.reading-book-current {
+  font-family: var(--serif); font-size: 0.9rem; font-style: italic;
+  color: var(--muted); margin-top: 0.45rem;
+}
+.reading-book-current strong {
+  color: var(--parchment); font-weight: 400; font-style: normal;
+}
+.reading-feedback {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+  color: rgba(140,190,255,0.85); margin-top: 0.55rem; min-height: 1em; text-transform: uppercase;
+}
+.reading-chart-wrap {
+  margin-top: 1.8rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.reading-chart-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(140,190,255,0.7);
+  margin-bottom: 0.6rem;
+}
+.reading-chart-canvas-wrap {
+  position: relative; width: 100%; height: 200px;
+}
+.reading-entries-list {
+  max-height: 140px; overflow-y: auto; margin-top: 1rem;
+  border-top: 1px solid var(--border); padding-top: 0.6rem;
+}
+.reading-entries-list::-webkit-scrollbar { width: 2px; }
+.reading-entries-list::-webkit-scrollbar-thumb { background: rgba(80,150,255,0.3); }
+.reading-entry-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.4rem 0; border-bottom: 1px solid rgba(180,160,120,0.06);
+  font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+  letter-spacing: 0.05em; gap: 0.5rem;
+}
+.reading-entry-row:last-child { border-bottom: none; }
+.reading-entry-book {
+  flex: 1; color: var(--parchment);
+  font-family: var(--serif); font-size: 0.85rem; font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.reading-entry-pages { color: rgba(140,190,255,1); }
+.reading-entry-del {
+  background: none; border: none; color: rgba(138,128,112,0.35);
+  cursor: pointer; font-size: 0.75rem; padding: 0 4px; transition: color 0.2s;
+}
+.reading-entry-del:hover { color: var(--red); }
+.reading-empty-hint {
+  font-family: var(--serif); font-style: italic; font-size: 0.95rem;
+  color: var(--muted); padding: 1.5rem 0.4rem; text-align: center;
+}
+
+@media (max-width: 600px) {
+  .reading-panel { padding: 2rem 1.3rem 2.5rem; }
+  .reading-title { font-size: 1.6rem; }
+  .reading-overlay { padding: 1.5rem 0.6rem; }
+  .reading-streak-btn .rs-label { display: none; }
+}
+
 /* ══ GRID ══ */
 .main-grid {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -299,6 +500,43 @@ body::before {
 .manual-hours-feedback {
   font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
   color: var(--green); margin-top: 0.5rem; min-height: 1em; text-transform: uppercase;
+}
+
+/* Forgot-to-Track dropdown */
+.ftt-details {
+  margin-top: 1.4rem; padding-top: 1.1rem;
+  border-top: 1px solid var(--border);
+}
+.ftt-summary {
+  list-style: none; cursor: pointer;
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--accent-dim);
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.4rem 0;
+  transition: color 0.2s;
+}
+.ftt-summary::-webkit-details-marker { display: none; }
+.ftt-summary:hover { color: var(--accent); }
+.ftt-chevron {
+  font-family: var(--mono); font-size: 0.7rem;
+  transition: transform 0.25s ease;
+  display: inline-block;
+}
+.ftt-details[open] .ftt-chevron { transform: rotate(90deg); }
+.ftt-details[open] .ftt-summary { color: var(--accent); }
+.ftt-body {
+  animation: fttFade 0.25s ease;
+}
+@keyframes fttFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ftt-body .manual-hours-wrap {
+  margin-top: 1rem; padding-top: 0.9rem;
+  border-top: 1px dashed rgba(180,160,120,0.1);
+}
+.ftt-body .manual-hours-wrap:first-child {
+  border-top: none; padding-top: 0; margin-top: 0.4rem;
 }
 
 /* ══ CHART ══ */
@@ -1368,12 +1606,19 @@ body::before {
       <button type="submit" class="search-btn">Search</button>
     </div>
   </form>
-  <form id="ieForm" style="width:100%;max-width:560px;display:flex;">
-    <div class="search-wrap ie-wrap" style="width:100%;">
-      <input type="text" id="ieInput" placeholder="IE Explained&hellip;" autocomplete="off" />
-      <button type="submit" class="search-btn ie-btn">Explained</button>
-    </div>
-  </form>
+  <div style="width:100%;max-width:560px;display:flex;gap:0.6rem;align-items:stretch;">
+    <form id="ieForm" style="flex:1;display:flex;">
+      <div class="search-wrap ie-wrap" style="width:100%;">
+        <input type="text" id="ieInput" placeholder="IE Explained&hellip;" autocomplete="off" />
+        <button type="submit" class="search-btn ie-btn">Explained</button>
+      </div>
+    </form>
+    <button class="reading-streak-btn" onclick="openReading()" title="Track your daily book reading">
+      <span class="rs-icon">&#9783;</span>
+      <span class="rs-label">Reading</span>
+      <span class="rs-streak" id="rsStreakBadge">0</span>
+    </button>
+  </div>
 </div>
 
 <!-- ═══ MAIN GRID ═══ -->
@@ -1392,29 +1637,38 @@ body::before {
     </div>
     <p class="save-feedback" id="saveFeedback"></p>
 
-    <!-- Manual hours entry: log study time you couldn't record live -->
-    <div class="manual-hours-wrap">
-      <p class="manual-hours-label">Forgot to track? Add or remove hours manually</p>
-      <div class="manual-hours-row">
-        <input type="number" id="manualHoursInput" class="manual-hours-input" placeholder="Hours (e.g. 2.5)" step="0.25" min="0" max="24" />
-        <input type="date" id="manualHoursDate" class="manual-hours-date" />
-        <button class="manual-hours-btn" onclick="addManualHours(1)">+ Add</button>
-        <button class="manual-hours-btn manual-hours-sub" onclick="addManualHours(-1)" title="Subtract hours (useful if you over-logged)">&#8722; Subtract</button>
-      </div>
-      <p class="manual-hours-feedback" id="manualHoursFeedback"></p>
-    </div>
+    <!-- Forgot to track? — collapsible dropdown wrapping both manual study and class hours -->
+    <details class="ftt-details">
+      <summary class="ftt-summary">
+        <span>Forgot to Track?</span>
+        <span class="ftt-chevron">&#9656;</span>
+      </summary>
+      <div class="ftt-body">
+        <!-- Manual hours entry: log study time you couldn't record live -->
+        <div class="manual-hours-wrap">
+          <p class="manual-hours-label">Add or remove self-study hours</p>
+          <div class="manual-hours-row">
+            <input type="number" id="manualHoursInput" class="manual-hours-input" placeholder="Hours (e.g. 2.5)" step="0.25" min="0" max="24" />
+            <input type="date" id="manualHoursDate" class="manual-hours-date" />
+            <button class="manual-hours-btn" onclick="addManualHours(1)">+ Add</button>
+            <button class="manual-hours-btn manual-hours-sub" onclick="addManualHours(-1)" title="Subtract hours (useful if you over-logged)">&#8722; Subtract</button>
+          </div>
+          <p class="manual-hours-feedback" id="manualHoursFeedback"></p>
+        </div>
 
-    <!-- Classes attended tracker -->
-    <div class="manual-hours-wrap">
-      <p class="manual-hours-label" style="color:#c97070;">Attended a class? Log it here</p>
-      <div class="manual-hours-row">
-        <input type="number" id="classHoursInput" class="manual-hours-input" placeholder="Class hours (e.g. 2)" step="0.25" min="0" max="24" />
-        <input type="date" id="classHoursDate" class="manual-hours-date" />
-        <button class="manual-hours-btn manual-hours-class" onclick="addClassHours(1)">+ Add</button>
-        <button class="manual-hours-btn manual-hours-sub-class" onclick="addClassHours(-1)" title="Remove class hours">&#8722; Subtract</button>
+        <!-- Classes attended tracker -->
+        <div class="manual-hours-wrap">
+          <p class="manual-hours-label" style="color:#c97070;">Attended a class? Log it here</p>
+          <div class="manual-hours-row">
+            <input type="number" id="classHoursInput" class="manual-hours-input" placeholder="Class hours (e.g. 2)" step="0.25" min="0" max="24" />
+            <input type="date" id="classHoursDate" class="manual-hours-date" />
+            <button class="manual-hours-btn manual-hours-class" onclick="addClassHours(1)">+ Add</button>
+            <button class="manual-hours-btn manual-hours-sub-class" onclick="addClassHours(-1)" title="Remove class hours">&#8722; Subtract</button>
+          </div>
+          <p class="manual-hours-feedback" id="classHoursFeedback" style="color:#c97070;"></p>
+        </div>
       </div>
-      <p class="manual-hours-feedback" id="classHoursFeedback" style="color:#c97070;"></p>
-    </div>
+    </details>
   </div>
 
   <!-- STUDY GRAPH -->
@@ -1554,41 +1808,6 @@ body::before {
     </div>
 
   </div>
-
-  <!-- MOCK TRACKER (full width) -->
-  <div class="grid-cell full-col reveal">
-    <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:2.5rem;align-items:start;">
-      <div>
-        <p class="section-label">Performance Index</p>
-        <p class="section-heading" style="margin-bottom:1rem;">Mock Tracker</p>
-        <div class="mock-input-area">
-          <input class="mock-input" type="text" id="mockName" placeholder="Mock name (e.g. CLAT Mock 01)" />
-          <input class="mock-input short" type="number" id="mockPct" placeholder="%ile" min="0" max="100" step="0.1" />
-          <button class="mock-add-btn" onclick="addMock()">+ Add</button>
-        </div>
-        <div class="mock-entries-list" id="mockEntriesList"></div>
-        <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:0.8rem;" id="mockCount">No entries yet</p>
-        <p style="font-family:var(--mono);font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(138,128,112,0.4);margin-top:0.3rem;">Drag entries to reorder</p>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.4rem;">
-          <p style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-dim);">Percentile Curve</p>
-          <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);" id="mockBest">&mdash;</p>
-        </div>
-        <div class="chart-wrap" style="height:200px;">
-          <canvas id="mockChart" role="img" aria-label="Mock percentile line chart">No data yet.</canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /main-grid -->
-
-<!-- ═══ QUOTE ═══ -->
-<div class="quote-band reveal">
-  <p class="pull-quote">The Constitution is not a mere lawyers&rsquo; document; it is a vehicle of life, and its spirit is always the spirit of the age.</p>
-  <p class="pull-cite">&mdash; Dr. B.R. Ambedkar</p>
-</div>
 
 <!-- ═══ PDF VIEWER ═══ -->
 <div class="pdf-section reveal">
@@ -1753,6 +1972,35 @@ body::before {
 </div>
 
 
+  <!-- MOCK TRACKER (full width) -->
+  <div class="grid-cell full-col reveal">
+    <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:2.5rem;align-items:start;">
+      <div>
+        <p class="section-label">Performance Index</p>
+        <p class="section-heading" style="margin-bottom:1rem;">Mock Tracker</p>
+        <div class="mock-input-area">
+          <input class="mock-input" type="text" id="mockName" placeholder="Mock name (e.g. CLAT Mock 01)" />
+          <input class="mock-input short" type="number" id="mockPct" placeholder="%ile" min="0" max="100" step="0.1" />
+          <button class="mock-add-btn" onclick="addMock()">+ Add</button>
+        </div>
+        <div class="mock-entries-list" id="mockEntriesList"></div>
+        <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:0.8rem;" id="mockCount">No entries yet</p>
+        <p style="font-family:var(--mono);font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(138,128,112,0.4);margin-top:0.3rem;">Drag entries to reorder</p>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.4rem;">
+          <p style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-dim);">Percentile Curve</p>
+          <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);" id="mockBest">&mdash;</p>
+        </div>
+        <div class="chart-wrap" style="height:200px;">
+          <canvas id="mockChart" role="img" aria-label="Mock percentile line chart">No data yet.</canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-grid -->
+
 <!-- ═══ WORD BANK OVERLAY ═══ -->
 <div id="wordBankOverlay" style="display:none;position:fixed;inset:0;background:#050505;z-index:800;overflow-y:auto;">
   <div style="max-width:760px;margin:0 auto;padding:3rem 2rem;">
@@ -1772,6 +2020,52 @@ body::before {
   </div>
 </div>
 
+
+<!-- ═══ READING STREAK OVERLAY ═══ -->
+<div class="reading-overlay" id="readingOverlay" role="dialog" aria-label="Reading Streak" onclick="if(event.target.id==='readingOverlay') closeReading()">
+  <div class="reading-panel">
+    <button class="reading-close" onclick="closeReading()" aria-label="Close">&times;</button>
+    <p class="reading-eyebrow">Reading Streak</p>
+    <h2 class="reading-title">A few pages, <em>daily</em>.</h2>
+    <p class="reading-sub">It doesn't matter how many. Just show up. The streak counts every day you read at least one page.</p>
+
+    <div class="reading-streak-display">
+      <span class="reading-streak-num" id="readingStreakNum">0</span>
+      <span class="reading-streak-lbl" id="readingStreakLbl">day streak</span>
+    </div>
+
+    <!-- Current book -->
+    <div class="reading-book-wrap">
+      <p class="reading-field-label">Current book</p>
+      <div class="reading-book-row">
+        <input type="text" id="readingBookInput" class="reading-input reading-book-input" placeholder="e.g. India After Gandhi" />
+        <button class="reading-btn" onclick="saveReadingBook()">Save</button>
+      </div>
+      <p class="reading-book-current" id="readingBookCurrent"></p>
+    </div>
+
+    <!-- Pages today -->
+    <div class="reading-pages-wrap">
+      <p class="reading-field-label">Pages read</p>
+      <div class="reading-pages-row">
+        <input type="number" id="readingPagesInput" class="reading-input" placeholder="Pages (e.g. 25)" min="1" max="2000" step="1" />
+        <input type="date" id="readingPagesDate" class="reading-input" />
+        <button class="reading-btn" onclick="addReadingEntry(1)">+ Log</button>
+        <button class="reading-btn muted" onclick="addReadingEntry(-1)" title="Subtract pages from this date">&#8722;</button>
+      </div>
+      <p class="reading-feedback" id="readingFeedback"></p>
+    </div>
+
+    <!-- Chart -->
+    <div class="reading-chart-wrap">
+      <p class="reading-chart-label">Pages per day &middot; last 21 days</p>
+      <div class="reading-chart-canvas-wrap">
+        <canvas id="readingChart" role="img" aria-label="Line chart of pages read per day">No data yet.</canvas>
+      </div>
+      <div class="reading-entries-list" id="readingEntriesList"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ GROUND (rumination reassurance) ═══ -->
 <button class="ground-trigger" id="groundTrigger" onclick="openGround()" aria-label="Open grounding panel" title="Ground"></button>
@@ -1893,6 +2187,12 @@ body::before {
     <button class="chatbot-send-btn" id="chatSendBtn" onclick="sendChat()">Send</button>
   </div>
   <div class="chatbot-hint"><kbd>Ctrl+Q</kbd> toggle · <kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> new line · <kbd>Esc</kbd> close</div>
+</div>
+
+<!-- ═══ QUOTE ═══ -->
+<div class="quote-band reveal">
+  <p class="pull-quote">The Constitution is not a mere lawyers&rsquo; document; it is a vehicle of life, and its spirit is always the spirit of the age.</p>
+  <p class="pull-cite">&mdash; Dr. B.R. Ambedkar</p>
 </div>
 
 <!-- ═══ FOOTER ═══ -->
@@ -3350,6 +3650,271 @@ document.getElementById('vocabLookupInput').addEventListener('keydown', function
 });
 
 updateGroqKeyUI();
+
+/* ══ READING STREAK ══ */
+var readingChartInst = null;
+
+function getReadingData(){ return safeGet('clatReadingData', {}); }
+function setReadingData(d){ safeSet('clatReadingData', d); }
+function getReadingBook(){ return safeGet('clatReadingBook', ''); }
+function setReadingBook(b){ safeSet('clatReadingBook', b); }
+
+/* Streak: count consecutive days backward from today (or yesterday if today is empty)
+   where the user logged at least 1 page. */
+function computeReadingStreak(){
+  var data = getReadingData();
+  if(!data || !Object.keys(data).length) return 0;
+  /* Walk backward from today */
+  var streak = 0;
+  var d = new Date();
+  /* If today not logged yet, allow streak from yesterday — so it doesn't drop to 0
+     before the day is over. */
+  var todayK = ymd(d);
+  if(!(data[todayK] && data[todayK] > 0)){
+    d.setDate(d.getDate() - 1);
+  }
+  while(true){
+    var k = ymd(d);
+    if(data[k] && data[k] > 0){
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function ymd(d){
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function updateReadingStreakBadge(){
+  var s = computeReadingStreak();
+  var badge = document.getElementById('rsStreakBadge');
+  if(badge){
+    badge.textContent = s;
+    badge.classList.remove('cold', 'fire');
+    if(s === 0) badge.classList.add('cold');
+    else if(s >= 7) badge.classList.add('fire');
+  }
+  /* Also update the larger display inside the panel if it's rendered */
+  var num = document.getElementById('readingStreakNum');
+  var lbl = document.getElementById('readingStreakLbl');
+  if(num) num.textContent = s;
+  if(lbl) lbl.textContent = (s === 1) ? 'day streak' : 'day streak';
+}
+
+function openReading(){
+  document.getElementById('readingOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  /* Refresh display + book name */
+  var book = getReadingBook();
+  document.getElementById('readingBookInput').value = book;
+  refreshReadingBookCurrent();
+  /* Default the date input to today */
+  document.getElementById('readingPagesDate').value = todayKey();
+  document.getElementById('readingPagesInput').value = '';
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+function closeReading(){
+  document.getElementById('readingOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function refreshReadingBookCurrent(){
+  var book = getReadingBook();
+  var el = document.getElementById('readingBookCurrent');
+  if(!el) return;
+  if(book){
+    el.innerHTML = 'Currently reading: <strong>' + escapeHtml(book) + '</strong>';
+  } else {
+    el.textContent = '';
+  }
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+function saveReadingBook(){
+  var inp = document.getElementById('readingBookInput');
+  var v = (inp.value || '').trim();
+  setReadingBook(v);
+  refreshReadingBookCurrent();
+  var fb = document.getElementById('readingFeedback');
+  fb.textContent = v ? '✓ Book saved' : '✓ Book cleared';
+  setTimeout(function(){ fb.textContent = ''; }, 2500);
+}
+
+/* Add or subtract pages. Each date stores a single integer (sum of pages logged for that date).
+   We also store the book name alongside for that date so the entries list can show it. */
+function addReadingEntry(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var pgInp = document.getElementById('readingPagesInput');
+  var dInp = document.getElementById('readingPagesDate');
+  var pages = parseInt(pgInp.value, 10);
+  if(!pages || pages <= 0 || pages > 2000){
+    alert('Enter a valid page count (1–2000).');
+    return;
+  }
+  var key = (dInp.value || todayKey());
+  var data = getReadingData();
+  var existing = data[key];
+  var current = (typeof existing === 'object' && existing) ? (existing.pages || 0) : (existing || 0);
+  var next = current + sign * pages;
+  if(next < 0){
+    if(!confirm('That would put ' + key + ' below zero. Clear the entry?')){ return; }
+    delete data[key];
+  } else if(next === 0){
+    delete data[key];
+  } else {
+    /* Store as object so we keep the book name for that entry */
+    var book = getReadingBook();
+    data[key] = { pages: next, book: book || (typeof existing === 'object' ? existing.book : '') };
+  }
+  setReadingData(data);
+  pgInp.value = '';
+  var fb = document.getElementById('readingFeedback');
+  fb.textContent = (sign > 0 ? '✓ Logged ' : '✓ Removed ') + pages + ' page' + (pages === 1 ? '' : 's') + ' ' + (sign > 0 ? 'on ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3000);
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+function deleteReadingDay(key){
+  var data = getReadingData();
+  delete data[key];
+  setReadingData(data);
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+
+function renderReadingChart(){
+  var data = getReadingData();
+  var keys = Object.keys(data).sort().slice(-21);
+  var labels = keys.map(function(k){ var p = k.split('-'); return p[2]+'/'+p[1]; });
+  var vals = keys.map(function(k){
+    var e = data[k];
+    return (typeof e === 'object') ? (e.pages || 0) : (e || 0);
+  });
+
+  /* Entries list */
+  var list = document.getElementById('readingEntriesList');
+  if(list){
+    list.innerHTML = '';
+    if(!keys.length){
+      var hint = document.createElement('div');
+      hint.className = 'reading-empty-hint';
+      hint.textContent = 'No entries yet. Log your first session above.';
+      list.appendChild(hint);
+    } else {
+      keys.slice().reverse().forEach(function(k){
+        var e = data[k];
+        var pgs = (typeof e === 'object') ? (e.pages || 0) : (e || 0);
+        var bk = (typeof e === 'object' && e.book) ? e.book : '';
+        var row = document.createElement('div'); row.className = 'reading-entry-row';
+        row.innerHTML = '<span>'+k+'</span>'
+          + '<span class="reading-entry-book" title="'+escapeHtml(bk)+'">'+escapeHtml(bk || '—')+'</span>'
+          + '<span class="reading-entry-pages">'+pgs+' pg</span>'
+          + '<button class="reading-entry-del" onclick="deleteReadingDay(\''+k+'\')" title="Remove this entry">&#10005;</button>';
+        list.appendChild(row);
+      });
+    }
+  }
+
+  var canvas = document.getElementById('readingChart');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if(readingChartInst) readingChartInst.destroy();
+  if(!keys.length) return;
+
+  /* Determine y-axis max */
+  var maxV = 10;
+  vals.forEach(function(v){ if(v > maxV) maxV = v; });
+  maxV = Math.ceil(maxV * 1.15);
+
+  readingChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Pages',
+        data: vals,
+        borderColor: 'rgba(140,190,255,1)',
+        backgroundColor: 'rgba(80,150,255,0.12)',
+        pointBackgroundColor: 'rgba(140,190,255,1)',
+        pointBorderColor: '#000',
+        pointBorderWidth: 1,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: 'origin',
+        tension: 0.4,
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0a0a',
+          borderColor: 'rgba(80,150,255,0.4)',
+          borderWidth: 1,
+          titleColor: 'rgba(140,190,255,1)',
+          bodyColor: '#f5f0e8',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'Cormorant Garamond', size: 13 },
+          callbacks: {
+            label: function(ctx){
+              var k = keys[ctx.dataIndex];
+              var entry = data[k];
+              var book = (typeof entry === 'object' && entry.book) ? entry.book : '';
+              var line = ctx.parsed.y + ' page' + (ctx.parsed.y === 1 ? '' : 's');
+              if(book) line += '  ·  ' + book;
+              return line;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 }, maxRotation: 45 },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        },
+        y: {
+          min: 0, max: maxV,
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 } },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        }
+      }
+    }
+  });
+}
+
+/* Initial badge paint on page load */
+updateReadingStreakBadge();
+/* Recompute streak when day rolls over (in case the page is left open) */
+setInterval(updateReadingStreakBadge, 60 * 60 * 1000); // hourly check
+
+/* Escape closes Reading overlay */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('readingOverlay').classList.contains('open')){
+    var tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    closeReading();
+  }
+});
+
+/* Enter in pages input logs immediately */
+document.getElementById('readingPagesInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); addReadingEntry(1); }
+});
+document.getElementById('readingBookInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); saveReadingBook(); }
+});
 
 /* ══ GROUND (rumination reassurance panel) ══ */
 function openGround(){
