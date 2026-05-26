@@ -281,6 +281,21 @@ body::before {
   transition: background 0.2s;
 }
 .manual-hours-btn:hover { background: var(--accent-glow); }
+.manual-hours-sub {
+  color: var(--muted);
+  border-color: var(--border);
+}
+.manual-hours-sub:hover { background: rgba(180,160,120,0.06); color: var(--red); border-color: rgba(201,112,112,0.3); }
+.manual-hours-class {
+  color: #c97070;
+  border-color: rgba(201,112,112,0.35);
+}
+.manual-hours-class:hover { background: rgba(201,112,112,0.08); }
+.manual-hours-sub-class {
+  color: var(--muted);
+  border-color: var(--border);
+}
+.manual-hours-sub-class:hover { background: rgba(180,160,120,0.06); color: #c97070; border-color: rgba(201,112,112,0.3); }
 .manual-hours-feedback {
   font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
   color: var(--green); margin-top: 0.5rem; min-height: 1em; text-transform: uppercase;
@@ -288,6 +303,16 @@ body::before {
 
 /* ══ CHART ══ */
 .chart-wrap { position: relative; width: 100%; height: 220px; margin-top: 1rem; }
+.chart-legend {
+  display: flex; gap: 1.4rem; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+  margin-top: 0.6rem;
+}
+.chart-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.chart-legend-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+}
 .study-scroll-list {
   max-height: 100px; overflow-y: auto; margin-top: 0.8rem;
   border-top: 1px solid var(--border); padding-top: 0.5rem;
@@ -298,13 +323,16 @@ body::before {
   display: flex; justify-content: space-between; align-items: center;
   padding: 0.3rem 0; border-bottom: 1px solid rgba(180,160,120,0.06);
   font-family: var(--mono); font-size: 0.52rem; color: var(--muted); letter-spacing: 0.05em;
+  gap: 0.5rem;
 }
 .study-entry-row:last-child { border-bottom: none; }
+.study-entry-vals { display: inline-flex; align-items: center; gap: 0.2rem; }
 .study-del-btn {
   background: none; border: none; color: rgba(138,128,112,0.35);
   cursor: pointer; font-size: 0.75rem; padding: 0 4px; transition: color 0.2s;
 }
 .study-del-btn:hover { color: var(--red); }
+.study-del-btn.class-del:hover { color: #c97070; }
 
 /* ══ CHECKLIST ══ */
 .checklist-day {
@@ -373,6 +401,17 @@ body::before {
   transition: color 0.2s; flex-shrink: 0;
 }
 .chk-del-btn:hover { color: var(--red); }
+.chk-empty-hint {
+  font-family: var(--serif); font-style: italic; font-size: 0.95rem;
+  color: var(--muted); padding: 1.2rem 0.4rem; text-align: center;
+}
+.chk-restore-link {
+  background: none; border: none;
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--accent); cursor: pointer;
+  text-decoration: underline; padding: 0;
+}
+.chk-restore-link:hover { color: var(--parchment); }
 .chk-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
 .chk-reset-btn {
   font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.18em;
@@ -1355,13 +1394,26 @@ body::before {
 
     <!-- Manual hours entry: log study time you couldn't record live -->
     <div class="manual-hours-wrap">
-      <p class="manual-hours-label">Forgot to track? Add hours manually</p>
+      <p class="manual-hours-label">Forgot to track? Add or remove hours manually</p>
       <div class="manual-hours-row">
         <input type="number" id="manualHoursInput" class="manual-hours-input" placeholder="Hours (e.g. 2.5)" step="0.25" min="0" max="24" />
         <input type="date" id="manualHoursDate" class="manual-hours-date" />
-        <button class="manual-hours-btn" onclick="addManualHours()">Add</button>
+        <button class="manual-hours-btn" onclick="addManualHours(1)">+ Add</button>
+        <button class="manual-hours-btn manual-hours-sub" onclick="addManualHours(-1)" title="Subtract hours (useful if you over-logged)">&#8722; Subtract</button>
       </div>
       <p class="manual-hours-feedback" id="manualHoursFeedback"></p>
+    </div>
+
+    <!-- Classes attended tracker -->
+    <div class="manual-hours-wrap">
+      <p class="manual-hours-label" style="color:#c97070;">Attended a class? Log it here</p>
+      <div class="manual-hours-row">
+        <input type="number" id="classHoursInput" class="manual-hours-input" placeholder="Class hours (e.g. 2)" step="0.25" min="0" max="24" />
+        <input type="date" id="classHoursDate" class="manual-hours-date" />
+        <button class="manual-hours-btn manual-hours-class" onclick="addClassHours(1)">+ Add</button>
+        <button class="manual-hours-btn manual-hours-sub-class" onclick="addClassHours(-1)" title="Remove class hours">&#8722; Subtract</button>
+      </div>
+      <p class="manual-hours-feedback" id="classHoursFeedback" style="color:#c97070;"></p>
     </div>
   </div>
 
@@ -1369,8 +1421,12 @@ body::before {
   <div class="grid-cell reveal">
     <p class="section-label">Study Log</p>
     <p class="section-heading">Daily Hours</p>
+    <div class="chart-legend">
+      <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#c9a84c;"></span>Self-study</span>
+      <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#c97070;"></span>Classes</span>
+    </div>
     <div class="chart-wrap">
-      <canvas id="studyChart" role="img" aria-label="Line chart of daily study hours">No data yet.</canvas>
+      <canvas id="studyChart" role="img" aria-label="Bar chart of daily self-study and class hours">No data yet.</canvas>
     </div>
     <div class="study-scroll-list" id="studyScrollList"></div>
   </div>
@@ -1967,8 +2023,10 @@ function saveTimer(){
   renderStudyChart();
 }
 
-/* MANUAL HOURS — log study time that wasn't tracked by the timer */
-function addManualHours(){
+/* MANUAL HOURS — log study time that wasn't tracked by the timer.
+   sign=+1 adds, sign=-1 subtracts (useful for fixing accidental over-logging). */
+function addManualHours(sign){
+  sign = (sign < 0) ? -1 : 1;
   var inp = document.getElementById('manualHoursInput');
   var dateInp = document.getElementById('manualHoursDate');
   var val = parseFloat(inp.value);
@@ -1978,11 +2036,56 @@ function addManualHours(){
   }
   var key = (dateInp.value || todayKey());
   var data = safeGet('clatStudyData', {});
-  data[key] = (data[key] || 0) + val;
+  var current = data[key] || 0;
+  var next = current + (sign * val);
+  if(next < 0){
+    /* Don't let manual subtraction go below zero — feels nicer than a negative chart */
+    if(!confirm('That would put ' + key + ' below zero. Clear the day instead?')){
+      return;
+    }
+    delete data[key];
+  } else if(next < 0.01){
+    delete data[key];
+  } else {
+    /* round to 2 decimals to avoid floating-point dust */
+    data[key] = Math.round(next * 100) / 100;
+  }
   safeSet('clatStudyData', data);
   inp.value = '';
   var fb = document.getElementById('manualHoursFeedback');
-  fb.textContent = '✓ Added ' + val.toFixed(2) + 'h for ' + key;
+  fb.textContent = (sign > 0 ? '✓ Added ' : '✓ Removed ') + val.toFixed(2) + 'h ' + (sign > 0 ? 'to ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* CLASS HOURS — tracked separately from self-study */
+function addClassHours(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var inp = document.getElementById('classHoursInput');
+  var dateInp = document.getElementById('classHoursDate');
+  var val = parseFloat(inp.value);
+  if(!val || val <= 0 || val > 24){
+    alert('Enter a valid number of class hours (between 0 and 24).');
+    return;
+  }
+  var key = (dateInp.value || todayKey());
+  var data = safeGet('clatClassData', {});
+  var current = data[key] || 0;
+  var next = current + (sign * val);
+  if(next < 0){
+    if(!confirm('That would put class hours for ' + key + ' below zero. Clear the day instead?')){
+      return;
+    }
+    delete data[key];
+  } else if(next < 0.01){
+    delete data[key];
+  } else {
+    data[key] = Math.round(next * 100) / 100;
+  }
+  safeSet('clatClassData', data);
+  inp.value = '';
+  var fb = document.getElementById('classHoursFeedback');
+  fb.textContent = (sign > 0 ? '✓ Logged ' : '✓ Removed ') + val.toFixed(2) + 'h of class ' + (sign > 0 ? 'for ' : 'from ') + key;
   setTimeout(function(){ fb.textContent = ''; }, 3500);
   renderStudyChart();
 }
@@ -2006,59 +2109,164 @@ updateTimerDisplay();
 document.addEventListener('visibilitychange', function(){
   if(!document.hidden) updateTimerDisplay();
 });
-/* Default the manual-hours date to today */
+/* Default the manual-hours and class-hours date inputs to today */
 (function(){
-  var d = document.getElementById('manualHoursDate');
-  if(d) d.value = todayKey();
+  var today = todayKey();
+  var d1 = document.getElementById('manualHoursDate');
+  if(d1) d1.value = today;
+  var d2 = document.getElementById('classHoursDate');
+  if(d2) d2.value = today;
 })();
 
 /* ══ STUDY CHART ══ */
 var studyChartInst=null;
 function renderStudyChart(){
-  var data=safeGet('clatStudyData',{});
-  var keys=Object.keys(data).sort().slice(-21);
-  var labels=keys.map(function(k){var p=k.split('-');return p[2]+'/'+p[1];});
-  var vals=keys.map(function(k){return parseFloat(data[k].toFixed(2));});
+  var studyData = safeGet('clatStudyData', {});
+  var classData = safeGet('clatClassData', {});
 
-  /* scroll list */
-  var sl=document.getElementById('studyScrollList'); sl.innerHTML='';
+  /* Union of keys from both datasets, sorted, last 21 days */
+  var allKeysSet = {};
+  Object.keys(studyData).forEach(function(k){ allKeysSet[k] = 1; });
+  Object.keys(classData).forEach(function(k){ allKeysSet[k] = 1; });
+  var keys = Object.keys(allKeysSet).sort().slice(-21);
+  var labels = keys.map(function(k){ var p = k.split('-'); return p[2]+'/'+p[1]; });
+  var studyVals = keys.map(function(k){ return parseFloat((studyData[k] || 0).toFixed(2)); });
+  var classVals = keys.map(function(k){ return parseFloat((classData[k] || 0).toFixed(2)); });
+  /* For stacking: plot the classes line at (study + class) so it sits visually on top of the study line.
+     The red area then fills only the slice between the two lines (between dataset index 1 and 0). */
+  var stackedTopVals = keys.map(function(k, i){
+    return parseFloat(((studyData[k] || 0) + (classData[k] || 0)).toFixed(2));
+  });
+
+  /* Scroll list — shows both study and class hours per day, with delete buttons for each */
+  var sl = document.getElementById('studyScrollList'); sl.innerHTML = '';
   keys.slice().reverse().forEach(function(k){
-    var row=document.createElement('div'); row.className='study-entry-row';
-    row.innerHTML='<span>'+k+'</span><span style="color:var(--accent);">'+data[k].toFixed(2)+'h</span>'
-      +'<button class="study-del-btn" onclick="deleteStudyDay(\''+k+'\')">&#10005;</button>';
+    var s = studyData[k] || 0;
+    var c = classData[k] || 0;
+    var row = document.createElement('div'); row.className = 'study-entry-row';
+    var parts = '<span>' + k + '</span>';
+    var values = '<span class="study-entry-vals">';
+    if(s > 0){
+      values += '<span style="color:var(--accent);">' + s.toFixed(2) + 'h study</span>'
+        + '<button class="study-del-btn" onclick="deleteStudyDay(\'' + k + '\')" title="Remove study hours">&#10005;</button>';
+    }
+    if(c > 0){
+      values += '<span style="color:#c97070;margin-left:0.5rem;">' + c.toFixed(2) + 'h class</span>'
+        + '<button class="study-del-btn class-del" onclick="deleteClassDay(\'' + k + '\')" title="Remove class hours">&#10005;</button>';
+    }
+    values += '</span>';
+    row.innerHTML = parts + values;
     sl.appendChild(row);
   });
 
-  var ctx=document.getElementById('studyChart').getContext('2d');
+  var ctx = document.getElementById('studyChart').getContext('2d');
   if(studyChartInst) studyChartInst.destroy();
-  if(keys.length===0)return;
-  studyChartInst=new Chart(ctx,{
-    type:'line',
-    data:{labels:labels,datasets:[{
-      label:'Hours',data:vals,
-      borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.07)',
-      pointBackgroundColor:'#c9a84c',pointBorderColor:'#000',pointBorderWidth:1,
-      pointRadius:4,pointHoverRadius:6,fill:true,tension:0.4,borderWidth:1.5
-    }]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{
-        backgroundColor:'#0a0a0a',borderColor:'rgba(201,168,76,0.4)',borderWidth:1,
-        titleColor:'#c9a84c',bodyColor:'#f5f0e8',
-        titleFont:{family:'DM Mono',size:10},bodyFont:{family:'Cormorant Garamond',size:13},
-        callbacks:{label:function(c){return c.parsed.y.toFixed(2)+'h studied';}}
-      }},
-      scales:{
-        x:{ticks:{color:'#6a6050',font:{family:'DM Mono',size:9},maxRotation:45},grid:{color:'rgba(180,160,120,0.07)'}},
-        y:{min:0,max:10,ticks:{color:'#6a6050',font:{family:'DM Mono',size:9},callback:function(v){return v+'h';}},grid:{color:'rgba(180,160,120,0.07)'}}
+  if(keys.length === 0) return;
+
+  /* Determine max for y-axis: cap at 10 but extend if necessary */
+  var maxStack = 10;
+  keys.forEach(function(k, i){
+    var t = studyVals[i] + classVals[i];
+    if(t > maxStack) maxStack = Math.ceil(t + 1);
+  });
+
+  studyChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          /* Bottom line: self-study hours, fills down to the x-axis. */
+          label: 'Self-study',
+          data: studyVals,
+          borderColor: '#c9a84c',
+          backgroundColor: 'rgba(201,168,76,0.10)',
+          pointBackgroundColor: '#c9a84c',
+          pointBorderColor: '#000',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: 'origin',
+          tension: 0.4,
+          borderWidth: 1.5,
+          /* Custom raw value used by tooltip to show actual self-study hours */
+          rawSelf: studyVals
+        },
+        {
+          /* Top line: study + class. Fills DOWN to the self-study line below (dataset index 0)
+             so the red region visually represents only the class portion. */
+          label: 'Classes',
+          data: stackedTopVals,
+          borderColor: '#c97070',
+          backgroundColor: 'rgba(201,112,112,0.16)',
+          pointBackgroundColor: '#c97070',
+          pointBorderColor: '#000',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: '-1', /* fill toward previous dataset (self-study line) */
+          tension: 0.4,
+          borderWidth: 1.5,
+          /* Stored separately so tooltips can show the unstacked class amount */
+          rawClass: classVals
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0a0a',
+          borderColor: 'rgba(201,168,76,0.4)',
+          borderWidth: 1,
+          titleColor: '#c9a84c',
+          bodyColor: '#f5f0e8',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'Cormorant Garamond', size: 13 },
+          callbacks: {
+            label: function(ctx){
+              /* For the Classes dataset, ctx.parsed.y is the stacked total — show the
+                 underlying raw class hours from the stored array instead. */
+              if(ctx.dataset.label === 'Classes' && ctx.dataset.rawClass){
+                return 'Classes: ' + ctx.dataset.rawClass[ctx.dataIndex].toFixed(2) + 'h';
+              }
+              return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + 'h';
+            },
+            footer: function(items){
+              /* Find the actual study and class values to compute true total */
+              var s = 0, c = 0;
+              items.forEach(function(it){
+                if(it.dataset.label === 'Self-study') s = it.parsed.y;
+                else if(it.dataset.rawClass) c = it.dataset.rawClass[it.dataIndex];
+              });
+              return 'Total: ' + (s + c).toFixed(2) + 'h';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 }, maxRotation: 45 },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        },
+        y: {
+          min: 0, max: maxStack,
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 }, callback: function(v){ return v + 'h'; } },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        }
       }
     }
   });
 }
 
 function deleteStudyDay(key){
-  var data=safeGet('clatStudyData',{});
-  delete data[key]; safeSet('clatStudyData',data); renderStudyChart();
+  var data = safeGet('clatStudyData', {});
+  delete data[key]; safeSet('clatStudyData', data); renderStudyChart();
+}
+function deleteClassDay(key){
+  var data = safeGet('clatClassData', {});
+  delete data[key]; safeSet('clatClassData', data); renderStudyChart();
 }
 renderStudyChart();
 
@@ -2077,6 +2285,7 @@ var DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satu
 
 function chkKey(){ return 'clatChklist_'+todayKey(); }
 function customKey(){ return 'clatChkCustom'; }
+function hiddenKey(){ return 'clatChkHidden_'+todayKey(); }
 
 function renderChecklist(){
   var day=new Date().getDay();
@@ -2086,6 +2295,9 @@ function renderChecklist(){
   if(day===0) tasks.push(TASK_SUN);
   var customs=safeGet(customKey(),[]);
   customs.forEach(function(c){ tasks.push({id:'custom_'+c.id,label:c.label,tag:'custom',cid:c.id}); });
+  /* Filter out hidden-for-today tasks (preset tasks the user removed from today's list) */
+  var hidden = safeGet(hiddenKey(), {});
+  tasks = tasks.filter(function(t){ return !hidden[t.id]; });
   var saved=safeGet(chkKey(),{});
   var list=document.getElementById('chkList'); list.innerHTML='';
   tasks.forEach(function(t){
@@ -2095,7 +2307,10 @@ function renderChecklist(){
     row.setAttribute('role','button'); row.setAttribute('tabindex','0');
     var tagCls=t.tag==='sat'?'tag-sat':t.tag==='sun'?'tag-sun':t.tag==='custom'?'tag-custom':'tag-daily';
     var tagLbl=t.tag==='sat'?'Sat':t.tag==='sun'?'Sun':t.tag==='custom'?'Custom':'Daily';
-    var delBtn=t.tag==='custom'?'<button class="chk-del-btn" onclick="event.stopPropagation();deleteCustomTask(\''+t.cid+'\')">&#10005;</button>':'';
+    var delAction = t.tag==='custom'
+      ? 'deleteCustomTask(\''+t.cid+'\')'
+      : 'hidePresetTaskToday(\''+t.id+'\')';
+    var delBtn = '<button class="chk-del-btn" title="Remove from today\'s list" onclick="event.stopPropagation();'+delAction+'">&#10005;</button>';
     row.innerHTML='<div class="chk-box'+(done?' done':'')+'" aria-hidden="true"></div>'
       +'<span class="chk-label">'+t.label+'</span>'
       +'<span class="chk-tag '+tagCls+'">'+tagLbl+'</span>'
@@ -2104,6 +2319,14 @@ function renderChecklist(){
     row.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleTask(t.id);}});
     list.appendChild(row);
   });
+
+  /* If everything was hidden, show a hint with quick restore */
+  if(tasks.length === 0){
+    var hint = document.createElement('div');
+    hint.className = 'chk-empty-hint';
+    hint.innerHTML = 'All tasks removed for today. <button class="chk-restore-link" onclick="restoreTodaysTasks()">Restore presets</button>';
+    list.appendChild(hint);
+  }
 }
 
 function toggleTask(id){
@@ -2123,6 +2346,20 @@ function deleteCustomTask(cid){
   var customs=safeGet(customKey(),[]);
   customs=customs.filter(function(c){return c.id!=cid;});
   safeSet(customKey(),customs); renderChecklist();
+}
+
+/* Hide a preset task for today only (other days remain unaffected) */
+function hidePresetTaskToday(id){
+  var hidden = safeGet(hiddenKey(), {});
+  hidden[id] = true;
+  safeSet(hiddenKey(), hidden);
+  renderChecklist();
+}
+
+/* Restore all preset tasks for today (clears the per-day hidden map) */
+function restoreTodaysTasks(){
+  safeSet(hiddenKey(), {});
+  renderChecklist();
 }
 
 function resetChecklist(){ safeSet(chkKey(),{}); safeSet(hiddenKey(),{}); renderChecklist(); }
