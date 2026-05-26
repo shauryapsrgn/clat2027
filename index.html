@@ -255,6 +255,37 @@ body::before {
   color: var(--green); margin-top: 0.6rem; min-height: 1.2em; text-transform: uppercase;
 }
 
+/* Manual hours entry */
+.manual-hours-wrap {
+  margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid var(--border);
+}
+.manual-hours-label {
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.6rem;
+}
+.manual-hours-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.manual-hours-input, .manual-hours-date {
+  background: rgba(255,255,255,0.02); border: 1px solid var(--border); outline: none;
+  color: var(--parchment); font-family: var(--mono); font-size: 0.72rem;
+  padding: 0.45rem 0.6rem; border-radius: 2px; flex: 1; min-width: 110px;
+  transition: border-color 0.2s;
+}
+.manual-hours-input:focus, .manual-hours-date:focus { border-color: var(--accent-dim); }
+.manual-hours-input::placeholder { color: var(--muted); font-style: italic; }
+.manual-hours-date { color-scheme: dark; flex: 1.2; }
+.manual-hours-btn {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent);
+  background: none; border: 1px solid rgba(201,168,76,0.35);
+  padding: 0 0.85rem; cursor: pointer; border-radius: 2px;
+  transition: background 0.2s;
+}
+.manual-hours-btn:hover { background: var(--accent-glow); }
+.manual-hours-feedback {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+  color: var(--green); margin-top: 0.5rem; min-height: 1em; text-transform: uppercase;
+}
+
 /* ══ CHART ══ */
 .chart-wrap { position: relative; width: 100%; height: 220px; margin-top: 1rem; }
 .study-scroll-list {
@@ -1110,6 +1141,164 @@ body::before {
     border-left: none; border-right: none; border-bottom: none;
   }
 }
+
+/* ══ GROUND (rumination reassurance) ══ */
+.ground-trigger {
+  position: fixed; bottom: 14px; right: 14px;
+  z-index: 940;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(10,10,10,0.85);
+  border: 1px solid rgba(201,168,76,0.35);
+  backdrop-filter: blur(4px);
+  color: var(--accent);
+  font-family: var(--serif); font-size: 1.1rem;
+  font-style: italic; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.ground-trigger:hover {
+  background: rgba(20,18,12,0.95);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.ground-trigger::before { content: '·'; font-size: 1.6rem; }
+
+.ground-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 970;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+  padding: 3rem 1.5rem;
+}
+.ground-overlay.open { display: block; animation: groundFade 0.3s ease; }
+@keyframes groundFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.ground-panel {
+  max-width: 720px; margin: 0 auto;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2.5rem 2.5rem 3rem;
+  position: relative;
+}
+.ground-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-family: var(--mono); font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.ground-close:hover { color: var(--red); border-color: rgba(201,112,112,0.4); }
+.ground-eyebrow {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--accent-dim);
+  margin-bottom: 0.7rem;
+}
+.ground-title {
+  font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  margin-bottom: 0.4rem; line-height: 1.15;
+}
+.ground-title em { color: var(--accent); font-style: italic; }
+.ground-sub {
+  font-family: var(--serif); font-size: 1rem; font-style: italic;
+  color: var(--muted); margin-bottom: 2rem; line-height: 1.55;
+}
+.ground-section {
+  margin-top: 2.2rem; padding-top: 1.6rem;
+  border-top: 1px solid var(--border);
+}
+.ground-section:first-of-type { border-top: none; padding-top: 0; margin-top: 1.4rem; }
+.ground-section-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 1rem;
+}
+.ground-anchor {
+  font-family: var(--serif); font-size: 1.15rem; font-weight: 400;
+  color: var(--parchment); line-height: 1.55; margin-bottom: 0.7rem;
+}
+.ground-anchor em { color: var(--accent); font-style: italic; }
+.ground-body {
+  font-family: var(--serif); font-size: 0.98rem; font-weight: 300;
+  color: var(--muted); line-height: 1.7; margin-bottom: 1.4rem;
+}
+.ground-body strong { color: var(--parchment); font-weight: 400; }
+.ground-quote {
+  font-family: var(--serif); font-size: 1.05rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  border-left: 2px solid var(--accent-dim);
+  padding: 0.5rem 0 0.5rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.ground-quote-attr {
+  display: block; font-style: normal; font-size: 0.65rem;
+  font-family: var(--mono); letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent-dim);
+  margin-top: 0.5rem;
+}
+
+.ground-qa {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: rgba(255,255,255,0.012);
+  overflow: hidden;
+}
+.ground-qa summary {
+  font-family: var(--serif); font-size: 1.02rem; font-weight: 400;
+  color: var(--parchment); cursor: pointer;
+  padding: 0.9rem 1.1rem; list-style: none;
+  position: relative; padding-right: 2.5rem;
+  transition: color 0.2s;
+}
+.ground-qa summary::-webkit-details-marker { display: none; }
+.ground-qa summary::after {
+  content: '+'; position: absolute; right: 1.1rem; top: 50%;
+  transform: translateY(-50%); color: var(--accent);
+  font-family: var(--mono); font-size: 1rem;
+  transition: transform 0.25s;
+}
+.ground-qa[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+.ground-qa summary:hover { color: var(--accent); }
+.ground-qa-body {
+  padding: 0 1.1rem 1.1rem;
+  font-family: var(--serif); font-size: 0.95rem; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
+  border-top: 1px solid var(--border);
+  padding-top: 0.9rem;
+}
+.ground-qa-body strong { color: var(--parchment); font-weight: 400; }
+.ground-qa-body em { color: var(--accent); font-style: italic; }
+
+.ground-purpose {
+  margin-top: 2.5rem; padding: 1.6rem;
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.18);
+  border-radius: 3px;
+}
+.ground-purpose-line {
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  margin-bottom: 0.6rem; line-height: 1.55;
+}
+.ground-purpose-line:last-child { margin-bottom: 0; }
+.ground-purpose-line strong { color: var(--accent); font-style: normal; font-weight: 400; }
+
+@media (max-width: 600px) {
+  .ground-panel { padding: 2rem 1.3rem 2.5rem; }
+  .ground-title { font-size: 1.6rem; }
+  .ground-overlay { padding: 1.5rem 0.6rem; }
+}
 </style>
 </head>
 <body>
@@ -1163,6 +1352,17 @@ body::before {
       <button class="tbtn save-btn" onclick="saveTimer()">&#10003; Save Session</button>
     </div>
     <p class="save-feedback" id="saveFeedback"></p>
+
+    <!-- Manual hours entry: log study time you couldn't record live -->
+    <div class="manual-hours-wrap">
+      <p class="manual-hours-label">Forgot to track? Add hours manually</p>
+      <div class="manual-hours-row">
+        <input type="number" id="manualHoursInput" class="manual-hours-input" placeholder="Hours (e.g. 2.5)" step="0.25" min="0" max="24" />
+        <input type="date" id="manualHoursDate" class="manual-hours-date" />
+        <button class="manual-hours-btn" onclick="addManualHours()">Add</button>
+      </div>
+      <p class="manual-hours-feedback" id="manualHoursFeedback"></p>
+    </div>
   </div>
 
   <!-- STUDY GRAPH -->
@@ -1517,6 +1717,103 @@ body::before {
 </div>
 
 
+<!-- ═══ GROUND (rumination reassurance) ═══ -->
+<button class="ground-trigger" id="groundTrigger" onclick="openGround()" aria-label="Open grounding panel" title="Ground"></button>
+<div class="ground-overlay" id="groundOverlay" role="dialog" aria-label="Ground" onclick="if(event.target.id==='groundOverlay') closeGround()">
+  <div class="ground-panel">
+    <button class="ground-close" onclick="closeGround()" aria-label="Close">&times;</button>
+    <p class="ground-eyebrow">Ground</p>
+    <h2 class="ground-title">Close the <em>loop</em>.</h2>
+    <p class="ground-sub">You came here looking for permission to keep questioning. You won't find that here. You'll find what you already know, written down where you can see it.</p>
+
+    <!-- THE PURPOSE — front and centre -->
+    <div class="ground-purpose">
+      <p class="ground-purpose-line">Your purpose is <strong>not</strong> to feel passionate about law.</p>
+      <p class="ground-purpose-line">Your purpose is to <strong>clear CLAT 2027</strong>.</p>
+      <p class="ground-purpose-line">You have no other path you're being pulled toward. You've checked. Repeatedly.</p>
+      <p class="ground-purpose-line">There is nothing left to decide. Only work left to do.</p>
+    </div>
+
+    <!-- THE PATTERN — what's actually happening -->
+    <div class="ground-section">
+      <p class="ground-section-label">The pattern, named</p>
+      <p class="ground-anchor">This is <em>reassurance-seeking</em>, not inquiry.</p>
+      <p class="ground-body">When a thought feels threatening and you engage with it, you reward the thought. Your brain learns: "Good — this topic gets attention. Generate more." Every time you answer a doubt, you train the doubt to come back stronger. Every time you let it pass without engagement, you starve it. The fear that ignoring it lets it secretly entrench is exactly backwards. <strong>Engagement strengthens. Ignoring weakens.</strong> This is a known mechanism — see Adrian Wells' work on metacognitive therapy, and the rumination research of Susan Nolen-Hoeksema. The loop does not contain truth. It contains itself.</p>
+      <p class="ground-quote">"Rumination is not problem-solving. It is the illusion of problem-solving. The repeated mental review of the same question, without action, produces lower mood, reduced concentration, and reduced motivation — not insight."
+        <span class="ground-quote-attr">— Nolen-Hoeksema, Response Styles Theory</span>
+      </p>
+    </div>
+
+    <!-- THE QUESTIONS — anticipated, with grounded answers -->
+    <div class="ground-section">
+      <p class="ground-section-label">The questions, answered</p>
+
+      <details class="ground-qa">
+        <summary>But what if law isn't right for me?</summary>
+        <div class="ground-qa-body">You have spent <strong>months</strong> running this question through every possible angle. You have considered science, commerce, media, journalism, history. None of them pull you. None of them produce excitement when you imagine choosing them. Law produces the same neutrality everything else does, because <em>neutrality is your default state right now</em>, not a verdict on law. The question has been asked and answered many times. There is no new information that will arrive by asking it a 47th time. The only new information comes from <strong>doing the work and seeing the data</strong>.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But I don't feel passionate. Others seem to.</summary>
+        <div class="ground-qa-body">Passion almost never precedes competence. It follows it. This is well established in motivation research — Cal Newport's <em>So Good They Can't Ignore You</em> synthesises decades of work showing that the "passion hypothesis" (find what you love, then pursue it) is empirically backwards. The people who appear passionate became good first, then their brains rewrote the story as love. <strong>You haven't reached the competence stage yet</strong>. Expecting passion before competence is like expecting a tree before a seed. As for your peers — what you're comparing is their <em>visible enthusiasm</em> with your <em>internal emotional state</em>. That comparison is rigged.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>What if I'm wasting time on the wrong path?</summary>
+        <div class="ground-qa-body">At 17, no decision is irreversible. If you prepare seriously for CLAT and later pivot, you gain: reading speed, analytical reasoning, current affairs depth, focus discipline. These transfer to <strong>policy, civil services, journalism, management, consulting, academia</strong>. The skills are not the trap. <em>Indecision is the trap</em>. A capable student who stays in evaluation mode for two years loses far more than one who commits to a "merely fine" path and builds. The asymmetry strongly favours commitment.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But my interest fluctuates. Doesn't that mean something?</summary>
+        <div class="ground-qa-body">No. Interest <strong>always</strong> fluctuates. Hedonic adaptation is a fundamental neurological process — the brain habituates to any stimulus, including ones you genuinely care about. The honeymoon dies, the work begins. That's the same for medicine, engineering, music, sport, every serious pursuit. Treating daily interest fluctuation as a career signal is statistically equivalent to checking the weather to decide where to live. <em>Mild boredom is the texture of serious work</em>, not a warning sign.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>What if a new argument comes to me that I haven't considered?</summary>
+        <div class="ground-qa-body">It will. Your brain is a hypothesis factory. Given a topic, it generates infinite variations — the science-to-law MUN guy, the late-bloomer success story, the "what if I discover my true passion at 19" scenario. There is no final argument. There is only the next one. The fear that an unanswered argument silently entrenches is false: <strong>thoughts strengthen through engagement, not through passive presence</strong>. When the next argument comes, label it ("alternative scenario generation"), return to the task, and watch how quickly it loses weight. That's cognitive defusion — see Steven Hayes' ACT framework. It works.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But what if the AI advice is wrong?</summary>
+        <div class="ground-qa-body">It could be. So could your teachers, your parents, your toppers, your seniors, your 17-year-old intuition. There is no oracle. The point was never to believe an advisor — it was to <strong>run the experiment</strong>. Six months of structured CLAT prep will give you real data: score trajectory, work tolerance, ability to improve with effort. That data is the only thing that resolves uncertainty. Refusing to run the experiment because the hypothesis <em>might</em> be wrong is not skepticism — it's avoidance dressed up as rigour.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>Some guy I know loves studying for CLAT. I don't. What does that mean?</summary>
+        <div class="ground-qa-body">It means he has a different nervous system, and possibly a different relationship with the word "love". Most people who say they love their prep mean: <em>I like being good at it. I like the structure. I like the identity it gives me.</em> They do not mean they wake up thrilled by editorials. You are comparing a public slogan to your private mental mess. That comparison was unfair the moment it started. <strong>Quiet commitment outlasts loud enthusiasm</strong> in every competitive exam ever measured.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>I'm scared I'll commit and turn out to be ordinary.</summary>
+        <div class="ground-qa-body">This is the real fear under all the others. As long as you stay "still figuring it out", failure means "I wasn't trying" and success would mean "I was special". Committing exposes you to the possibility of trying hard and still being normal. <strong>That's the actual transition from gifted student to adult competitor</strong>, and almost every capable person resists it for as long as possible. The way through is not to argue with the fear. It is to act anyway, and let competence quietly redefine what "ordinary" means. You will not be ordinary. But the only path that proves it is the one where you stop negotiating with the doubt and start accumulating evidence.</div>
+      </details>
+    </div>
+
+    <!-- THE PRINCIPLES — psychological grounding -->
+    <div class="ground-section">
+      <p class="ground-section-label">The principles, anchored</p>
+
+      <p class="ground-anchor">1. Action quiets philosophy, not the other way around.</p>
+      <p class="ground-body">William James, the father of American psychology, observed that emotion follows action more reliably than action follows emotion. You will not think your way into commitment. You will <strong>act your way into clarity</strong>. The sequence is Commit → Effort → Evidence → Confidence, never the reverse.</p>
+
+      <p class="ground-anchor">2. Cognitive load destroys CLAT performance.</p>
+      <p class="ground-body">Working memory is finite. Every minute spent ruminating on "is this right?" is a minute stolen from the same system that has to process 120 questions in 120 minutes on exam day. <strong>Rumination is not free</strong>. It costs marks. Every uncertainty hour is a competitor's compounding hour you didn't take.</p>
+
+      <p class="ground-anchor">3. Decision postponement reduces anxiety.</p>
+      <p class="ground-body">CBT's "scheduled worry" technique: you assign career thinking to a fixed 30-minute slot once a week. Outside that window, when the doubt comes, the answer is <em>"Sunday. Not now."</em> Studies (Borkovec et al.) show this reduces intrusive thoughts, improves focus, and lowers baseline anxiety — without suppressing the thought, just <strong>containing it</strong>.</p>
+
+      <p class="ground-anchor">4. The exam is arithmetic, not destiny.</p>
+      <p class="ground-body">Top NLU aspirants accumulate 600–900 hours of serious preparation. That's it. Not passion, not lineage, not innate brilliance. Hours. Focused hours. Repeated. CLAT does not care about your relationship with your purpose. It measures <strong>accumulated skill under time pressure</strong>, and the only thing that produces accumulated skill is showing up.</p>
+    </div>
+
+    <!-- THE CLOSE -->
+    <div class="ground-section">
+      <p class="ground-section-label">Now, today</p>
+      <p class="ground-body" style="font-size:1.05rem;color:var(--parchment);">You don't have to feel sure. You don't have to feel passionate. You don't have to resolve the question of whether law is your forever. You only have to do <strong>today's work</strong>. The newspaper. The passages. The mocks. The vocabulary. Quietly, without inner commentary, without auditing yourself every paragraph. That's it. That's the whole job. Close this panel. Open the timer. Begin.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ AI CHATBOT (Ctrl+Q) ═══ -->
 <div class="chatbot-overlay" id="chatbotOverlay" role="dialog" aria-label="AI Chatbot">
   <div class="chatbot-header">
@@ -1591,44 +1888,129 @@ document.getElementById('ieForm').addEventListener('submit',function(e){
 });
 
 /* ══ TIMER ══ */
-var timerSec=0,timerRunning=false,timerInterval=null;
+/* ══ TIMER — wall-clock based, survives sleep / tab-switch / crash ══ */
+/* State model:
+   - timerAccumulatedMs: total ms accrued in previous start→pause cycles of this session
+   - timerStartedAt: timestamp (ms) when current run began, or null if paused
+   - Current elapsed = timerAccumulatedMs + (timerStartedAt ? Date.now() - timerStartedAt : 0)
+   State is persisted under 'clatTimerState' so reloads, crashes, or sleep don't lose progress. */
+var timerAccumulatedMs = 0;
+var timerStartedAt = null;
+var timerDisplayInterval = null;
+
+function timerStateLoad(){
+  var st = safeGet('clatTimerState', null);
+  if(st && typeof st === 'object'){
+    timerAccumulatedMs = st.accumulated || 0;
+    timerStartedAt = st.startedAt || null;
+  }
+}
+function timerStateSave(){
+  safeSet('clatTimerState', { accumulated: timerAccumulatedMs, startedAt: timerStartedAt });
+}
+function timerElapsedMs(){
+  return timerAccumulatedMs + (timerStartedAt ? (Date.now() - timerStartedAt) : 0);
+}
 function updateTimerDisplay(){
-  var h=Math.floor(timerSec/3600),m=Math.floor((timerSec%3600)/60),s=timerSec%60;
-  document.getElementById('timerDisplay').textContent=pad(h)+':'+pad(m)+':'+pad(s);
+  var total = Math.floor(timerElapsedMs() / 1000);
+  var h = Math.floor(total/3600), m = Math.floor((total%3600)/60), s = total%60;
+  var el = document.getElementById('timerDisplay');
+  if(el) el.textContent = pad(h)+':'+pad(m)+':'+pad(s);
 }
 function startTimer(){
-  if(timerRunning)return;
-  timerRunning=true;
+  if(timerStartedAt) return; /* already running */
+  timerStartedAt = Date.now();
+  timerStateSave();
   document.getElementById('startBtn').classList.add('active');
   document.getElementById('pauseBtn').classList.remove('active');
   document.getElementById('timerDisplay').classList.add('running');
-  document.getElementById('timerStatus').textContent='Session in progress...';
-  timerInterval=setInterval(function(){timerSec++;updateTimerDisplay();},1000);
+  document.getElementById('timerStatus').textContent = 'Session in progress...';
+  /* Display refresh — doesn't drive counting, just paints the clock value */
+  if(timerDisplayInterval) clearInterval(timerDisplayInterval);
+  timerDisplayInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
 }
 function pauseTimer(){
-  if(!timerRunning)return;
-  timerRunning=false; clearInterval(timerInterval);
+  if(!timerStartedAt) return;
+  timerAccumulatedMs += Date.now() - timerStartedAt;
+  timerStartedAt = null;
+  timerStateSave();
+  if(timerDisplayInterval){ clearInterval(timerDisplayInterval); timerDisplayInterval = null; }
   document.getElementById('startBtn').classList.remove('active');
   document.getElementById('pauseBtn').classList.add('active');
   document.getElementById('timerDisplay').classList.remove('running');
-  document.getElementById('timerStatus').textContent='Paused';
+  document.getElementById('timerStatus').textContent = 'Paused';
+  updateTimerDisplay();
 }
 function saveTimer(){
-  if(timerSec===0)return;
-  var hrs=timerSec/3600, key=todayKey();
-  var data=safeGet('clatStudyData',{});
-  data[key]=(data[key]||0)+hrs;
-  safeSet('clatStudyData',data);
-  pauseTimer(); timerSec=0; updateTimerDisplay();
+  /* Capture current elapsed (auto-pause first) */
+  if(timerStartedAt) pauseTimer();
+  var totalMs = timerAccumulatedMs;
+  if(totalMs < 1000) return; /* nothing meaningful to save */
+  var hrs = totalMs / 3600000;
+  var key = todayKey();
+  var data = safeGet('clatStudyData', {});
+  data[key] = (data[key] || 0) + hrs;
+  safeSet('clatStudyData', data);
+  /* Reset session */
+  timerAccumulatedMs = 0;
+  timerStartedAt = null;
+  timerStateSave();
+  updateTimerDisplay();
   document.getElementById('startBtn').classList.remove('active');
   document.getElementById('pauseBtn').classList.remove('active');
   document.getElementById('timerDisplay').classList.remove('running');
-  document.getElementById('timerStatus').textContent='Ready to begin';
-  var fb=document.getElementById('saveFeedback');
-  fb.textContent='✓ '+hrs.toFixed(2)+'h logged for today';
-  setTimeout(function(){fb.textContent='';},3500);
+  document.getElementById('timerStatus').textContent = 'Ready to begin';
+  var fb = document.getElementById('saveFeedback');
+  fb.textContent = '✓ ' + hrs.toFixed(2) + 'h logged for today';
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
   renderStudyChart();
 }
+
+/* MANUAL HOURS — log study time that wasn't tracked by the timer */
+function addManualHours(){
+  var inp = document.getElementById('manualHoursInput');
+  var dateInp = document.getElementById('manualHoursDate');
+  var val = parseFloat(inp.value);
+  if(!val || val <= 0 || val > 24){
+    alert('Enter a valid number of hours (between 0 and 24).');
+    return;
+  }
+  var key = (dateInp.value || todayKey());
+  var data = safeGet('clatStudyData', {});
+  data[key] = (data[key] || 0) + val;
+  safeSet('clatStudyData', data);
+  inp.value = '';
+  var fb = document.getElementById('manualHoursFeedback');
+  fb.textContent = '✓ Added ' + val.toFixed(2) + 'h for ' + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* Restore timer state on page load and start display tick if it was running */
+timerStateLoad();
+if(timerStartedAt){
+  /* Was running when last saved — keep counting from where wall-clock says we are */
+  document.getElementById('startBtn').classList.add('active');
+  document.getElementById('pauseBtn').classList.remove('active');
+  document.getElementById('timerDisplay').classList.add('running');
+  document.getElementById('timerStatus').textContent = 'Session in progress...';
+  if(timerDisplayInterval) clearInterval(timerDisplayInterval);
+  timerDisplayInterval = setInterval(updateTimerDisplay, 1000);
+} else if(timerAccumulatedMs > 0){
+  document.getElementById('pauseBtn').classList.add('active');
+  document.getElementById('timerStatus').textContent = 'Paused';
+}
+updateTimerDisplay();
+/* When tab becomes visible again after sleep/backgrounding, immediately repaint */
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden) updateTimerDisplay();
+});
+/* Default the manual-hours date to today */
+(function(){
+  var d = document.getElementById('manualHoursDate');
+  if(d) d.value = todayKey();
+})();
 
 /* ══ STUDY CHART ══ */
 var studyChartInst=null;
@@ -1839,6 +2221,7 @@ renderMock();
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 var pdfDoc=null, pdfCurPage=1, pdfTotalPages=1, pdfScale=1.5, pdfFsOpen=false;
 var pdfHighlights={}; /* {pageNum: [{text, rects}]} */
+var pdfRenderToken = 0; /* incremented on every renderPDFPage call to abort stale renders */
 var pdfSearchResults=[], pdfSearchIdx=0, pdfCurrentPageText=null;
 
 document.getElementById('pdfFileInput').addEventListener('change', function(e){
@@ -1871,28 +2254,50 @@ function updatePageUI(){
 
 function renderPDFPage(){
   if(!pdfDoc) return;
-  pdfDoc.getPage(pdfCurPage).then(function(page){
+  /* Bump the render token — any in-flight renders for previous pages will see
+     this token has changed and abort before drawing stale content. */
+  pdfRenderToken++;
+  var myToken = pdfRenderToken;
+  var myPage = pdfCurPage;
+
+  /* CRITICAL: clear stale highlights and text layer content IMMEDIATELY,
+     before async work begins, so highlights from the previous page don't
+     remain visible while the new page is being rendered. */
+  ['pdfTextLayer', 'pdfTextLayerFs'].forEach(function(layerId){
+    var layer = document.getElementById(layerId);
+    if(layer){
+      layer.innerHTML = '';
+      layer.style.width = '0px';
+      layer.style.height = '0px';
+    }
+  });
+
+  pdfDoc.getPage(myPage).then(function(page){
+    if(myToken !== pdfRenderToken) return; /* a newer render has started — abort */
     var vp=page.getViewport({scale:pdfScale});
     /* normal canvas */
     var canvas=document.getElementById('pdfCanvas');
     canvas.width=vp.width; canvas.height=vp.height;
     page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise.then(function(){
-      renderTextLayer(page,vp,'pdfTextLayer',false);
+      if(myToken !== pdfRenderToken) return; /* abort: user moved on */
+      renderTextLayer(page,vp,'pdfTextLayer',false,myToken);
     });
     /* fs canvas if open */
     if(pdfFsOpen){
       var cfs=document.getElementById('pdfCanvasFs');
       cfs.width=vp.width; cfs.height=vp.height;
       page.render({canvasContext:cfs.getContext('2d'),viewport:vp}).promise.then(function(){
-        renderTextLayer(page,vp,'pdfTextLayerFs',true);
+        if(myToken !== pdfRenderToken) return;
+        renderTextLayer(page,vp,'pdfTextLayerFs',true,myToken);
       });
     }
     updatePageUI();
   });
 }
 
-function renderTextLayer(page, vp, layerId, isFs){
+function renderTextLayer(page, vp, layerId, isFs, token){
   return page.getTextContent().then(function(tc){
+    if(token !== undefined && token !== pdfRenderToken) return; /* abort stale */
     var layer = document.getElementById(layerId);
     layer.innerHTML = '';
     /* size the layer to match canvas exactly */
@@ -1910,17 +2315,18 @@ function renderTextLayer(page, vp, layerId, isFs){
       });
       var p = task && task.promise ? task.promise : Promise.resolve();
       return p.then(function(){
+        if(token !== undefined && token !== pdfRenderToken) return;
         redrawHighlights();
         if(pdfSearchResults.length) highlightSearchInLayer();
       }).catch(function(){
-        /* still try to render highlights */
+        if(token !== undefined && token !== pdfRenderToken) return;
         setTimeout(function(){
+          if(token !== undefined && token !== pdfRenderToken) return;
           redrawHighlights();
           if(pdfSearchResults.length) highlightSearchInLayer();
         }, 100);
       });
     } catch(e) {
-      /* Fallback for older API signature */
       try {
         pdfjsLib.renderTextLayer({
           textContent: tc,
@@ -1930,6 +2336,7 @@ function renderTextLayer(page, vp, layerId, isFs){
         });
       } catch(e2) {}
       setTimeout(function(){
+        if(token !== undefined && token !== pdfRenderToken) return;
         redrawHighlights();
         if(pdfSearchResults.length) highlightSearchInLayer();
       }, 200);
@@ -2112,9 +2519,15 @@ function clearHighlights(){
   redrawHighlights();
 }
 
-/* ── SEARCH ── */
+/* ── SEARCH ──
+   Improvements:
+   - Marks the active result with a deeper blue + outline; other matches on the page use lighter blue
+   - ↑/↓ keys navigate while focus is in the search input
+   - Marks scroll into view automatically
+   - Clears stale marks across page changes (so they don't bleed) */
+
 function pdfSearchRun(){
-  /* Sync FS input value back if user typed in FS */
+  /* Pick whichever search input the user just typed in */
   var qMain = document.getElementById('pdfSearchInput').value.trim();
   var qFs = document.getElementById('pdfSearchInputFs').value.trim();
   var q = (qFs && qFs !== qMain) ? qFs : qMain;
@@ -2125,7 +2538,12 @@ function pdfSearchRun(){
   q = q.toLowerCase();
   document.getElementById('pdfSearchCount').textContent = '';
   document.getElementById('pdfSearchCountFs').textContent = '';
-  if(!pdfDoc || !q){ pdfSearchResults = []; clearSearchMarks(); return; }
+  if(!pdfDoc || !q){
+    pdfSearchResults = [];
+    pdfSearchIdx = 0;
+    clearSearchMarks();
+    return;
+  }
 
   document.getElementById('pdfSearchCount').textContent = 'Searching…';
   document.getElementById('pdfSearchCountFs').textContent = 'Searching…';
@@ -2151,18 +2569,21 @@ function pdfSearchRun(){
   chain.then(function(){
     pdfSearchResults = results;
     pdfSearchIdx = 0;
-    var cnt = results.length + ' result' + (results.length === 1 ? '' : 's');
-    document.getElementById('pdfSearchCount').textContent = cnt;
-    document.getElementById('pdfSearchCountFs').textContent = cnt;
-    if(results.length){
-      if(results[0].page !== pdfCurPage){
-        pdfCurPage = results[0].page;
-        renderPDFPage();
-      } else {
-        highlightSearchInLayer();
-      }
-    } else {
+    if(!results.length){
+      document.getElementById('pdfSearchCount').textContent = 'No results';
+      document.getElementById('pdfSearchCountFs').textContent = 'No results';
       clearSearchMarks();
+      return;
+    }
+    var pos = '1 / ' + results.length;
+    document.getElementById('pdfSearchCount').textContent = pos;
+    document.getElementById('pdfSearchCountFs').textContent = pos;
+    if(results[0].page !== pdfCurPage){
+      pdfCurPage = results[0].page;
+      renderPDFPage();
+      /* highlightSearchInLayer will be called by renderTextLayer after render */
+    } else {
+      highlightSearchInLayer();
     }
   });
 }
@@ -2171,7 +2592,6 @@ function pdfSearchNav(d){
   if(!pdfSearchResults.length) return;
   pdfSearchIdx = (pdfSearchIdx + d + pdfSearchResults.length) % pdfSearchResults.length;
   var r = pdfSearchResults[pdfSearchIdx];
-  /* Update count to show current position */
   var pos = (pdfSearchIdx + 1) + ' / ' + pdfSearchResults.length;
   document.getElementById('pdfSearchCount').textContent = pos;
   document.getElementById('pdfSearchCountFs').textContent = pos;
@@ -2183,37 +2603,116 @@ function pdfSearchNav(d){
   }
 }
 
+/* Find all occurrences of the query inside a single text-layer span,
+   returning per-occurrence DOMRects via a Range.
+   This avoids the old bug where any span containing the query substring
+   got fully highlighted ("the" → "their", "father", etc all marked). */
+function findMatchRectsInSpan(span, q, layerRect){
+  var text = span.textContent;
+  if(!text) return [];
+  var lc = text.toLowerCase();
+  var out = [];
+  var idx = 0;
+  while((idx = lc.indexOf(q, idx)) !== -1){
+    /* Build a precise range over just the matched substring */
+    var node = span.firstChild;
+    if(node && node.nodeType === 3){
+      try {
+        var range = document.createRange();
+        range.setStart(node, idx);
+        range.setEnd(node, idx + q.length);
+        var rects = range.getClientRects();
+        for(var i = 0; i < rects.length; i++){
+          var r = rects[i];
+          if(r.width < 0.5 || r.height < 0.5) continue;
+          out.push({
+            left:   r.left   - layerRect.left,
+            top:    r.top    - layerRect.top,
+            width:  r.width,
+            height: r.height,
+            spanIdx: -1, /* set by caller */
+            matchIdx: -1 /* set by caller */
+          });
+        }
+      } catch(e) { /* range failed, skip */ }
+    }
+    idx += q.length;
+  }
+  return out;
+}
+
 function highlightSearchInLayer(){
   var q = document.getElementById('pdfSearchInput').value.trim().toLowerCase();
-  if(!q) return;
+  if(!q){ clearSearchMarks(); return; }
+
+  /* Figure out: of all matches in pdfSearchResults, which index points to the
+     N-th match on the current page? That's the one we paint as "current". */
+  var pageMatchCountBeforeCurrent = 0;
+  for(var k = 0; k < pdfSearchIdx; k++){
+    if(pdfSearchResults[k].page === pdfCurPage) pageMatchCountBeforeCurrent++;
+  }
+  var currentOnPage = (pdfSearchResults[pdfSearchIdx] && pdfSearchResults[pdfSearchIdx].page === pdfCurPage)
+    ? pageMatchCountBeforeCurrent : -1;
+
   ['pdfTextLayer', 'pdfTextLayerFs'].forEach(function(layerId){
     var layer = document.getElementById(layerId); if(!layer) return;
     layer.querySelectorAll('.srch-mark').forEach(function(el){ el.remove(); });
+    var layerRect = layer.getBoundingClientRect();
+    if(layerRect.width < 5) return; /* layer not laid out yet */
+
     var spans = layer.querySelectorAll('span');
+    var allMatches = [];
     spans.forEach(function(span){
-      var text = span.textContent.toLowerCase();
-      if(!text.includes(q)) return;
-      var r = span.getBoundingClientRect();
-      var lr = layer.getBoundingClientRect();
-      /* Skip degenerate spans (often markedContent ones with height 0) */
-      if(r.width < 1 || r.height < 1) return;
-      var div = document.createElement('div');
-      div.className = 'srch-mark';
-      div.style.cssText = 'position:absolute;background:rgba(255,160,40,0.45);'
-        + 'pointer-events:none;border-radius:2px;'
-        + 'left:' + (r.left - lr.left) + 'px;'
-        + 'top:'  + (r.top  - lr.top)  + 'px;'
-        + 'width:'  + r.width  + 'px;'
-        + 'height:' + r.height + 'px;';
-      layer.appendChild(div);
+      /* Skip pdf.js marker spans that aren't real text */
+      if(span.classList && span.classList.contains('markedContent')) return;
+      var rects = findMatchRectsInSpan(span, q, layerRect);
+      rects.forEach(function(rc){ allMatches.push(rc); });
     });
+
+    /* Sort matches by position (top, then left) so "current" indexing is stable */
+    allMatches.sort(function(a, b){
+      if(Math.abs(a.top - b.top) > 2) return a.top - b.top;
+      return a.left - b.left;
+    });
+
+    var currentEl = null;
+    allMatches.forEach(function(rc, i){
+      var isCurrent = (i === currentOnPage);
+      var div = document.createElement('div');
+      div.className = 'srch-mark' + (isCurrent ? ' srch-current' : '');
+      div.style.cssText = 'position:absolute;pointer-events:none;border-radius:2px;'
+        + 'background:' + (isCurrent ? 'rgba(80,150,255,0.55)' : 'rgba(80,150,255,0.28)') + ';'
+        + (isCurrent ? 'outline:1.5px solid rgba(80,170,255,0.95);' : '')
+        + 'left:'   + rc.left   + 'px;'
+        + 'top:'    + rc.top    + 'px;'
+        + 'width:'  + rc.width  + 'px;'
+        + 'height:' + rc.height + 'px;';
+      layer.appendChild(div);
+      if(isCurrent) currentEl = div;
+    });
+
+    /* Scroll the current match into view if it's not already visible */
+    if(currentEl && layer.id === (pdfFsOpen ? 'pdfTextLayerFs' : 'pdfTextLayer')){
+      var wrap = pdfFsOpen
+        ? document.getElementById('pdfFsViewer')
+        : document.getElementById('pdfViewerWrap');
+      if(wrap){
+        var wRect = wrap.getBoundingClientRect();
+        var mRect = currentEl.getBoundingClientRect();
+        /* If outside viewport, scroll into view with a comfortable margin */
+        if(mRect.top < wRect.top + 40 || mRect.bottom > wRect.bottom - 40){
+          var offsetWithinWrap = currentEl.offsetTop + (currentEl.offsetParent ? currentEl.offsetParent.offsetTop : 0);
+          wrap.scrollTop = offsetWithinWrap - wrap.clientHeight / 3;
+        }
+      }
+    }
   });
 }
 
 function clearSearchMarks(){
   ['pdfTextLayer','pdfTextLayerFs'].forEach(function(layerId){
-    var layer=document.getElementById(layerId); if(!layer) return;
-    layer.querySelectorAll('.srch-mark').forEach(function(el){el.remove();});
+    var layer = document.getElementById(layerId); if(!layer) return;
+    layer.querySelectorAll('.srch-mark').forEach(function(el){ el.remove(); });
   });
 }
 
@@ -2343,10 +2842,51 @@ document.addEventListener('keydown', function(e){
 });
 
 document.getElementById('pdfSearchInput').addEventListener('keydown', function(e){
-  if(e.key === 'Enter'){ e.preventDefault(); pdfSearchRun(); }
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    /* If we already have results and input hasn't changed, treat Enter as "next" */
+    if(pdfSearchResults.length && this.value.trim() && this._lastQ === this.value.trim()){
+      pdfSearchNav(e.shiftKey ? -1 : 1);
+    } else {
+      this._lastQ = this.value.trim();
+      pdfSearchRun();
+    }
+  } else if(e.key === 'ArrowDown'){
+    if(pdfSearchResults.length){ e.preventDefault(); pdfSearchNav(1); }
+  } else if(e.key === 'ArrowUp'){
+    if(pdfSearchResults.length){ e.preventDefault(); pdfSearchNav(-1); }
+  } else if(e.key === 'Escape'){
+    this.value = '';
+    pdfSearchResults = [];
+    pdfSearchIdx = 0;
+    clearSearchMarks();
+    document.getElementById('pdfSearchCount').textContent = '';
+    document.getElementById('pdfSearchCountFs').textContent = '';
+    this.blur();
+  }
 });
 document.getElementById('pdfSearchInputFs').addEventListener('keydown', function(e){
-  if(e.key === 'Enter'){ e.preventDefault(); pdfSearchRun(); }
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    if(pdfSearchResults.length && this.value.trim() && this._lastQ === this.value.trim()){
+      pdfSearchNav(e.shiftKey ? -1 : 1);
+    } else {
+      this._lastQ = this.value.trim();
+      pdfSearchRun();
+    }
+  } else if(e.key === 'ArrowDown'){
+    if(pdfSearchResults.length){ e.preventDefault(); pdfSearchNav(1); }
+  } else if(e.key === 'ArrowUp'){
+    if(pdfSearchResults.length){ e.preventDefault(); pdfSearchNav(-1); }
+  } else if(e.key === 'Escape'){
+    this.value = '';
+    pdfSearchResults = [];
+    pdfSearchIdx = 0;
+    clearSearchMarks();
+    document.getElementById('pdfSearchCount').textContent = '';
+    document.getElementById('pdfSearchCountFs').textContent = '';
+    this.blur();
+  }
 });
 
 /* ══ VOCAB ══ */
@@ -2574,7 +3114,28 @@ document.getElementById('vocabLookupInput').addEventListener('keydown', function
 
 updateGroqKeyUI();
 
-/* ══ AI CHATBOT — uses the same Groq key as Dictionary Lookup ══ */
+/* ══ GROUND (rumination reassurance panel) ══ */
+function openGround(){
+  document.getElementById('groundOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeGround(){
+  document.getElementById('groundOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  /* Collapse all open Q&A details so next visit starts clean */
+  document.querySelectorAll('#groundOverlay .ground-qa[open]').forEach(function(d){ d.removeAttribute('open'); });
+}
+/* Esc to close Ground (only when Ground is open, no other modal active) */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('groundOverlay').classList.contains('open')){
+    /* Skip if a focused input is handling Esc itself */
+    var tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    closeGround();
+  }
+});
+
+
 var chatHistory = JSON.parse(localStorage.getItem('clatChatHistory') || '[]');
 var chatLoading = false;
 var chatContextText = '';
