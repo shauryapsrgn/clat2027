@@ -901,9 +901,59 @@ body::before {
   .header-inner { grid-template-columns: 1fr; }
   .header-right { display: none; }
 }
+/* ─── Lab nav strip + Flashcards link ─── */
+.lab-nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding:0.7rem 1.2rem;margin:0 0 0.4rem;border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(201,168,76,0.05),transparent);}
+.lab-nav-brand{font-family:var(--serif);font-style:italic;font-size:1.15rem;color:var(--muted);letter-spacing:0.02em;}
+.lab-nav-brand em{color:var(--accent);font-style:italic;}
+.lab-nav-link{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--accent);text-decoration:none;border:1px solid var(--accent-dim);border-radius:2px;
+  padding:0.5rem 0.95rem;transition:background 0.25s,color 0.25s,border-color 0.25s;background:var(--accent-glow);}
+.lab-nav-link:hover{background:var(--accent);color:#000;border-color:var(--accent);}
+/* ─── Toast ─── */
+#labToast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);
+  background:rgba(18,17,14,0.96);border:1px solid var(--accent-dim);color:var(--parchment);
+  font-family:var(--mono);font-size:0.78rem;letter-spacing:0.03em;padding:0.7rem 1.1rem;border-radius:3px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.3s,transform 0.3s;z-index:9999;max-width:80vw;}
+#labToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#labToast.err{border-color:var(--red);color:#f0c4c4;}
+/* ─── Capture box (merged with PDF viewer) ─── */
+.capture-box{margin-top:1.4rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);overflow:hidden;}
+.capture-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding:0.7rem 1rem;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(201,168,76,0.05),transparent);}
+.capture-head .ct{font-family:var(--serif);font-style:italic;font-size:1.15rem;color:var(--accent);}
+.capture-head .cmeta{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);}
+.capture-list{max-height:240px;overflow-y:auto;padding:0.5rem;}
+.capture-item{display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-bottom:1px solid var(--border);}
+.capture-item:last-child{border-bottom:none;}
+.capture-item .cx{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;color:var(--accent-dim);text-transform:uppercase;white-space:nowrap;}
+.capture-item .ctext{flex:1;font-size:0.92rem;line-height:1.5;color:var(--parchment);}
+.capture-item button{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);
+  background:none;border:1px solid rgba(201,112,112,0.3);border-radius:2px;padding:0.25rem 0.5rem;cursor:pointer;}
+.capture-item button:hover{background:rgba(201,112,112,0.13);}
+.capture-empty{font-family:'DM Mono',monospace;font-size:0.66rem;color:var(--muted);text-align:center;padding:1.4rem 1rem;line-height:1.7;}
+/* ─── Article reader ─── */
+.article-section{padding:2.5rem 3rem 3rem;border-bottom:1px solid var(--border);}
+.article-controls{display:flex;gap:0.7rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem;}
+.article-controls .acol{flex:1;min-width:180px;}
+.article-controls label span{display:block;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
+.article-controls input[type=text],.article-section textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--parchment);font-family:var(--serif);font-size:1rem;padding:0.55rem 0.75rem;}
+.article-controls input:focus,.article-section textarea:focus{outline:none;border-color:rgba(201,168,76,0.38);}
+.article-body{margin-top:1.2rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);padding:1.6rem 1.8rem;max-height:560px;overflow-y:auto;display:none;}
+.article-body.on{display:block;}
+.article-body h3{font-family:var(--serif);font-style:italic;font-size:1.6rem;color:var(--accent);margin-bottom:1rem;line-height:1.3;}
+.article-body p{font-family:var(--serif);font-size:1.12rem;line-height:1.85;margin-bottom:1rem;color:var(--parchment);}
+.article-body mark{background:rgba(201,168,76,0.32);color:var(--parchment);border-radius:1px;padding:0 1px;}
 </style>
 </head>
 <body>
+
+<!-- ═══ LAB NAV ═══ -->
+<div class="lab-nav">
+  <span class="lab-nav-brand"><em>Lex</em> Apparatus</span>
+  <a class="lab-nav-link" href="flashcards.html">Active Recall &amp; Flashcards &nbsp;&#8594;</a>
+</div>
 
 <!-- ═══ COUNTDOWN ═══ -->
 <div class="countdown-strip reveal">
@@ -1129,7 +1179,7 @@ body::before {
 <div class="pdf-section reveal">
   <p class="section-label">Document Reader</p>
   <p class="section-heading" style="margin-bottom:0.8rem;"><em>PDF</em> Viewer</p>
-  <p class="pdf-hint">Select text then press <strong style="color:var(--accent);">H</strong> to highlight yellow &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">Ctrl+F</strong> fullscreen &nbsp;&middot;&nbsp; Arrow keys navigate pages</p>
+  <p class="pdf-hint">Select text then press <strong style="color:var(--accent);">H</strong> to highlight &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">G</strong> to send to Flashcards &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">Ctrl+F</strong> fullscreen &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">+ / -</strong> zoom &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">0</strong> fit width &nbsp;&middot;&nbsp; <strong style="color:var(--accent);">C</strong> clear marks &nbsp;&middot;&nbsp; Arrow keys turn pages</p>
   <div class="pdf-toolbar">
     <label class="pdf-upload-label" for="pdfFileInput">&#8593; Upload PDF</label>
     <input type="file" id="pdfFileInput" accept=".pdf" />
@@ -1139,6 +1189,7 @@ body::before {
     <button class="pdf-tool-btn" onclick="zoomFit()">Fit Width</button>
     <button class="pdf-tool-btn" onclick="openPDFFullscreen()">&#9974; Fullscreen</button>
     <button class="pdf-tool-btn" onclick="clearHighlights()">&#9733; Clear Marks</button>
+    <button class="pdf-tool-btn" onclick="captureSelectionToFlashcards()" style="border-color:var(--accent-dim);color:var(--accent);">&#9788; Send to Cards</button>
     <button class="pdf-tool-btn danger" onclick="closePDF()">&#10005; Close</button>
   </div>
   <div class="pdf-toolbar-row2">
@@ -1163,6 +1214,14 @@ body::before {
       <div class="pdf-text-layer" id="pdfTextLayer"></div>
     </div>
   </div>
+  <!-- capture box: highlight (H) and capture (G) live here together -->
+  <div class="capture-box">
+    <div class="capture-head">
+      <span class="ct">Captured for Recall</span>
+      <span class="cmeta"><span id="captureCount">0</span> waiting &nbsp;&middot;&nbsp; <a href="flashcards.html" style="color:var(--accent);text-decoration:none;">Turn into flashcards &#8594;</a></span>
+    </div>
+    <div class="capture-list" id="captureList"></div>
+  </div>
 </div>
 
 <!-- fullscreen -->
@@ -1186,6 +1245,7 @@ body::before {
       <button class="pdf-tool-btn" onclick="changePDFPage(1)">&#8594;</button>
     </div>
     <button class="pdf-tool-btn" style="margin-left:auto;" onclick="clearHighlights()">&#9733; Clear</button>
+    <button class="pdf-tool-btn" onclick="captureSelectionToFlashcards()" style="color:var(--accent);border-color:var(--accent-dim);">&#9788; Cards</button>
     <button class="pdf-tool-btn danger" onclick="closePDFFullscreen()">&#10005; Exit</button>
   </div>
   <div class="pdf-fs-viewer" id="pdfFsViewer">
@@ -1194,6 +1254,26 @@ body::before {
       <div class="pdf-text-layer-fs" id="pdfTextLayerFs"></div>
     </div>
   </div>
+</div>
+
+<!-- ═══ ARTICLE READER ═══ -->
+<div class="article-section reveal">
+  <p class="section-label">Web Reader</p>
+  <p class="section-heading" style="margin-bottom:0.4rem;"><em>Article</em> Reader</p>
+  <p class="pdf-hint">Paste an article (or a link) to read it clean, then highlight with <strong style="color:var(--accent);">H</strong> and capture with <strong style="color:var(--accent);">G</strong>, exactly like the PDF. Best for Indian Express Explained pieces.</p>
+  <div class="article-controls">
+    <div class="acol"><label><span>Article title (optional)</span><input type="text" id="artTitle" placeholder="e.g. Explained: The new IT Rules"></label></div>
+    <div class="acol" style="flex:2;"><label><span>Or fetch from a link</span><input type="text" id="artUrl" placeholder="https://indianexpress.com/article/..."></label></div>
+    <button class="pdf-tool-btn" onclick="fetchArticle()" style="flex:0;white-space:nowrap;">&#8595; Fetch link</button>
+  </div>
+  <label style="display:block;"><span style="display:block;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">Paste the article text</span>
+  <textarea id="artInput" rows="5" placeholder="Copy the article body, paste it here, then press Read. (Pasting always works. Fetching a link depends on the site allowing it.)"></textarea></label>
+  <div style="margin-top:0.8rem;display:flex;gap:0.7rem;flex-wrap:wrap;">
+    <button class="pdf-tool-btn" onclick="renderArticle()" style="border-color:var(--accent-dim);color:var(--accent);">&#9654; Read</button>
+    <button class="pdf-tool-btn" onclick="clearArticleMarks()">&#9733; Clear marks</button>
+    <span class="cmeta" id="artFetchStatus" style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);align-self:center;"></span>
+  </div>
+  <div class="article-body" id="articleBody"></div>
 </div>
 
 <!-- ═══ VOCAB BOX ═══ -->
@@ -1615,6 +1695,7 @@ var pdfRenderToken=0; /* guards against stale async renders during fast nav */
 
 document.getElementById('pdfFileInput').addEventListener('change', function(e){
   var file=e.target.files[0]; if(!file) return;
+  window.__pdfName=file.name;
   var fr=new FileReader();
   fr.onload=function(ev){
     var data=new Uint8Array(ev.target.result);
@@ -1990,8 +2071,12 @@ safeSet('pdfHL',pdfHighlights); /* persist cleaned set so corrupt old data is go
 document.addEventListener('keydown',function(e){
   var tag=document.activeElement.tagName;
   var inInput=tag==='INPUT'||tag==='TEXTAREA';
-  if(!inInput&&(e.key==='h'||e.key==='H')&&pdfDoc){
-    applyHighlight();
+  var inArticle=selectionInArticle();
+  if(!inInput&&(e.key==='h'||e.key==='H')&&(pdfDoc||inArticle)){
+    if(inArticle) highlightArticleSelection(); else applyHighlight();
+  }
+  if(!inInput&&(e.key==='g'||e.key==='G')&&!e.ctrlKey&&!e.metaKey&&(pdfDoc||inArticle)){
+    captureSelectionToFlashcards();
   }
   if((e.ctrlKey||e.metaKey)&&e.key==='f'&&pdfDoc){
     e.preventDefault(); openPDFFullscreen();
@@ -2000,6 +2085,10 @@ document.addEventListener('keydown',function(e){
   if(pdfDoc&&!inInput&&!e.ctrlKey&&!e.metaKey){
     if(e.key==='ArrowRight'||e.key==='PageDown') changePDFPage(1);
     if(e.key==='ArrowLeft'||e.key==='PageUp') changePDFPage(-1);
+    if(e.key==='+'||e.key==='='){ e.preventDefault(); zoomPDF(0.25); }
+    if(e.key==='-'||e.key==='_'){ e.preventDefault(); zoomPDF(-0.25); }
+    if(e.key==='0'){ e.preventDefault(); zoomFit(); }
+    if(e.key==='c'||e.key==='C') clearHighlights();
   }
 });
 
@@ -2324,6 +2413,120 @@ window.addEventListener('load', function(){
 });
 window.addEventListener('online', function(){ refreshFeed(); });
 
+/* ─── Flashcards bridge: capture selected PDF text into the shared queue ─── */
+function flashToast(msg, isErr){
+  var t=document.getElementById('labToast');
+  if(!t){ t=document.createElement('div'); t.id='labToast'; document.body.appendChild(t); }
+  t.textContent=msg; t.className=isErr?'err show':'show';
+  clearTimeout(window.__toastT);
+  window.__toastT=setTimeout(function(){ t.className=t.className.replace('show','').trim(); }, 2600);
+}
+function captureSelectionToFlashcards(){
+  var sel=window.getSelection();
+  var text=sel?sel.toString().trim():'';
+  if(!text){ flashToast('Select some text first', true); return; }
+  var inArticle=selectionInArticle();
+  var q=safeGet('clatCardQueue', []);
+  q.push({
+    id:'cap_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    text:text,
+    page:(inArticle? null : (typeof pdfCurPage!=='undefined'?pdfCurPage:null)),
+    source:(inArticle ? (window.__artTitle||'Article') : (window.__pdfName||'PDF')),
+    ts:Date.now(),
+    status:'raw'
+  });
+  safeSet('clatCardQueue', q);
+  try{ if(inArticle) highlightArticleSelection(); else applyHighlight(); }catch(e){}
+  renderCaptureBox();
+  flashToast('Captured (' + q.length + ' waiting) \u00b7 turn into flashcards on the Recall page');
+}
+
+/* capture box (lives with the PDF viewer) */
+function escHtmlSafe(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderCaptureBox(){
+  var q=safeGet('clatCardQueue', []);
+  var cnt=document.getElementById('captureCount'); if(cnt) cnt.textContent=q.length;
+  var list=document.getElementById('captureList'); if(!list) return;
+  if(!q.length){ list.innerHTML='<div class="capture-empty">Highlight text in the PDF or article above, press <strong style="color:var(--accent);">G</strong>, and it collects here.</div>'; return; }
+  list.innerHTML='';
+  q.slice().reverse().forEach(function(it){
+    var row=document.createElement('div'); row.className='capture-item';
+    var meta=escHtmlSafe(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'');
+    row.innerHTML='<span class="cx">'+meta+'</span><span class="ctext">'+escHtmlSafe(it.text)+'</span><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
+    list.appendChild(row);
+  });
+}
+function removeCapture(id){
+  var q=safeGet('clatCardQueue', []).filter(function(x){ return x.id!==id; });
+  safeSet('clatCardQueue', q); renderCaptureBox();
+}
+
+/* article reader */
+function selectionInArticle(){
+  var sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed) return false;
+  var node=sel.anchorNode; if(node&&node.nodeType===3) node=node.parentNode;
+  return !!(node&&node.closest&&node.closest('#articleBody'));
+}
+function renderArticle(){
+  var raw=document.getElementById('artInput').value.trim();
+  if(!raw){ flashToast('Paste the article text first', true); return; }
+  var title=document.getElementById('artTitle').value.trim();
+  window.__artTitle = title || 'Article';
+  var paras=raw.split(/\n{2,}|\n/).map(function(p){ return p.trim(); }).filter(Boolean);
+  var html=(title? '<h3>'+escHtmlSafe(title)+'</h3>' : '') + paras.map(function(p){ return '<p>'+escHtmlSafe(p)+'</p>'; }).join('');
+  var body=document.getElementById('articleBody');
+  body.innerHTML=html; body.classList.add('on');
+  flashToast('Ready \u00b7 select text, then H to highlight or G to capture');
+}
+function highlightArticleSelection(){
+  var sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed) return;
+  var range=sel.getRangeAt(0);
+  try{
+    var mark=document.createElement('mark');
+    mark.appendChild(range.extractContents());
+    range.insertNode(mark);
+    sel.removeAllRanges();
+  }catch(e){}
+}
+function clearArticleMarks(){
+  var body=document.getElementById('articleBody');
+  body.querySelectorAll('mark').forEach(function(m){
+    var t=document.createTextNode(m.textContent); m.parentNode.replaceChild(t, m);
+  });
+  body.normalize();
+}
+async function fetchArticle(){
+  var url=document.getElementById('artUrl').value.trim();
+  if(!url){ flashToast('Paste a link first', true); return; }
+  if(!/^https?:\/\//.test(url)){ flashToast('Link must start with http', true); return; }
+  var status=document.getElementById('artFetchStatus');
+  status.textContent='Fetching\u2026';
+  try{
+    var proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    var resp=await fetch(proxy, { signal: AbortSignal.timeout(12000) });
+    var json=await resp.json();
+    var htmlText=json.contents||'';
+    var doc=new DOMParser().parseFromString(htmlText, 'text/html');
+    var t=doc.querySelector('h1');
+    if(t && !document.getElementById('artTitle').value.trim()) document.getElementById('artTitle').value=t.textContent.trim();
+    var ps=Array.prototype.slice.call(doc.querySelectorAll('p'))
+      .map(function(p){ return p.textContent.replace(/\s+/g,' ').trim(); })
+      .filter(function(s){ return s.length>40; });
+    if(!ps.length){ status.textContent='Could not read that link, paste the text instead'; return; }
+    document.getElementById('artInput').value=ps.join('\n\n');
+    status.textContent='Fetched '+ps.length+' paragraphs, press Read';
+    renderArticle();
+  }catch(e){
+    status.textContent='Link blocked by the site, copy and paste the text instead';
+  }
+}
+
+renderCaptureBox();
+window.addEventListener('storage', function(e){ if(e.key==='clatCardQueue') renderCaptureBox(); });
+
 </script>
+<div id="labToast"></div>
 </body>
 </html>
