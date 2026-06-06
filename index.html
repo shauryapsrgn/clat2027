@@ -1221,6 +1221,9 @@ body::before {
       <span class="ct">Captured for Recall</span>
       <span class="cmeta"><span id="captureCount">0</span> waiting &nbsp;&middot;&nbsp; <a href="flashcards_contextual.html" style="color:var(--accent);text-decoration:none;">Turn into flashcards &#8594;</a></span>
     </div>
+    <div style="padding:0.65rem 0.7rem 0 0.7rem;">
+      <label class="field" style="margin:0 0 0.55rem;"><span style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent-dim);">Topic title for new captures</span><input type="text" id="captureTopic" placeholder="e.g. Citizenship, Nepal border, Article 14"></label>
+    </div>
     <div class="capture-list" id="captureList"></div>
   </div>
 </div>
@@ -2473,11 +2476,13 @@ function captureSelectionToFlashcards(){
   var inArticle=selectionInArticle();
   var pageNum=(inArticle? null : (typeof pdfCurPage!=='undefined'?pdfCurPage:null));
   var context=inArticle ? articleContextForSelection(sel) : pageContextForSelection(pageNum, text);
+  var topic=(document.getElementById('captureTopic') && document.getElementById('captureTopic').value.trim()) || '';
   var q=safeGet('clatCardQueue', []);
   q.push({
     id:'cap_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
     text:text,
     context:context||'',
+    topic:topic,
     page:pageNum,
     source:(inArticle ? (window.__artTitle||'Article') : (window.__pdfName||'PDF')),
     ts:Date.now(),
@@ -2501,12 +2506,19 @@ function renderCaptureBox(){
     var row=document.createElement('div'); row.className='capture-item';
     var meta=escHtmlSafe(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'');
     var ctx=it.context ? '<div class="cctx">'+escHtmlSafe(it.context)+'</div>' : '';
-    row.innerHTML='<div style="flex:1;min-width:0;"><span class="cx">'+meta+'</span><span class="ctext">'+escHtmlSafe(it.text)+'</span>'+ctx+'</div><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
+    var topic=escHtmlSafe(it.topic||'');
+    row.innerHTML='<div style="flex:1;min-width:0;"><span class="cx">'+meta+'</span>'+(topic?'<span class="topic-pill">'+topic+'</span>':'')+'<div style="margin-top:0.35rem;"><input type="text" class="topic-mini" placeholder="Topic title" value="'+topic+'" oninput="updateCaptureTopic(\''+it.id+'\', this.value)"></div><span class="ctext">'+escHtmlSafe(it.text)+'</span>'+ctx+'</div><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
     list.appendChild(row);
   });
 }
+function updateCaptureTopic(id, topic){
+  var q=safeGet('clatCardQueue', []).map(function(x){
+    if(x.id===id) x.topic = (topic || '').trim();
+    return x;
+  });
+  safeSet('clatCardQueue', q); renderCaptureBox();
+}
 function removeCapture(id){
-
   var q=safeGet('clatCardQueue', []).filter(function(x){ return x.id!==id; });
   safeSet('clatCardQueue', q); renderCaptureBox();
 }
