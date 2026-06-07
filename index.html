@@ -928,8 +928,7 @@ body::before {
 .capture-item{display:flex;gap:0.7rem;align-items:flex-start;padding:0.6rem 0.7rem;border-bottom:1px solid var(--border);}
 .capture-item:last-child{border-bottom:none;}
 .capture-item .cx{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.1em;color:var(--accent-dim);text-transform:uppercase;white-space:nowrap;}
-.capture-item .ctext{flex:1;font-size:0.92rem;line-height:1.5;color:var(--parchment);} 
-.capture-item .cctx{font-family:'DM Mono',monospace;font-size:0.5rem;line-height:1.5;color:var(--muted);margin-top:0.25rem;opacity:0.9;}
+.capture-item .ctext{flex:1;font-size:0.92rem;line-height:1.5;color:var(--parchment);}
 .capture-item button{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);
   background:none;border:1px solid rgba(201,112,112,0.3);border-radius:2px;padding:0.25rem 0.5rem;cursor:pointer;}
 .capture-item button:hover{background:rgba(201,112,112,0.13);}
@@ -1221,8 +1220,10 @@ body::before {
       <span class="ct">Captured for Recall</span>
       <span class="cmeta"><span id="captureCount">0</span> waiting &nbsp;&middot;&nbsp; <a href="flashcards_contextual.html" style="color:var(--accent);text-decoration:none;">Turn into flashcards &#8594;</a></span>
     </div>
-    <div style="padding:0.65rem 0.7rem 0 0.7rem;">
-      <label class="field" style="margin:0 0 0.55rem;"><span style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent-dim);">Topic title for new captures</span><input type="text" id="captureTopic" placeholder="e.g. Citizenship, Nepal border, Article 14"></label>
+    <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;padding:0.6rem 1rem;border-bottom:1px solid var(--border);">
+      <span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Current topic</span>
+      <input type="text" id="activeTopic" placeholder="e.g. Citizenship, Border Disputes" style="flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--parchment);font-family:var(--serif);font-size:0.95rem;padding:0.4rem 0.6rem;" oninput="saveActiveTopic()">
+      <span class="cmeta">every capture is filed under this</span>
     </div>
     <div class="capture-list" id="captureList"></div>
   </div>
@@ -1410,48 +1411,6 @@ function todayKey(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth
 function safeGet(k,fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
 function safeSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 
-/* ══ CONTEXT HELPERS ══ */
-var pdfPageTextCache = {}; /* pageNum -> normalized text content */
-function normWS(s){ return String(s==null?'':s).replace(/\s+/g,' ').trim(); }
-function clipContext(text, idx, len, before, after){
-  if(!text) return '';
-  var start=Math.max(0, idx-before);
-  var end=Math.min(text.length, idx+len+after);
-  var leftBound=Math.max(text.lastIndexOf('. ', start), text.lastIndexOf('! ', start), text.lastIndexOf('? ', start), text.lastIndexOf('\n', start));
-  if(leftBound>=0) start=leftBound+2;
-  var rightBound=text.length;
-  var dots=[text.indexOf('. ', end), text.indexOf('! ', end), text.indexOf('? ', end), text.indexOf('\n', end)].filter(function(n){ return n>=0; });
-  if(dots.length) rightBound=Math.min.apply(Math, dots)+1;
-  end=Math.min(text.length, Math.max(end, rightBound));
-  return normWS(text.slice(start,end));
-}
-function pageContextForSelection(pageNum, selectedText){
-  var txt=normWS(pdfPageTextCache[pageNum]||'');
-  if(!txt) return '';
-  var needle=normWS(selectedText);
-  if(!needle) return txt.slice(0,900);
-  var idx=txt.toLowerCase().indexOf(needle.toLowerCase());
-  if(idx<0){
-    var first=needle.split(/\s+/).slice(0,3).join(' ');
-    idx=first ? txt.toLowerCase().indexOf(first.toLowerCase()) : -1;
-  }
-  if(idx<0) return txt.slice(0,900);
-  return clipContext(txt, idx, needle.length, 320, 520);
-}
-function articleContextForSelection(sel){
-  if(!sel||sel.rangeCount===0) return '';
-  var node=sel.anchorNode;
-  if(node&&node.nodeType===3) node=node.parentNode;
-  var p=node&&node.closest ? node.closest('#articleBody p') : null;
-  if(!p) return '';
-  var bits=[];
-  if(p.previousElementSibling && p.previousElementSibling.tagName==='P') bits.push(p.previousElementSibling.textContent);
-  bits.push(p.textContent);
-  if(p.nextElementSibling && p.nextElementSibling.tagName==='P') bits.push(p.nextElementSibling.textContent);
-  return normWS(bits.join(' '));
-}
-
-/* ══ DATE ══ */
 /* ══ DATE ══ */
 function updateDate(){
   var d=new Date();
@@ -1800,8 +1759,8 @@ function renderPDFPage(){
 function renderTextLayer(page, vp, layerId, isFs, token){
   page.getTextContent().then(function(tc){
     if(token!==undefined && token!==pdfRenderToken) return;
-    var pageNum=page.pageNumber || pdfCurPage;
-    pdfPageTextCache[pageNum]=normWS(tc.items.map(function(it){ return it.str||''; }).join(' '));
+    /* keep the whole page's plain text so a captured highlight carries its context */
+    try{ window.__pdfPageText = (tc.items||[]).map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim(); }catch(e){}
     var layer=document.getElementById(layerId);
     layer.innerHTML='';
     layer.style.width=vp.width+'px';
@@ -2474,16 +2433,26 @@ function captureSelectionToFlashcards(){
   var text=sel?sel.toString().trim():'';
   if(!text){ flashToast('Select some text first', true); return; }
   var inArticle=selectionInArticle();
-  var pageNum=(inArticle? null : (typeof pdfCurPage!=='undefined'?pdfCurPage:null));
-  var context=inArticle ? articleContextForSelection(sel) : pageContextForSelection(pageNum, text);
-  var topic=(document.getElementById('captureTopic') && document.getElementById('captureTopic').value.trim()) || '';
+  /* grab the surrounding text so the AI understands what the highlight is about */
+  var context='';
+  try{
+    if(inArticle){
+      var body=document.getElementById('articleBody');
+      context = body ? body.textContent.replace(/\s+/g,' ').trim() : '';
+    } else {
+      context = window.__pdfPageText || '';
+    }
+  }catch(e){}
+  if(context.length>2800) context=context.slice(0,2800);
+  var topicEl=document.getElementById('activeTopic');
+  var topic=topicEl?topicEl.value.trim():'';
   var q=safeGet('clatCardQueue', []);
   q.push({
     id:'cap_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
     text:text,
-    context:context||'',
+    context:context,
     topic:topic,
-    page:pageNum,
+    page:(inArticle? null : (typeof pdfCurPage!=='undefined'?pdfCurPage:null)),
     source:(inArticle ? (window.__artTitle||'Article') : (window.__pdfName||'PDF')),
     ts:Date.now(),
     status:'raw'
@@ -2491,7 +2460,7 @@ function captureSelectionToFlashcards(){
   safeSet('clatCardQueue', q);
   try{ if(inArticle) highlightArticleSelection(); else applyHighlight(); }catch(e){}
   renderCaptureBox();
-  flashToast('Captured (' + q.length + ' waiting) · turn into flashcards on the Recall page');
+  flashToast('Captured with context (' + q.length + ' waiting) \u00b7 turn into flashcards on the Recall page');
 }
 
 /* capture box (lives with the PDF viewer) */
@@ -2504,19 +2473,10 @@ function renderCaptureBox(){
   list.innerHTML='';
   q.slice().reverse().forEach(function(it){
     var row=document.createElement('div'); row.className='capture-item';
-    var meta=escHtmlSafe(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'');
-    var ctx=it.context ? '<div class="cctx">'+escHtmlSafe(it.context)+'</div>' : '';
-    var topic=escHtmlSafe(it.topic||'');
-    row.innerHTML='<div style="flex:1;min-width:0;"><span class="cx">'+meta+'</span>'+(topic?'<span class="topic-pill">'+topic+'</span>':'')+'<div style="margin-top:0.35rem;"><input type="text" class="topic-mini" placeholder="Topic title" value="'+topic+'" oninput="updateCaptureTopic(\''+it.id+'\', this.value)"></div><span class="ctext">'+escHtmlSafe(it.text)+'</span>'+ctx+'</div><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
+    var meta=escHtmlSafe(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'')+(it.topic?' &middot; '+escHtmlSafe(it.topic):'');
+    row.innerHTML='<span class="cx">'+meta+'</span><span class="ctext">'+escHtmlSafe(it.text)+'</span><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
     list.appendChild(row);
   });
-}
-function updateCaptureTopic(id, topic){
-  var q=safeGet('clatCardQueue', []).map(function(x){
-    if(x.id===id) x.topic = (topic || '').trim();
-    return x;
-  });
-  safeSet('clatCardQueue', q); renderCaptureBox();
 }
 function removeCapture(id){
   var q=safeGet('clatCardQueue', []).filter(function(x){ return x.id!==id; });
@@ -2585,6 +2545,8 @@ async function fetchArticle(){
   }
 }
 
+function saveActiveTopic(){ try{ localStorage.setItem('clatActiveTopic', document.getElementById('activeTopic').value); }catch(e){} }
+(function(){ try{ var v=localStorage.getItem('clatActiveTopic'); if(v!=null){ var el=document.getElementById('activeTopic'); if(el) el.value=v; } }catch(e){} })();
 renderCaptureBox();
 window.addEventListener('storage', function(e){ if(e.key==='clatCardQueue') renderCaptureBox(); });
 
