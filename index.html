@@ -945,6 +945,374 @@ body::before {
 .article-body h3{font-family:var(--serif);font-style:italic;font-size:1.6rem;color:var(--accent);margin-bottom:1rem;line-height:1.3;}
 .article-body p{font-family:var(--serif);font-size:1.12rem;line-height:1.85;margin-bottom:1rem;color:var(--parchment);}
 .article-body mark{background:rgba(201,168,76,0.32);color:var(--parchment);border-radius:1px;padding:0 1px;}
+
+/* ══ MANUAL HOURS + FORGOT-TO-TRACK DROPDOWN ══ */
+.manual-hours-wrap {
+  margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid var(--border);
+}
+.manual-hours-label {
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.6rem;
+}
+.manual-hours-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.manual-hours-input, .manual-hours-date {
+  background: rgba(255,255,255,0.02); border: 1px solid var(--border); outline: none;
+  color: var(--parchment); font-family: var(--mono); font-size: 0.72rem;
+  padding: 0.45rem 0.6rem; border-radius: 2px; flex: 1; min-width: 110px;
+  transition: border-color 0.2s;
+}
+.manual-hours-input:focus, .manual-hours-date:focus { border-color: var(--accent-dim); }
+.manual-hours-input::placeholder { color: var(--muted); font-style: italic; }
+.manual-hours-date { color-scheme: dark; flex: 1.2; }
+.manual-hours-btn {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent);
+  background: none; border: 1px solid rgba(201,168,76,0.35);
+  padding: 0 0.85rem; cursor: pointer; border-radius: 2px;
+  transition: background 0.2s;
+}
+.manual-hours-btn:hover { background: rgba(201,168,76,0.08); }
+.manual-hours-sub { color: var(--muted); border-color: var(--border); }
+.manual-hours-sub:hover { background: rgba(180,160,120,0.06); color: #c97070; border-color: rgba(201,112,112,0.3); }
+.manual-hours-class { color: #c97070; border-color: rgba(201,112,112,0.35); }
+.manual-hours-class:hover { background: rgba(201,112,112,0.08); }
+.manual-hours-sub-class { color: var(--muted); border-color: var(--border); }
+.manual-hours-sub-class:hover { background: rgba(180,160,120,0.06); color: #c97070; border-color: rgba(201,112,112,0.3); }
+.manual-hours-feedback {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+  color: #5a9e7a; margin-top: 0.5rem; min-height: 1em; text-transform: uppercase;
+}
+
+.ftt-details { margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid var(--border); }
+.ftt-summary {
+  list-style: none; cursor: pointer;
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--accent-dim);
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.4rem 0; transition: color 0.2s;
+}
+.ftt-summary::-webkit-details-marker { display: none; }
+.ftt-summary:hover { color: var(--accent); }
+.ftt-chevron { font-family: var(--mono); font-size: 0.7rem; transition: transform 0.25s ease; display: inline-block; }
+.ftt-details[open] .ftt-chevron { transform: rotate(90deg); }
+.ftt-details[open] .ftt-summary { color: var(--accent); }
+.ftt-body { animation: fttFade 0.25s ease; }
+@keyframes fttFade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.ftt-body .manual-hours-wrap { margin-top: 1rem; padding-top: 0.9rem; border-top: 1px dashed rgba(180,160,120,0.1); }
+.ftt-body .manual-hours-wrap:first-child { border-top: none; padding-top: 0; margin-top: 0.4rem; }
+
+/* Chart legend */
+.chart-legend {
+  display: flex; gap: 1.4rem; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted); margin-top: 0.6rem;
+}
+.chart-legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.chart-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+
+/* Study entry row dual values */
+.study-entry-vals { display: inline-flex; align-items: center; gap: 0.2rem; }
+.study-del-btn.class-del:hover { color: #c97070; }
+
+/* Checklist empty hint + restore link */
+.chk-empty-hint {
+  font-family: var(--serif); font-style: italic; font-size: 0.95rem;
+  color: var(--muted); padding: 1.2rem 0.4rem; text-align: center;
+}
+.chk-restore-link {
+  background: none; border: none;
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--accent); cursor: pointer;
+  text-decoration: underline; padding: 0;
+}
+.chk-restore-link:hover { color: var(--parchment); }
+
+/* ══ READING STREAK ══ */
+.reading-streak-btn {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0 1.1rem;
+  background: transparent;
+  border: 1px solid rgba(80,150,255,0.30);
+  cursor: pointer;
+  color: rgba(140,190,255,0.85);
+  font-family: var(--mono); font-size: 0.56rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+  white-space: nowrap;
+}
+.reading-streak-btn:hover {
+  background: rgba(80,150,255,0.08);
+  border-color: rgba(80,150,255,0.55);
+  color: rgba(180,210,255,1);
+}
+.rs-icon { font-size: 0.95rem; }
+.rs-label { letter-spacing: 0.2em; }
+.rs-streak {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.6rem; height: 1.4rem; padding: 0 0.45rem;
+  border-radius: 10px;
+  background: rgba(80,150,255,0.18);
+  border: 1px solid rgba(80,150,255,0.4);
+  font-family: var(--mono); font-size: 0.62rem; font-weight: 700;
+  color: rgba(180,210,255,1); letter-spacing: 0.05em;
+}
+.rs-streak.cold { background: rgba(120,120,120,0.10); border-color: rgba(120,120,120,0.3); color: var(--muted); }
+.rs-streak.fire::before { content: '\1F525'; margin-right: 0.2rem; font-size: 0.7rem; }
+
+.reading-overlay {
+  display: none; position: fixed; inset: 0; z-index: 960;
+  background: rgba(0,0,0,0.78); backdrop-filter: blur(6px);
+  overflow-y: auto; padding: 3rem 1.5rem;
+}
+.reading-overlay.open { display: block; animation: groundFade 0.3s ease; }
+.reading-panel {
+  max-width: 720px; margin: 0 auto;
+  background: #0a0a0a; border: 1px solid var(--border); border-radius: 4px;
+  padding: 2.5rem 2.5rem 3rem; position: relative;
+}
+.reading-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-family: var(--mono); font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.reading-close:hover { color: #c97070; border-color: rgba(201,112,112,0.4); }
+.reading-eyebrow {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: rgba(140,190,255,0.7); margin-bottom: 0.7rem;
+}
+.reading-title {
+  font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+  font-style: italic; color: var(--parchment); margin-bottom: 0.4rem; line-height: 1.15;
+}
+.reading-title em { color: rgba(140,190,255,1); font-style: italic; }
+.reading-sub {
+  font-family: var(--serif); font-size: 1rem; font-style: italic;
+  color: var(--muted); margin-bottom: 1.8rem; line-height: 1.55;
+}
+.reading-streak-display {
+  display: flex; align-items: baseline; gap: 0.6rem;
+  margin-bottom: 1.6rem; padding: 1rem 1.2rem;
+  background: rgba(80,150,255,0.04);
+  border: 1px solid rgba(80,150,255,0.18);
+  border-radius: 3px;
+}
+.reading-streak-num {
+  font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+  font-style: italic; color: rgba(180,210,255,1); line-height: 1;
+}
+.reading-streak-lbl {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--muted);
+}
+.reading-book-wrap, .reading-pages-wrap { margin-bottom: 1.3rem; }
+.reading-field-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(140,190,255,0.7); margin-bottom: 0.55rem;
+}
+.reading-book-row, .reading-pages-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.reading-input {
+  flex: 1; min-width: 120px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border); outline: none;
+  color: var(--parchment); font-family: var(--mono); font-size: 0.78rem;
+  padding: 0.55rem 0.75rem; border-radius: 2px; transition: border-color 0.2s;
+}
+.reading-input:focus { border-color: rgba(80,150,255,0.55); }
+.reading-input::placeholder { color: var(--muted); font-style: italic; }
+.reading-book-input {
+  flex: 2.5; min-width: 200px;
+  font-family: var(--serif); font-size: 0.95rem; font-style: italic;
+}
+.reading-btn {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: none; cursor: pointer; border-radius: 2px;
+  padding: 0 0.85rem;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  color: rgba(140,190,255,0.85);
+  border: 1px solid rgba(80,150,255,0.35);
+}
+.reading-btn:hover { background: rgba(80,150,255,0.08); color: rgba(180,210,255,1); }
+.reading-btn.muted { color: var(--muted); border-color: var(--border); }
+.reading-btn.muted:hover { color: #c97070; border-color: rgba(201,112,112,0.3); }
+.reading-book-current {
+  font-family: var(--serif); font-size: 0.9rem; font-style: italic;
+  color: var(--muted); margin-top: 0.45rem;
+}
+.reading-book-current strong { color: var(--parchment); font-weight: 400; font-style: normal; }
+.reading-feedback {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+  color: rgba(140,190,255,0.85); margin-top: 0.55rem; min-height: 1em; text-transform: uppercase;
+}
+.reading-chart-wrap { margin-top: 1.8rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.reading-chart-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(140,190,255,0.7); margin-bottom: 0.6rem;
+}
+.reading-chart-canvas-wrap { position: relative; width: 100%; height: 200px; }
+.reading-entries-list {
+  max-height: 140px; overflow-y: auto; margin-top: 1rem;
+  border-top: 1px solid var(--border); padding-top: 0.6rem;
+}
+.reading-entries-list::-webkit-scrollbar { width: 2px; }
+.reading-entries-list::-webkit-scrollbar-thumb { background: rgba(80,150,255,0.3); }
+.reading-entry-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.4rem 0; border-bottom: 1px solid rgba(180,160,120,0.06);
+  font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+  letter-spacing: 0.05em; gap: 0.5rem;
+}
+.reading-entry-row:last-child { border-bottom: none; }
+.reading-entry-book {
+  flex: 1; color: var(--parchment);
+  font-family: var(--serif); font-size: 0.85rem; font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.reading-entry-pages { color: rgba(140,190,255,1); }
+.reading-entry-del {
+  background: none; border: none; color: rgba(138,128,112,0.35);
+  cursor: pointer; font-size: 0.75rem; padding: 0 4px; transition: color 0.2s;
+}
+.reading-entry-del:hover { color: #c97070; }
+.reading-empty-hint {
+  font-family: var(--serif); font-style: italic; font-size: 0.95rem;
+  color: var(--muted); padding: 1.5rem 0.4rem; text-align: center;
+}
+
+/* ══ GROUND (rumination panel) ══ */
+.ground-trigger {
+  position: fixed; bottom: 14px; right: 14px; z-index: 940;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(10,10,10,0.85);
+  border: 1px solid rgba(201,168,76,0.35);
+  backdrop-filter: blur(4px);
+  color: var(--accent);
+  font-family: var(--serif); font-size: 1.1rem;
+  font-style: italic; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.ground-trigger:hover {
+  background: rgba(20,18,12,0.95); border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.ground-trigger::before { content: '·'; font-size: 1.6rem; }
+
+.ground-overlay {
+  display: none; position: fixed; inset: 0; z-index: 970;
+  background: rgba(0,0,0,0.78); backdrop-filter: blur(6px);
+  overflow-y: auto; padding: 3rem 1.5rem;
+}
+.ground-overlay.open { display: block; animation: groundFade 0.3s ease; }
+@keyframes groundFade { from { opacity: 0; } to { opacity: 1; } }
+.ground-panel {
+  max-width: 720px; margin: 0 auto;
+  background: #0a0a0a; border: 1px solid var(--border);
+  border-radius: 4px; padding: 2.5rem 2.5rem 3rem; position: relative;
+}
+.ground-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-family: var(--mono); font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.ground-close:hover { color: #c97070; border-color: rgba(201,112,112,0.4); }
+.ground-eyebrow {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--accent-dim); margin-bottom: 0.7rem;
+}
+.ground-title {
+  font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  margin-bottom: 0.4rem; line-height: 1.15;
+}
+.ground-title em { color: var(--accent); font-style: italic; }
+.ground-sub {
+  font-family: var(--serif); font-size: 1rem; font-style: italic;
+  color: var(--muted); margin-bottom: 2rem; line-height: 1.55;
+}
+.ground-section { margin-top: 2.2rem; padding-top: 1.6rem; border-top: 1px solid var(--border); }
+.ground-section:first-of-type { border-top: none; padding-top: 0; margin-top: 1.4rem; }
+.ground-section-label {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+}
+.ground-anchor {
+  font-family: var(--serif); font-size: 1.15rem; font-weight: 400;
+  color: var(--parchment); line-height: 1.55; margin-bottom: 0.7rem;
+}
+.ground-anchor em { color: var(--accent); font-style: italic; }
+.ground-body {
+  font-family: var(--serif); font-size: 0.98rem; font-weight: 300;
+  color: var(--muted); line-height: 1.7; margin-bottom: 1.4rem;
+}
+.ground-body strong { color: var(--parchment); font-weight: 400; }
+.ground-quote {
+  font-family: var(--serif); font-size: 1.05rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  border-left: 2px solid var(--accent-dim);
+  padding: 0.5rem 0 0.5rem 1.1rem; margin: 1.2rem 0;
+}
+.ground-quote-attr {
+  display: block; font-style: normal; font-size: 0.65rem;
+  font-family: var(--mono); letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent-dim); margin-top: 0.5rem;
+}
+.ground-qa {
+  margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 3px;
+  background: rgba(255,255,255,0.012); overflow: hidden;
+}
+.ground-qa summary {
+  font-family: var(--serif); font-size: 1.02rem; font-weight: 400;
+  color: var(--parchment); cursor: pointer;
+  padding: 0.9rem 1.1rem; list-style: none;
+  position: relative; padding-right: 2.5rem; transition: color 0.2s;
+}
+.ground-qa summary::-webkit-details-marker { display: none; }
+.ground-qa summary::after {
+  content: '+'; position: absolute; right: 1.1rem; top: 50%;
+  transform: translateY(-50%); color: var(--accent);
+  font-family: var(--mono); font-size: 1rem;
+  transition: transform 0.25s;
+}
+.ground-qa[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+.ground-qa summary:hover { color: var(--accent); }
+.ground-qa-body {
+  padding: 0 1.1rem 1.1rem;
+  font-family: var(--serif); font-size: 0.95rem; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
+  border-top: 1px solid var(--border); padding-top: 0.9rem;
+}
+.ground-qa-body strong { color: var(--parchment); font-weight: 400; }
+.ground-qa-body em { color: var(--accent); font-style: italic; }
+.ground-purpose {
+  margin-top: 2.5rem; padding: 1.6rem;
+  background: rgba(201,168,76,0.04);
+  border: 1px solid rgba(201,168,76,0.18); border-radius: 3px;
+}
+.ground-purpose-line {
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 300;
+  font-style: italic; color: var(--parchment);
+  margin-bottom: 0.6rem; line-height: 1.55;
+}
+.ground-purpose-line:last-child { margin-bottom: 0; }
+.ground-purpose-line strong { color: var(--accent); font-style: normal; font-weight: 400; }
+
+@media (max-width: 600px) {
+  .ground-panel, .reading-panel { padding: 2rem 1.3rem 2.5rem; }
+  .ground-title, .reading-title { font-size: 1.6rem; }
+  .ground-overlay, .reading-overlay { padding: 1.5rem 0.6rem; }
+  .reading-streak-btn .rs-label { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -981,12 +1349,19 @@ body::before {
       <button type="submit" class="search-btn">Search</button>
     </div>
   </form>
-  <form id="ieForm" style="width:100%;max-width:560px;display:flex;">
-    <div class="search-wrap ie-wrap" style="width:100%;">
-      <input type="text" id="ieInput" placeholder="IE Explained&hellip;" autocomplete="off" />
-      <button type="submit" class="search-btn ie-btn">Explained</button>
-    </div>
-  </form>
+  <div style="width:100%;max-width:560px;display:flex;gap:0.6rem;align-items:stretch;">
+    <form id="ieForm" style="flex:1;display:flex;">
+      <div class="search-wrap ie-wrap" style="width:100%;">
+        <input type="text" id="ieInput" placeholder="IE Explained&hellip;" autocomplete="off" />
+        <button type="submit" class="search-btn ie-btn">Explained</button>
+      </div>
+    </form>
+    <button class="reading-streak-btn" onclick="openReading()" title="Track your daily book reading">
+      <span class="rs-icon">&#9783;</span>
+      <span class="rs-label">Reading</span>
+      <span class="rs-streak" id="rsStreakBadge">0</span>
+    </button>
+  </div>
 </div>
 
 <!-- ═══ MAIN GRID ═══ -->
@@ -1004,14 +1379,51 @@ body::before {
       <button class="tbtn save-btn" onclick="saveTimer()">&#10003; Save Session</button>
     </div>
     <p class="save-feedback" id="saveFeedback"></p>
+
+    <!-- Forgot to track? — collapsible dropdown wrapping both manual study and class hours -->
+    <details class="ftt-details">
+      <summary class="ftt-summary">
+        <span>Forgot to Track?</span>
+        <span class="ftt-chevron">&#9656;</span>
+      </summary>
+      <div class="ftt-body">
+        <!-- Manual hours entry: log self-study time you couldn't record live -->
+        <div class="manual-hours-wrap">
+          <p class="manual-hours-label">Add or remove self-study hours</p>
+          <div class="manual-hours-row">
+            <input type="number" id="manualHoursInput" class="manual-hours-input" placeholder="Hours (e.g. 2.5)" step="0.25" min="0" max="24" />
+            <input type="date" id="manualHoursDate" class="manual-hours-date" />
+            <button class="manual-hours-btn" onclick="addManualHours(1)">+ Add</button>
+            <button class="manual-hours-btn manual-hours-sub" onclick="addManualHours(-1)" title="Subtract hours (useful if you over-logged)">&#8722; Subtract</button>
+          </div>
+          <p class="manual-hours-feedback" id="manualHoursFeedback"></p>
+        </div>
+
+        <!-- Classes attended tracker -->
+        <div class="manual-hours-wrap">
+          <p class="manual-hours-label" style="color:#c97070;">Attended a class? Log it here</p>
+          <div class="manual-hours-row">
+            <input type="number" id="classHoursInput" class="manual-hours-input" placeholder="Class hours (e.g. 2)" step="0.25" min="0" max="24" />
+            <input type="date" id="classHoursDate" class="manual-hours-date" />
+            <button class="manual-hours-btn manual-hours-class" onclick="addClassHours(1)">+ Add</button>
+            <button class="manual-hours-btn manual-hours-sub-class" onclick="addClassHours(-1)" title="Remove class hours">&#8722; Subtract</button>
+          </div>
+          <p class="manual-hours-feedback" id="classHoursFeedback" style="color:#c97070;"></p>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- STUDY GRAPH -->
   <div class="grid-cell reveal">
     <p class="section-label">Study Log</p>
     <p class="section-heading">Daily Hours</p>
+    <div class="chart-legend">
+      <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#c9a84c;"></span>Self-study</span>
+      <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#c97070;"></span>Classes</span>
+    </div>
     <div class="chart-wrap">
-      <canvas id="studyChart" role="img" aria-label="Line chart of daily study hours">No data yet.</canvas>
+      <canvas id="studyChart" role="img" aria-label="Daily self-study and class hours chart">No data yet.</canvas>
     </div>
     <div class="study-scroll-list" id="studyScrollList"></div>
   </div>
@@ -1140,40 +1552,7 @@ body::before {
 
   </div>
 
-  <!-- MOCK TRACKER (full width) -->
-  <div class="grid-cell full-col reveal">
-    <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:2.5rem;align-items:start;">
-      <div>
-        <p class="section-label">Performance Index</p>
-        <p class="section-heading" style="margin-bottom:1rem;">Mock Tracker</p>
-        <div class="mock-input-area">
-          <input class="mock-input" type="text" id="mockName" placeholder="Mock name (e.g. CLAT Mock 01)" />
-          <input class="mock-input short" type="number" id="mockPct" placeholder="%ile" min="0" max="100" step="0.1" />
-          <button class="mock-add-btn" onclick="addMock()">+ Add</button>
-        </div>
-        <div class="mock-entries-list" id="mockEntriesList"></div>
-        <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:0.8rem;" id="mockCount">No entries yet</p>
-        <p style="font-family:var(--mono);font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(138,128,112,0.4);margin-top:0.3rem;">Drag entries to reorder</p>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.4rem;">
-          <p style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-dim);">Percentile Curve</p>
-          <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);" id="mockBest">&mdash;</p>
-        </div>
-        <div class="chart-wrap" style="height:200px;">
-          <canvas id="mockChart" role="img" aria-label="Mock percentile line chart">No data yet.</canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div><!-- /main-grid -->
-
-<!-- ═══ QUOTE ═══ -->
-<div class="quote-band reveal">
-  <p class="pull-quote">The Constitution is not a mere lawyers&rsquo; document; it is a vehicle of life, and its spirit is always the spirit of the age.</p>
-  <p class="pull-cite">&mdash; Dr. B.R. Ambedkar</p>
-</div>
 
 <!-- ═══ PDF VIEWER ═══ -->
 <div class="pdf-section reveal">
@@ -1348,6 +1727,35 @@ body::before {
 </div>
 
 
+  <!-- MOCK TRACKER (full width — re-uses main-grid wrapper so the full-col class spans correctly) -->
+  <div class="main-grid">
+  <div class="grid-cell full-col reveal">
+    <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:2.5rem;align-items:start;">
+      <div>
+        <p class="section-label">Performance Index</p>
+        <p class="section-heading" style="margin-bottom:1rem;">Mock Tracker</p>
+        <div class="mock-input-area">
+          <input class="mock-input" type="text" id="mockName" placeholder="Mock name (e.g. CLAT Mock 01)" />
+          <input class="mock-input short" type="number" id="mockPct" placeholder="%ile" min="0" max="100" step="0.1" />
+          <button class="mock-add-btn" onclick="addMock()">+ Add</button>
+        </div>
+        <div class="mock-entries-list" id="mockEntriesList"></div>
+        <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:0.8rem;" id="mockCount">No entries yet</p>
+        <p style="font-family:var(--mono);font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(138,128,112,0.4);margin-top:0.3rem;">Drag entries to reorder</p>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.4rem;">
+          <p style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-dim);">Percentile Curve</p>
+          <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);" id="mockBest">&mdash;</p>
+        </div>
+        <div class="chart-wrap" style="height:200px;">
+          <canvas id="mockChart" role="img" aria-label="Mock percentile line chart">No data yet.</canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /main-grid (Mock Tracker section) -->
+
 <!-- ═══ WORD BANK OVERLAY ═══ -->
 <div id="wordBankOverlay" style="display:none;position:fixed;inset:0;background:#050505;z-index:800;overflow-y:auto;">
   <div style="max-width:760px;margin:0 auto;padding:3rem 2rem;">
@@ -1396,6 +1804,150 @@ body::before {
   <div id="feedGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;border:1px solid var(--border);"></div>
   <div id="feedEmpty" style="font-family:var(--serif);font-size:1rem;font-style:italic;color:var(--muted);padding:2rem 0;display:none;">No articles loaded. Click Refresh or check your connection.</div>
   <div id="feedOffline" style="font-family:var(--serif);font-size:1rem;font-style:italic;color:var(--muted);padding:2rem 0;display:none;">&#9632;&ensp;No internet connection &mdash; reading feed unavailable.</div>
+</div>
+
+<!-- ═══ QUOTE ═══ -->
+<div class="quote-band reveal">
+  <p class="pull-quote">The Constitution is not a mere lawyers&rsquo; document; it is a vehicle of life, and its spirit is always the spirit of the age.</p>
+  <p class="pull-cite">&mdash; Dr. B.R. Ambedkar</p>
+</div>
+
+<!-- ═══ READING STREAK OVERLAY ═══ -->
+<div class="reading-overlay" id="readingOverlay" role="dialog" aria-label="Reading Streak" onclick="if(event.target.id==='readingOverlay') closeReading()">
+  <div class="reading-panel">
+    <button class="reading-close" onclick="closeReading()" aria-label="Close">&times;</button>
+    <p class="reading-eyebrow">Reading Streak</p>
+    <h2 class="reading-title">A few pages, <em>daily</em>.</h2>
+    <p class="reading-sub">It doesn't matter how many. Just show up. The streak counts every day you read at least one page.</p>
+
+    <div class="reading-streak-display">
+      <span class="reading-streak-num" id="readingStreakNum">0</span>
+      <span class="reading-streak-lbl" id="readingStreakLbl">day streak</span>
+    </div>
+
+    <!-- Current book -->
+    <div class="reading-book-wrap">
+      <p class="reading-field-label">Current book</p>
+      <div class="reading-book-row">
+        <input type="text" id="readingBookInput" class="reading-input reading-book-input" placeholder="e.g. India After Gandhi" />
+        <button class="reading-btn" onclick="saveReadingBook()">Save</button>
+      </div>
+      <p class="reading-book-current" id="readingBookCurrent"></p>
+    </div>
+
+    <!-- Pages today -->
+    <div class="reading-pages-wrap">
+      <p class="reading-field-label">Pages read</p>
+      <div class="reading-pages-row">
+        <input type="number" id="readingPagesInput" class="reading-input" placeholder="Pages (e.g. 25)" min="1" max="2000" step="1" />
+        <input type="date" id="readingPagesDate" class="reading-input" />
+        <button class="reading-btn" onclick="addReadingEntry(1)">+ Log</button>
+        <button class="reading-btn muted" onclick="addReadingEntry(-1)" title="Subtract pages from this date">&#8722;</button>
+      </div>
+      <p class="reading-feedback" id="readingFeedback"></p>
+    </div>
+
+    <!-- Chart -->
+    <div class="reading-chart-wrap">
+      <p class="reading-chart-label">Pages per day &middot; last 21 days</p>
+      <div class="reading-chart-canvas-wrap">
+        <canvas id="readingChart" role="img" aria-label="Line chart of pages read per day">No data yet.</canvas>
+      </div>
+      <div class="reading-entries-list" id="readingEntriesList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GROUND (rumination reassurance) ═══ -->
+<button class="ground-trigger" id="groundTrigger" onclick="openGround()" aria-label="Open grounding panel" title="Ground"></button>
+<div class="ground-overlay" id="groundOverlay" role="dialog" aria-label="Ground" onclick="if(event.target.id==='groundOverlay') closeGround()">
+  <div class="ground-panel">
+    <button class="ground-close" onclick="closeGround()" aria-label="Close">&times;</button>
+    <p class="ground-eyebrow">Ground</p>
+    <h2 class="ground-title">Close the <em>loop</em>.</h2>
+    <p class="ground-sub">You came here looking for permission to keep questioning. You won't find that here. You'll find what you already know, written down where you can see it.</p>
+
+    <div class="ground-purpose">
+      <p class="ground-purpose-line">Your purpose is <strong>not</strong> to feel passionate about law.</p>
+      <p class="ground-purpose-line">Your purpose is to <strong>clear CLAT 2027</strong>.</p>
+      <p class="ground-purpose-line">You have no other path you're being pulled toward. You've checked. Repeatedly.</p>
+      <p class="ground-purpose-line">There is nothing left to decide. Only work left to do.</p>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">The pattern, named</p>
+      <p class="ground-anchor">This is <em>reassurance-seeking</em>, not inquiry.</p>
+      <p class="ground-body">When a thought feels threatening and you engage with it, you reward the thought. Your brain learns: "Good — this topic gets attention. Generate more." Every time you answer a doubt, you train the doubt to come back stronger. Every time you let it pass without engagement, you starve it. The fear that ignoring it lets it secretly entrench is exactly backwards. <strong>Engagement strengthens. Ignoring weakens.</strong> This is a known mechanism — see Adrian Wells' work on metacognitive therapy, and the rumination research of Susan Nolen-Hoeksema. The loop does not contain truth. It contains itself.</p>
+      <p class="ground-quote">"Rumination is not problem-solving. It is the illusion of problem-solving. The repeated mental review of the same question, without action, produces lower mood, reduced concentration, and reduced motivation — not insight."
+        <span class="ground-quote-attr">— Nolen-Hoeksema, Response Styles Theory</span>
+      </p>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">The questions, answered</p>
+
+      <details class="ground-qa">
+        <summary>But what if law isn't right for me?</summary>
+        <div class="ground-qa-body">You have spent <strong>months</strong> running this question through every possible angle. You have considered science, commerce, media, journalism, history. None of them pull you. None of them produce excitement when you imagine choosing them. Law produces the same neutrality everything else does, because <em>neutrality is your default state right now</em>, not a verdict on law. The question has been asked and answered many times. There is no new information that will arrive by asking it a 47th time. The only new information comes from <strong>doing the work and seeing the data</strong>.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But I don't feel passionate. Others seem to.</summary>
+        <div class="ground-qa-body">Passion almost never precedes competence. It follows it. This is well established in motivation research — Cal Newport's <em>So Good They Can't Ignore You</em> synthesises decades of work showing that the "passion hypothesis" (find what you love, then pursue it) is empirically backwards. The people who appear passionate became good first, then their brains rewrote the story as love. <strong>You haven't reached the competence stage yet</strong>. Expecting passion before competence is like expecting a tree before a seed. As for your peers — what you're comparing is their <em>visible enthusiasm</em> with your <em>internal emotional state</em>. That comparison is rigged.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>What if I'm wasting time on the wrong path?</summary>
+        <div class="ground-qa-body">At 17, no decision is irreversible. If you prepare seriously for CLAT and later pivot, you gain: reading speed, analytical reasoning, current affairs depth, focus discipline. These transfer to <strong>policy, civil services, journalism, management, consulting, academia</strong>. The skills are not the trap. <em>Indecision is the trap</em>. A capable student who stays in evaluation mode for two years loses far more than one who commits to a "merely fine" path and builds. The asymmetry strongly favours commitment.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But my interest fluctuates. Doesn't that mean something?</summary>
+        <div class="ground-qa-body">No. Interest <strong>always</strong> fluctuates. Hedonic adaptation is a fundamental neurological process — the brain habituates to any stimulus, including ones you genuinely care about. The honeymoon dies, the work begins. That's the same for medicine, engineering, music, sport, every serious pursuit. Treating daily interest fluctuation as a career signal is statistically equivalent to checking the weather to decide where to live. <em>Mild boredom is the texture of serious work</em>, not a warning sign.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>What if a new argument comes to me that I haven't considered?</summary>
+        <div class="ground-qa-body">It will. Your brain is a hypothesis factory. Given a topic, it generates infinite variations — the science-to-law MUN guy, the late-bloomer success story, the "what if I discover my true passion at 19" scenario. There is no final argument. There is only the next one. The fear that an unanswered argument silently entrenches is false: <strong>thoughts strengthen through engagement, not through passive presence</strong>. When the next argument comes, label it ("alternative scenario generation"), return to the task, and watch how quickly it loses weight. That's cognitive defusion — see Steven Hayes' ACT framework. It works.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But what if the AI advice is wrong?</summary>
+        <div class="ground-qa-body">It could be. So could your teachers, your parents, your toppers, your seniors, your 17-year-old intuition. There is no oracle. The point was never to believe an advisor — it was to <strong>run the experiment</strong>. Six months of structured CLAT prep will give you real data: score trajectory, work tolerance, ability to improve with effort. That data is the only thing that resolves uncertainty. Refusing to run the experiment because the hypothesis <em>might</em> be wrong is not skepticism — it's avoidance dressed up as rigour.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>Some guy I know loves studying for CLAT. I don't. What does that mean?</summary>
+        <div class="ground-qa-body">It means he has a different nervous system, and possibly a different relationship with the word "love". Most people who say they love their prep mean: <em>I like being good at it. I like the structure. I like the identity it gives me.</em> They do not mean they wake up thrilled by editorials. You are comparing a public slogan to your private mental mess. That comparison was unfair the moment it started. <strong>Quiet commitment outlasts loud enthusiasm</strong> in every competitive exam ever measured.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>I'm scared I'll commit and turn out to be ordinary.</summary>
+        <div class="ground-qa-body">This is the real fear under all the others. As long as you stay "still figuring it out", failure means "I wasn't trying" and success would mean "I was special". Committing exposes you to the possibility of trying hard and still being normal. <strong>That's the actual transition from gifted student to adult competitor</strong>, and almost every capable person resists it for as long as possible. The way through is not to argue with the fear. It is to act anyway, and let competence quietly redefine what "ordinary" means. You will not be ordinary. But the only path that proves it is the one where you stop negotiating with the doubt and start accumulating evidence.</div>
+      </details>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">The principles, anchored</p>
+
+      <p class="ground-anchor">1. Action quiets philosophy, not the other way around.</p>
+      <p class="ground-body">William James, the father of American psychology, observed that emotion follows action more reliably than action follows emotion. You will not think your way into commitment. You will <strong>act your way into clarity</strong>. The sequence is Commit → Effort → Evidence → Confidence, never the reverse.</p>
+
+      <p class="ground-anchor">2. Cognitive load destroys CLAT performance.</p>
+      <p class="ground-body">Working memory is finite. Every minute spent ruminating on "is this right?" is a minute stolen from the same system that has to process 120 questions in 120 minutes on exam day. <strong>Rumination is not free</strong>. It costs marks. Every uncertainty hour is a competitor's compounding hour you didn't take.</p>
+
+      <p class="ground-anchor">3. Decision postponement reduces anxiety.</p>
+      <p class="ground-body">CBT's "scheduled worry" technique: you assign career thinking to a fixed 30-minute slot once a week. Outside that window, when the doubt comes, the answer is <em>"Sunday. Not now."</em> Studies (Borkovec et al.) show this reduces intrusive thoughts, improves focus, and lowers baseline anxiety — without suppressing the thought, just <strong>containing it</strong>.</p>
+
+      <p class="ground-anchor">4. The exam is arithmetic, not destiny.</p>
+      <p class="ground-body">Top NLU aspirants accumulate 600–900 hours of serious preparation. That's it. Not passion, not lineage, not innate brilliance. Hours. Focused hours. Repeated. CLAT does not care about your relationship with your purpose. It measures <strong>accumulated skill under time pressure</strong>, and the only thing that produces accumulated skill is showing up.</p>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">Now, today</p>
+      <p class="ground-body" style="font-size:1.05rem;color:var(--parchment);">You don't have to feel sure. You don't have to feel passionate. You don't have to resolve the question of whether law is your forever. You only have to do <strong>today's work</strong>. The newspaper. The passages. The mocks. The vocabulary. Quietly, without inner commentary, without auditing yourself every paragraph. That's it. That's the whole job. Close this panel. Open the timer. Begin.</p>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ FOOTER ═══ -->
@@ -1447,84 +1999,296 @@ document.getElementById('ieForm').addEventListener('submit',function(e){
 });
 
 /* ══ TIMER ══ */
-var timerSec=0,timerRunning=false,timerInterval=null;
+/* ══ TIMER — wall-clock based, survives sleep / tab-switch / crash ══ */
+/* State model:
+   - timerAccumulatedMs: total ms accrued in previous start→pause cycles of this session
+   - timerStartedAt: timestamp (ms) when current run began, or null if paused
+   - Current elapsed = timerAccumulatedMs + (timerStartedAt ? Date.now() - timerStartedAt : 0)
+   State is persisted under 'clatTimerState' so reloads, crashes, or sleep don't lose progress. */
+var timerAccumulatedMs = 0;
+var timerStartedAt = null;
+var timerDisplayInterval = null;
+
+function timerStateLoad(){
+  var st = safeGet('clatTimerState', null);
+  if(st && typeof st === 'object'){
+    timerAccumulatedMs = st.accumulated || 0;
+    timerStartedAt = st.startedAt || null;
+  }
+}
+function timerStateSave(){
+  safeSet('clatTimerState', { accumulated: timerAccumulatedMs, startedAt: timerStartedAt });
+}
+function timerElapsedMs(){
+  return timerAccumulatedMs + (timerStartedAt ? (Date.now() - timerStartedAt) : 0);
+}
 function updateTimerDisplay(){
-  var h=Math.floor(timerSec/3600),m=Math.floor((timerSec%3600)/60),s=timerSec%60;
-  document.getElementById('timerDisplay').textContent=pad(h)+':'+pad(m)+':'+pad(s);
+  var total = Math.floor(timerElapsedMs() / 1000);
+  var h = Math.floor(total/3600), m = Math.floor((total%3600)/60), s = total%60;
+  var el = document.getElementById('timerDisplay');
+  if(el) el.textContent = pad(h)+':'+pad(m)+':'+pad(s);
 }
 function startTimer(){
-  if(timerRunning)return;
-  timerRunning=true;
+  if(timerStartedAt) return; /* already running */
+  timerStartedAt = Date.now();
+  timerStateSave();
   document.getElementById('startBtn').classList.add('active');
   document.getElementById('pauseBtn').classList.remove('active');
   document.getElementById('timerDisplay').classList.add('running');
-  document.getElementById('timerStatus').textContent='Session in progress...';
-  timerInterval=setInterval(function(){timerSec++;updateTimerDisplay();},1000);
+  document.getElementById('timerStatus').textContent = 'Session in progress...';
+  if(timerDisplayInterval) clearInterval(timerDisplayInterval);
+  timerDisplayInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
 }
 function pauseTimer(){
-  if(!timerRunning)return;
-  timerRunning=false; clearInterval(timerInterval);
+  if(!timerStartedAt) return;
+  timerAccumulatedMs += Date.now() - timerStartedAt;
+  timerStartedAt = null;
+  timerStateSave();
+  if(timerDisplayInterval){ clearInterval(timerDisplayInterval); timerDisplayInterval = null; }
   document.getElementById('startBtn').classList.remove('active');
   document.getElementById('pauseBtn').classList.add('active');
   document.getElementById('timerDisplay').classList.remove('running');
-  document.getElementById('timerStatus').textContent='Paused';
+  document.getElementById('timerStatus').textContent = 'Paused';
+  updateTimerDisplay();
 }
 function saveTimer(){
-  if(timerSec===0)return;
-  var hrs=timerSec/3600, key=todayKey();
-  var data=safeGet('clatStudyData',{});
-  data[key]=(data[key]||0)+hrs;
-  safeSet('clatStudyData',data);
-  pauseTimer(); timerSec=0; updateTimerDisplay();
+  if(timerStartedAt) pauseTimer();
+  var totalMs = timerAccumulatedMs;
+  if(totalMs < 1000) return;
+  var hrs = totalMs / 3600000;
+  var key = todayKey();
+  var data = safeGet('clatStudyData', {});
+  data[key] = (data[key] || 0) + hrs;
+  safeSet('clatStudyData', data);
+  timerAccumulatedMs = 0;
+  timerStartedAt = null;
+  timerStateSave();
+  updateTimerDisplay();
   document.getElementById('startBtn').classList.remove('active');
   document.getElementById('pauseBtn').classList.remove('active');
   document.getElementById('timerDisplay').classList.remove('running');
-  document.getElementById('timerStatus').textContent='Ready to begin';
-  var fb=document.getElementById('saveFeedback');
-  fb.textContent='✓ '+hrs.toFixed(2)+'h logged for today';
-  setTimeout(function(){fb.textContent='';},3500);
+  document.getElementById('timerStatus').textContent = 'Ready to begin';
+  var fb = document.getElementById('saveFeedback');
+  fb.textContent = '✓ ' + hrs.toFixed(2) + 'h logged for today';
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
   renderStudyChart();
 }
+
+/* MANUAL HOURS — log/remove self-study time. sign=+1 add, sign=-1 subtract */
+function addManualHours(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var inp = document.getElementById('manualHoursInput');
+  var dateInp = document.getElementById('manualHoursDate');
+  var val = parseFloat(inp.value);
+  if(!val || val <= 0 || val > 24){
+    alert('Enter a valid number of hours (between 0 and 24).');
+    return;
+  }
+  var key = (dateInp.value || todayKey());
+  var data = safeGet('clatStudyData', {});
+  var current = data[key] || 0;
+  var next = current + (sign * val);
+  if(next < 0){
+    if(!confirm('That would put ' + key + ' below zero. Clear the day instead?')){ return; }
+    delete data[key];
+  } else if(next < 0.01){
+    delete data[key];
+  } else {
+    data[key] = Math.round(next * 100) / 100;
+  }
+  safeSet('clatStudyData', data);
+  inp.value = '';
+  var fb = document.getElementById('manualHoursFeedback');
+  fb.textContent = (sign > 0 ? '✓ Added ' : '✓ Removed ') + val.toFixed(2) + 'h ' + (sign > 0 ? 'to ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* CLASS HOURS — tracked separately, in red */
+function addClassHours(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var inp = document.getElementById('classHoursInput');
+  var dateInp = document.getElementById('classHoursDate');
+  var val = parseFloat(inp.value);
+  if(!val || val <= 0 || val > 24){
+    alert('Enter a valid number of class hours (between 0 and 24).');
+    return;
+  }
+  var key = (dateInp.value || todayKey());
+  var data = safeGet('clatClassData', {});
+  var current = data[key] || 0;
+  var next = current + (sign * val);
+  if(next < 0){
+    if(!confirm('That would put class hours for ' + key + ' below zero. Clear the day instead?')){ return; }
+    delete data[key];
+  } else if(next < 0.01){
+    delete data[key];
+  } else {
+    data[key] = Math.round(next * 100) / 100;
+  }
+  safeSet('clatClassData', data);
+  inp.value = '';
+  var fb = document.getElementById('classHoursFeedback');
+  fb.textContent = (sign > 0 ? '✓ Logged ' : '✓ Removed ') + val.toFixed(2) + 'h of class ' + (sign > 0 ? 'for ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* Restore timer on page load */
+timerStateLoad();
+if(timerStartedAt){
+  document.getElementById('startBtn').classList.add('active');
+  document.getElementById('pauseBtn').classList.remove('active');
+  document.getElementById('timerDisplay').classList.add('running');
+  document.getElementById('timerStatus').textContent = 'Session in progress...';
+  if(timerDisplayInterval) clearInterval(timerDisplayInterval);
+  timerDisplayInterval = setInterval(updateTimerDisplay, 1000);
+} else if(timerAccumulatedMs > 0){
+  document.getElementById('pauseBtn').classList.add('active');
+  document.getElementById('timerStatus').textContent = 'Paused';
+}
+updateTimerDisplay();
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden) updateTimerDisplay();
+});
+/* Default the date inputs to today */
+(function(){
+  var today = todayKey();
+  var d1 = document.getElementById('manualHoursDate');
+  if(d1) d1.value = today;
+  var d2 = document.getElementById('classHoursDate');
+  if(d2) d2.value = today;
+})();
 
 /* ══ STUDY CHART ══ */
 var studyChartInst=null;
 function renderStudyChart(){
-  var data=safeGet('clatStudyData',{});
-  var keys=Object.keys(data).sort().slice(-21);
-  var labels=keys.map(function(k){var p=k.split('-');return p[2]+'/'+p[1];});
-  var vals=keys.map(function(k){return parseFloat(data[k].toFixed(2));});
+  var studyData = safeGet('clatStudyData', {});
+  var classData = safeGet('clatClassData', {});
 
-  /* scroll list */
-  var sl=document.getElementById('studyScrollList'); sl.innerHTML='';
+  /* Union of keys from both datasets, last 21 days */
+  var allKeysSet = {};
+  Object.keys(studyData).forEach(function(k){ allKeysSet[k] = 1; });
+  Object.keys(classData).forEach(function(k){ allKeysSet[k] = 1; });
+  var keys = Object.keys(allKeysSet).sort().slice(-21);
+  var labels = keys.map(function(k){ var p = k.split('-'); return p[2]+'/'+p[1]; });
+  var studyVals = keys.map(function(k){ return parseFloat((studyData[k] || 0).toFixed(2)); });
+  var classVals = keys.map(function(k){ return parseFloat((classData[k] || 0).toFixed(2)); });
+  /* For visual stacking: plot the classes line at (study + class) so it sits on top of study line.
+     The red area fills only the slice between the two lines. */
+  var stackedTopVals = keys.map(function(k, i){
+    return parseFloat(((studyData[k] || 0) + (classData[k] || 0)).toFixed(2));
+  });
+
+  /* Scroll list */
+  var sl = document.getElementById('studyScrollList'); sl.innerHTML = '';
   keys.slice().reverse().forEach(function(k){
-    var row=document.createElement('div'); row.className='study-entry-row';
-    row.innerHTML='<span>'+k+'</span><span style="color:var(--accent);">'+data[k].toFixed(2)+'h</span>'
-      +'<button class="study-del-btn" onclick="deleteStudyDay(\''+k+'\')">&#10005;</button>';
+    var s = studyData[k] || 0;
+    var c = classData[k] || 0;
+    var row = document.createElement('div'); row.className = 'study-entry-row';
+    var parts = '<span>' + k + '</span>';
+    var values = '<span class="study-entry-vals">';
+    if(s > 0){
+      values += '<span style="color:var(--accent);">' + s.toFixed(2) + 'h study</span>'
+        + '<button class="study-del-btn" onclick="deleteStudyDay(\'' + k + '\')" title="Remove study hours">&#10005;</button>';
+    }
+    if(c > 0){
+      values += '<span style="color:#c97070;margin-left:0.5rem;">' + c.toFixed(2) + 'h class</span>'
+        + '<button class="study-del-btn class-del" onclick="deleteClassDay(\'' + k + '\')" title="Remove class hours">&#10005;</button>';
+    }
+    values += '</span>';
+    row.innerHTML = parts + values;
     sl.appendChild(row);
   });
 
-  var ctx=document.getElementById('studyChart').getContext('2d');
+  var ctx = document.getElementById('studyChart').getContext('2d');
   if(studyChartInst) studyChartInst.destroy();
-  if(keys.length===0)return;
-  studyChartInst=new Chart(ctx,{
-    type:'line',
-    data:{labels:labels,datasets:[{
-      label:'Hours',data:vals,
-      borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.07)',
-      pointBackgroundColor:'#c9a84c',pointBorderColor:'#000',pointBorderWidth:1,
-      pointRadius:4,pointHoverRadius:6,fill:true,tension:0.4,borderWidth:1.5
-    }]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{
-        backgroundColor:'#0a0a0a',borderColor:'rgba(201,168,76,0.4)',borderWidth:1,
-        titleColor:'#c9a84c',bodyColor:'#f5f0e8',
-        titleFont:{family:'DM Mono',size:10},bodyFont:{family:'Cormorant Garamond',size:13},
-        callbacks:{label:function(c){return c.parsed.y.toFixed(2)+'h studied';}}
-      }},
-      scales:{
-        x:{ticks:{color:'#6a6050',font:{family:'DM Mono',size:9},maxRotation:45},grid:{color:'rgba(180,160,120,0.07)'}},
-        y:{min:0,max:10,ticks:{color:'#6a6050',font:{family:'DM Mono',size:9},callback:function(v){return v+'h';}},grid:{color:'rgba(180,160,120,0.07)'}}
+  if(keys.length === 0) return;
+
+  /* Y-axis cap: default 10, grow if stack exceeds */
+  var maxStack = 10;
+  keys.forEach(function(k, i){
+    var t = studyVals[i] + classVals[i];
+    if(t > maxStack) maxStack = Math.ceil(t + 1);
+  });
+
+  studyChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Self-study',
+          data: studyVals,
+          borderColor: '#c9a84c',
+          backgroundColor: 'rgba(201,168,76,0.10)',
+          pointBackgroundColor: '#c9a84c',
+          pointBorderColor: '#000',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: 'origin',
+          tension: 0.4,
+          borderWidth: 1.5
+        },
+        {
+          label: 'Classes',
+          data: stackedTopVals,
+          borderColor: '#c97070',
+          backgroundColor: 'rgba(201,112,112,0.16)',
+          pointBackgroundColor: '#c97070',
+          pointBorderColor: '#000',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: '-1',
+          tension: 0.4,
+          borderWidth: 1.5,
+          rawClass: classVals
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0a0a',
+          borderColor: 'rgba(201,168,76,0.4)',
+          borderWidth: 1,
+          titleColor: '#c9a84c',
+          bodyColor: '#f5f0e8',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'Cormorant Garamond', size: 13 },
+          callbacks: {
+            label: function(ctx){
+              if(ctx.dataset.label === 'Classes' && ctx.dataset.rawClass){
+                return 'Classes: ' + ctx.dataset.rawClass[ctx.dataIndex].toFixed(2) + 'h';
+              }
+              return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + 'h';
+            },
+            footer: function(items){
+              var s = 0, c = 0;
+              items.forEach(function(it){
+                if(it.dataset.label === 'Self-study') s = it.parsed.y;
+                else if(it.dataset.rawClass) c = it.dataset.rawClass[it.dataIndex];
+              });
+              return 'Total: ' + (s + c).toFixed(2) + 'h';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 }, maxRotation: 45 },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        },
+        y: {
+          min: 0, max: maxStack,
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 }, callback: function(v){ return v + 'h'; } },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        }
       }
     }
   });
@@ -1533,6 +2297,10 @@ function renderStudyChart(){
 function deleteStudyDay(key){
   var data=safeGet('clatStudyData',{});
   delete data[key]; safeSet('clatStudyData',data); renderStudyChart();
+}
+function deleteClassDay(key){
+  var data=safeGet('clatClassData',{});
+  delete data[key]; safeSet('clatClassData',data); renderStudyChart();
 }
 renderStudyChart();
 
@@ -1551,6 +2319,7 @@ var DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satu
 
 function chkKey(){ return 'clatChklist_'+todayKey(); }
 function customKey(){ return 'clatChkCustom'; }
+function hiddenKey(){ return 'clatChkHidden_'+todayKey(); }
 
 function renderChecklist(){
   var day=new Date().getDay();
@@ -1560,6 +2329,9 @@ function renderChecklist(){
   if(day===0) tasks.push(TASK_SUN);
   var customs=safeGet(customKey(),[]);
   customs.forEach(function(c){ tasks.push({id:'custom_'+c.id,label:c.label,tag:'custom',cid:c.id}); });
+  /* Hide tasks the user removed for today (per-day map) */
+  var hidden = safeGet(hiddenKey(), {});
+  tasks = tasks.filter(function(t){ return !hidden[t.id]; });
   var saved=safeGet(chkKey(),{});
   var list=document.getElementById('chkList'); list.innerHTML='';
   tasks.forEach(function(t){
@@ -1569,7 +2341,10 @@ function renderChecklist(){
     row.setAttribute('role','button'); row.setAttribute('tabindex','0');
     var tagCls=t.tag==='sat'?'tag-sat':t.tag==='sun'?'tag-sun':t.tag==='custom'?'tag-custom':'tag-daily';
     var tagLbl=t.tag==='sat'?'Sat':t.tag==='sun'?'Sun':t.tag==='custom'?'Custom':'Daily';
-    var delBtn=t.tag==='custom'?'<button class="chk-del-btn" onclick="event.stopPropagation();deleteCustomTask(\''+t.cid+'\')">&#10005;</button>':'';
+    var delAction = t.tag==='custom'
+      ? 'deleteCustomTask(\''+t.cid+'\')'
+      : 'hidePresetTaskToday(\''+t.id+'\')';
+    var delBtn = '<button class="chk-del-btn" title="Remove from today\'s list" onclick="event.stopPropagation();'+delAction+'">&#10005;</button>';
     row.innerHTML='<div class="chk-box'+(done?' done':'')+'" aria-hidden="true"></div>'
       +'<span class="chk-label">'+t.label+'</span>'
       +'<span class="chk-tag '+tagCls+'">'+tagLbl+'</span>'
@@ -1578,6 +2353,12 @@ function renderChecklist(){
     row.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleTask(t.id);}});
     list.appendChild(row);
   });
+  if(tasks.length === 0){
+    var hint = document.createElement('div');
+    hint.className = 'chk-empty-hint';
+    hint.innerHTML = 'All tasks removed for today. <button class="chk-restore-link" onclick="restoreTodaysTasks()">Restore presets</button>';
+    list.appendChild(hint);
+  }
 }
 
 function toggleTask(id){
@@ -1597,6 +2378,18 @@ function deleteCustomTask(cid){
   var customs=safeGet(customKey(),[]);
   customs=customs.filter(function(c){return c.id!=cid;});
   safeSet(customKey(),customs); renderChecklist();
+}
+
+/* Hide a preset task for today only */
+function hidePresetTaskToday(id){
+  var hidden = safeGet(hiddenKey(), {});
+  hidden[id] = true;
+  safeSet(hiddenKey(), hidden);
+  renderChecklist();
+}
+function restoreTodaysTasks(){
+  safeSet(hiddenKey(), {});
+  renderChecklist();
 }
 
 function resetChecklist(){ safeSet(chkKey(),{}); safeSet(hiddenKey(),{}); renderChecklist(); }
@@ -2549,6 +3342,274 @@ function saveActiveTopic(){ try{ localStorage.setItem('clatActiveTopic', documen
 (function(){ try{ var v=localStorage.getItem('clatActiveTopic'); if(v!=null){ var el=document.getElementById('activeTopic'); if(el) el.value=v; } }catch(e){} })();
 renderCaptureBox();
 window.addEventListener('storage', function(e){ if(e.key==='clatCardQueue') renderCaptureBox(); });
+
+/* ══ READING STREAK ══ */
+var readingChartInst = null;
+
+function getReadingData(){ return safeGet('clatReadingData', {}); }
+function setReadingData(d){ safeSet('clatReadingData', d); }
+function getReadingBook(){ return safeGet('clatReadingBook', ''); }
+function setReadingBook(b){ safeSet('clatReadingBook', b); }
+
+function ymd(d){
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function computeReadingStreak(){
+  var data = getReadingData();
+  if(!data || !Object.keys(data).length) return 0;
+  var streak = 0;
+  var d = new Date();
+  var todayK = ymd(d);
+  /* If today not logged yet, count from yesterday so streak doesn't preemptively drop */
+  if(!hasReadingEntry(data, todayK)){
+    d.setDate(d.getDate() - 1);
+  }
+  while(true){
+    var k = ymd(d);
+    if(hasReadingEntry(data, k)){
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
+function hasReadingEntry(data, key){
+  var e = data[key];
+  if(!e) return false;
+  var pgs = (typeof e === 'object') ? (e.pages || 0) : e;
+  return pgs > 0;
+}
+
+function updateReadingStreakBadge(){
+  var s = computeReadingStreak();
+  var badge = document.getElementById('rsStreakBadge');
+  if(badge){
+    badge.textContent = s;
+    badge.classList.remove('cold', 'fire');
+    if(s === 0) badge.classList.add('cold');
+    else if(s >= 7) badge.classList.add('fire');
+  }
+  var num = document.getElementById('readingStreakNum');
+  if(num) num.textContent = s;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+function refreshReadingBookCurrent(){
+  var book = getReadingBook();
+  var el = document.getElementById('readingBookCurrent');
+  if(!el) return;
+  el.innerHTML = book ? 'Currently reading: <strong>' + escapeHtml(book) + '</strong>' : '';
+}
+
+function openReading(){
+  document.getElementById('readingOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('readingBookInput').value = getReadingBook();
+  refreshReadingBookCurrent();
+  document.getElementById('readingPagesDate').value = todayKey();
+  document.getElementById('readingPagesInput').value = '';
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+function closeReading(){
+  document.getElementById('readingOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function saveReadingBook(){
+  var inp = document.getElementById('readingBookInput');
+  var v = (inp.value || '').trim();
+  setReadingBook(v);
+  refreshReadingBookCurrent();
+  var fb = document.getElementById('readingFeedback');
+  fb.textContent = v ? '✓ Book saved' : '✓ Book cleared';
+  setTimeout(function(){ fb.textContent = ''; }, 2500);
+}
+
+function addReadingEntry(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var pgInp = document.getElementById('readingPagesInput');
+  var dInp = document.getElementById('readingPagesDate');
+  var pages = parseInt(pgInp.value, 10);
+  if(!pages || pages <= 0 || pages > 2000){
+    alert('Enter a valid page count (1–2000).');
+    return;
+  }
+  var key = (dInp.value || todayKey());
+  var data = getReadingData();
+  var existing = data[key];
+  var current = (typeof existing === 'object' && existing) ? (existing.pages || 0) : (existing || 0);
+  var next = current + sign * pages;
+  if(next < 0){
+    if(!confirm('That would put ' + key + ' below zero. Clear the entry?')){ return; }
+    delete data[key];
+  } else if(next === 0){
+    delete data[key];
+  } else {
+    var book = getReadingBook();
+    data[key] = { pages: next, book: book || (typeof existing === 'object' ? existing.book : '') };
+  }
+  setReadingData(data);
+  pgInp.value = '';
+  var fb = document.getElementById('readingFeedback');
+  fb.textContent = (sign > 0 ? '✓ Logged ' : '✓ Removed ') + pages + ' page' + (pages === 1 ? '' : 's') + ' ' + (sign > 0 ? 'on ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3000);
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+function deleteReadingDay(key){
+  var data = getReadingData();
+  delete data[key];
+  setReadingData(data);
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+
+function renderReadingChart(){
+  var data = getReadingData();
+  var keys = Object.keys(data).sort().slice(-21);
+  var labels = keys.map(function(k){ var p = k.split('-'); return p[2]+'/'+p[1]; });
+  var vals = keys.map(function(k){
+    var e = data[k];
+    return (typeof e === 'object') ? (e.pages || 0) : (e || 0);
+  });
+
+  var list = document.getElementById('readingEntriesList');
+  if(list){
+    list.innerHTML = '';
+    if(!keys.length){
+      var hint = document.createElement('div');
+      hint.className = 'reading-empty-hint';
+      hint.textContent = 'No entries yet. Log your first session above.';
+      list.appendChild(hint);
+    } else {
+      keys.slice().reverse().forEach(function(k){
+        var e = data[k];
+        var pgs = (typeof e === 'object') ? (e.pages || 0) : (e || 0);
+        var bk = (typeof e === 'object' && e.book) ? e.book : '';
+        var row = document.createElement('div'); row.className = 'reading-entry-row';
+        row.innerHTML = '<span>'+k+'</span>'
+          + '<span class="reading-entry-book" title="'+escapeHtml(bk)+'">'+escapeHtml(bk || '—')+'</span>'
+          + '<span class="reading-entry-pages">'+pgs+' pg</span>'
+          + '<button class="reading-entry-del" onclick="deleteReadingDay(\''+k+'\')" title="Remove this entry">&#10005;</button>';
+        list.appendChild(row);
+      });
+    }
+  }
+
+  var canvas = document.getElementById('readingChart');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if(readingChartInst) readingChartInst.destroy();
+  if(!keys.length) return;
+
+  var maxV = 10;
+  vals.forEach(function(v){ if(v > maxV) maxV = v; });
+  maxV = Math.ceil(maxV * 1.15);
+
+  readingChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Pages',
+        data: vals,
+        borderColor: 'rgba(140,190,255,1)',
+        backgroundColor: 'rgba(80,150,255,0.12)',
+        pointBackgroundColor: 'rgba(140,190,255,1)',
+        pointBorderColor: '#000',
+        pointBorderWidth: 1,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: 'origin',
+        tension: 0.4,
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0a0a',
+          borderColor: 'rgba(80,150,255,0.4)',
+          borderWidth: 1,
+          titleColor: 'rgba(140,190,255,1)',
+          bodyColor: '#f5f0e8',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'Cormorant Garamond', size: 13 },
+          callbacks: {
+            label: function(ctx){
+              var k = keys[ctx.dataIndex];
+              var entry = data[k];
+              var book = (typeof entry === 'object' && entry.book) ? entry.book : '';
+              var line = ctx.parsed.y + ' page' + (ctx.parsed.y === 1 ? '' : 's');
+              if(book) line += '  ·  ' + book;
+              return line;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 }, maxRotation: 45 },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        },
+        y: {
+          min: 0, max: maxV,
+          ticks: { color: '#6a6050', font: { family: 'DM Mono', size: 9 } },
+          grid: { color: 'rgba(180,160,120,0.07)' }
+        }
+      }
+    }
+  });
+}
+
+updateReadingStreakBadge();
+setInterval(updateReadingStreakBadge, 60 * 60 * 1000);
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('readingOverlay').classList.contains('open')){
+    var tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    closeReading();
+  }
+});
+(function(){
+  var pi = document.getElementById('readingPagesInput');
+  if(pi) pi.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); addReadingEntry(1); }
+  });
+  var bi = document.getElementById('readingBookInput');
+  if(bi) bi.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); saveReadingBook(); }
+  });
+})();
+
+/* ══ GROUND (rumination reassurance panel) ══ */
+function openGround(){
+  document.getElementById('groundOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeGround(){
+  document.getElementById('groundOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.querySelectorAll('#groundOverlay .ground-qa[open]').forEach(function(d){ d.removeAttribute('open'); });
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('groundOverlay').classList.contains('open')){
+    var tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    closeGround();
+  }
+});
 
 </script>
 <div id="labToast"></div>
