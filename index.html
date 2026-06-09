@@ -714,6 +714,59 @@ body::before {
 }
 .vocab-lookup-btn:hover { background: var(--accent-glow); }
 .vocab-lookup-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Groq key setup for dictionary lookup */
+.groq-setup { margin-bottom: 1rem; }
+.groq-instructions {
+  border: 1px solid var(--border); border-radius: 2px;
+  background: rgba(255,255,255,0.012); padding: 0;
+}
+.groq-instructions summary {
+  list-style: none; cursor: pointer;
+  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--accent-dim);
+  padding: 0.7rem 0.9rem; transition: color 0.2s;
+}
+.groq-instructions summary::-webkit-details-marker { display: none; }
+.groq-instructions summary:hover { color: var(--accent); }
+.groq-instructions[open] summary { color: var(--accent); border-bottom: 1px solid var(--border); }
+.groq-instructions ol {
+  margin: 0; padding: 0.9rem 0.9rem 0.5rem 2rem;
+  font-family: var(--serif); font-size: 0.92rem; color: var(--muted); line-height: 1.7;
+}
+.groq-instructions ol li { margin-bottom: 0.4rem; }
+.groq-instructions a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-dim); }
+.groq-instructions code {
+  font-family: var(--mono); font-size: 0.85em; color: var(--accent);
+  background: rgba(201,168,76,0.08); padding: 0.05rem 0.3rem; border-radius: 2px;
+}
+.groq-note {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(138,128,112,0.6);
+  padding: 0 0.9rem 0.8rem; margin: 0; line-height: 1.6;
+}
+.groq-status {
+  display: flex; align-items: center; gap: 0.6rem;
+  margin-bottom: 1rem; padding: 0.6rem 0.9rem;
+  border: 1px solid rgba(90,158,122,0.25); border-radius: 2px;
+  background: rgba(90,158,122,0.05);
+}
+.groq-status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 6px rgba(90,158,122,0.6);
+}
+.groq-status-text {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--green); flex: 1;
+}
+.groq-clear-btn {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: 1px solid var(--border);
+  padding: 0.25rem 0.6rem; cursor: pointer; border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.groq-clear-btn:hover { color: var(--red); border-color: rgba(201,112,112,0.4); }
 .vocab-lookup-result {
   display: none;
   border: 1px solid var(--border);
@@ -1320,7 +1373,7 @@ body::before {
 <!-- ═══ LAB NAV ═══ -->
 <div class="lab-nav">
   <span class="lab-nav-brand"><em>Lex</em> Apparatus</span>
-  <a class="lab-nav-link" href="flashcards_contextual.html">Active Recall &amp; Flashcards &nbsp;&#8594;</a>
+  <a class="lab-nav-link" href="flashcards.html">Active Recall &amp; Flashcards &nbsp;&#8594;</a>
 </div>
 
 <!-- ═══ COUNTDOWN ═══ -->
@@ -1597,7 +1650,7 @@ body::before {
   <div class="capture-box">
     <div class="capture-head">
       <span class="ct">Captured for Recall</span>
-      <span class="cmeta"><span id="captureCount">0</span> waiting &nbsp;&middot;&nbsp; <a href="flashcards_contextual.html" style="color:var(--accent);text-decoration:none;">Turn into flashcards &#8594;</a></span>
+      <span class="cmeta"><span id="captureCount">0</span> waiting &nbsp;&middot;&nbsp; <a href="flashcards.html" style="color:var(--accent);text-decoration:none;">Turn into flashcards &#8594;</a></span>
     </div>
     <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;padding:0.6rem 1rem;border-bottom:1px solid var(--border);">
       <span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Current topic</span>
@@ -1691,7 +1744,32 @@ body::before {
   <!-- Vocab Dictionary Lookup -->
   <div class="vocab-lookup-wrap">
     <p class="section-label" style="margin-bottom:0.5rem;">Dictionary Lookup</p>
-    <p style="font-family:var(--serif);font-size:1rem;font-weight:300;font-style:italic;color:var(--muted);margin-bottom:0.8rem;">Full word breakdown — AI-powered</p>
+    <p style="font-family:var(--serif);font-size:1rem;font-weight:300;font-style:italic;color:var(--muted);margin-bottom:0.8rem;">Full word breakdown — powered by Groq AI</p>
+
+    <!-- Groq API key setup (shares the same key as the Flashcards page) -->
+    <div class="groq-setup" id="groqKeySetup">
+      <details class="groq-instructions">
+        <summary>Set up a free Groq API key (one-time, ~30 seconds)</summary>
+        <ol>
+          <li>Visit <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> and sign in (no card needed)</li>
+          <li>Click <strong>Create API Key</strong>, name it anything</li>
+          <li>Copy the key (starts with <code>gsk_&hellip;</code>) and paste it below</li>
+        </ol>
+        <p class="groq-note">Saved in this browser only. The same key works on the Flashcards page and on your live GitHub site.</p>
+      </details>
+      <div class="vocab-lookup-row" style="margin-top:0.8rem;">
+        <input class="vocab-lookup-input" type="password" id="groqKeyInput" placeholder="Paste your Groq API key (gsk_…)" autocomplete="off" />
+        <button class="vocab-lookup-btn" onclick="setVocabGroqKey()">Save Key</button>
+      </div>
+    </div>
+
+    <!-- Key set indicator -->
+    <div class="groq-status" id="groqKeyStatus" style="display:none;">
+      <span class="groq-status-dot"></span>
+      <span class="groq-status-text">Groq key configured</span>
+      <button class="groq-clear-btn" onclick="clearVocabGroqKey()">Remove key</button>
+    </div>
+
     <div class="vocab-lookup-row">
       <input class="vocab-lookup-input" type="text" id="vocabLookupInput" placeholder="Enter any word&hellip;" />
       <button class="vocab-lookup-btn" id="vocabLookupBtn" onclick="lookupVocab()">Look Up</button>
@@ -2982,6 +3060,33 @@ function renderWordBank(){
 /* ══ VOCAB LOOKUP (Anthropic API) ══ */
 var vlCurrentData = null;
 
+/* ── Dictionary lookup powered by Groq (shares clatGroqKey with the Flashcards page) ── */
+var GROQ_MODEL = 'llama-3.3-70b-versatile';
+function getVocabGroqKey(){ try { return localStorage.getItem('clatGroqKey') || ''; } catch(e){ return ''; } }
+function setVocabGroqKey(){
+  var v = document.getElementById('groqKeyInput').value.trim();
+  try { if(v) localStorage.setItem('clatGroqKey', v); else localStorage.removeItem('clatGroqKey'); } catch(e){}
+  updateVocabGroqKeyUI();
+}
+function clearVocabGroqKey(){
+  try { localStorage.removeItem('clatGroqKey'); } catch(e){}
+  var inp = document.getElementById('groqKeyInput'); if(inp) inp.value = '';
+  updateVocabGroqKeyUI();
+}
+function updateVocabGroqKeyUI(){
+  var key = getVocabGroqKey();
+  var setup = document.getElementById('groqKeySetup');
+  var status = document.getElementById('groqKeyStatus');
+  if(!setup || !status) return;
+  if(key){
+    setup.style.display = 'none';
+    status.style.display = 'flex';
+  } else {
+    setup.style.display = 'block';
+    status.style.display = 'none';
+  }
+}
+
 async function lookupVocab() {
   var word = document.getElementById('vocabLookupInput').value.trim();
   if (!word) return;
@@ -2994,24 +3099,59 @@ async function lookupVocab() {
   err.classList.remove('visible');
   result.classList.remove('visible');
   vlCurrentData = null;
+
+  var prompt = 'Give me a complete vocabulary breakdown for the word: "' + word + '". '
+    + 'Respond ONLY with a valid JSON object, no markdown, no backticks, no preamble. '
+    + 'Schema: { "word": string, "simple_meaning": string (one plain sentence a child could understand), '
+    + '"definition": string (formal definition), "word_root": string (prefix/suffix/etymology/origin), '
+    + '"synonyms": string[] (5-7 words), "antonyms": string[] (4-6 words), '
+    + '"examples": string[] (exactly 3 example sentences using the word naturally) }';
+
   try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: 'Give me a complete vocabulary breakdown for the word: "' + word + '". Respond ONLY with a valid JSON object, no markdown, no backticks, no preamble. Schema: { "word": string, "simple_meaning": string (one plain sentence a child could understand), "definition": string (formal definition), "word_root": string (prefix/suffix/etymology/origin), "synonyms": string[] (5-7 words), "antonyms": string[] (4-6 words), "examples": string[] (exactly 3 example sentences using the word naturally) }'
-        }]
-      })
-    });
-    var data = await res.json();
-    var raw = data.content && data.content[0] && data.content[0].text;
+    var raw;
+    var key = getVocabGroqKey();
+    if(key){
+      var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          temperature: 0.3,
+          max_tokens: 1200,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      if(!r.ok){
+        var t = await r.text().catch(function(){ return ''; });
+        throw new Error('Groq ' + r.status + ' ' + t.slice(0, 120));
+      }
+      var d = await r.json();
+      raw = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+    } else {
+      /* Keyless fallback — only works when opened through Claude */
+      var res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      var data = await res.json();
+      raw = data.content && data.content[0] && data.content[0].text;
+    }
+
     if (!raw) throw new Error('No response');
-    var clean = raw.replace(/```json|```/g, '').trim();
-    var parsed = JSON.parse(clean);
+    var clean = String(raw).replace(/```json|```/g, '').trim();
+    /* Be forgiving — extract the JSON object if there's any stray text */
+    var parsed;
+    try { parsed = JSON.parse(clean); }
+    catch(e){
+      var o = clean.indexOf('{'), p = clean.lastIndexOf('}');
+      if(o >= 0 && p > o) parsed = JSON.parse(clean.slice(o, p + 1));
+      else throw e;
+    }
     vlCurrentData = parsed;
     document.getElementById('vlWord').textContent = parsed.word || word;
     document.getElementById('vlSimple').textContent = parsed.simple_meaning || '';
@@ -3036,7 +3176,9 @@ async function lookupVocab() {
     });
     result.classList.add('visible');
   } catch(e) {
-    err.textContent = 'Could not look up word. Check your connection.';
+    err.textContent = getVocabGroqKey()
+      ? 'Could not look up word. Free Groq has a per-minute cap — wait a moment and retry, or check your key and connection.'
+      : 'Could not look up word. Add your free Groq key above to enable lookups on your live site.';
     err.classList.add('visible');
   } finally {
     btn.disabled = false;
@@ -3060,6 +3202,11 @@ function saveFromLookup() {
 document.getElementById('vocabLookupInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') lookupVocab();
 });
+(function(){
+  var gk = document.getElementById('groqKeyInput');
+  if(gk) gk.addEventListener('keydown', function(e){ if(e.key === 'Enter') setVocabGroqKey(); });
+  updateVocabGroqKeyUI();
+})();
 
 /* ══ READING FEED ══ */
 var FEED_SOURCES_KEY = 'clatFeedSources';

@@ -6,311 +6,317 @@
 <title>CLAT 2027 · GK Recall · Lex Apparatus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --ink:#0a0a0a; --raise:#101010;
-  --parchment:#ece7dd; --muted:#7d756a; --faint:#4d4840;
-  --accent:#c9a84c; --accent-dim:#9c7f33; --accent-glow:rgba(201,168,76,0.06);
-  --line:rgba(190,172,130,0.12); --line-2:rgba(190,172,130,0.22);
-  --serif:'Cormorant Garamond',Georgia,serif; --mono:'DM Mono',monospace;
-  --green:#6fb094; --red:#cf7d7d;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #000000;
+  --parchment: #f5f0e8;
+  --muted: #8a8070;
+  --accent: #c9a84c;
+  --accent-dim: #8a6a28;
+  --accent-glow: rgba(201,168,76,0.08);
+  --border: rgba(180,160,120,0.18);
+  --border-hover: rgba(201,168,76,0.38);
+  --surface: rgba(255,255,255,0.018);
+  --surface-2: rgba(255,255,255,0.03);
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --mono: 'DM Mono', monospace;
+  --green: #5a9e7a;
+  --green-dim: rgba(90,158,122,0.15);
+  --red: #c97070;
+  --red-dim: rgba(201,112,112,0.13);
 }
-html{font-size:18px;scroll-behavior:smooth;}
-body{background:var(--ink);color:var(--parchment);font-family:var(--serif);min-height:100vh;overflow-x:hidden;line-height:1.5;}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;}
-::selection{background:rgba(201,168,76,0.28);}
-.wrap{max-width:880px;margin:0 auto;padding:0 1.6rem 6rem;position:relative;z-index:2;}
+html { font-size: 18px; scroll-behavior: smooth; }
+body { background: var(--ink); color: var(--parchment); font-family: var(--serif); min-height: 100vh; overflow-x: hidden; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000; opacity: 0.55;
+}
+::selection { background: rgba(201,168,76,0.3); }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 5rem; position: relative; z-index: 2; }
 
-/* top bar */
-.lab-nav{display:flex;align-items:center;justify-content:space-between;padding:1.4rem 1.6rem;max-width:880px;margin:0 auto;position:relative;z-index:3;flex-wrap:wrap;gap:1rem;}
-.lab-back{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.25s;}
-.lab-back:hover{color:var(--accent);}
-.lab-title{font-family:var(--serif);font-style:italic;font-size:1.4rem;letter-spacing:0.01em;text-align:center;}
-.lab-title em{color:var(--accent);font-style:italic;}
-.lab-sub{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.34em;text-transform:uppercase;color:var(--faint);text-align:center;margin-top:0.15rem;}
-.online-dot{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
-.online-dot::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:0.4rem;vertical-align:middle;}
-.online-dot.off::before{background:var(--red);}
+/* nav */
+.lab-nav { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 1rem; position: relative; z-index: 3; max-width: 1000px; margin: 0 auto 0.4rem; background: linear-gradient(180deg, rgba(201,168,76,0.05), transparent); }
+.lab-back { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); text-decoration: none; border: 1px solid var(--accent-dim); padding: 0.5rem 0.95rem; border-radius: 2px; background: var(--accent-glow); transition: all 0.25s; }
+.lab-back:hover { color: #000; background: var(--accent); border-color: var(--accent); }
+.lab-title { font-family: var(--serif); font-style: italic; font-size: 1.6rem; font-weight: 300; }
+.lab-title em { color: var(--accent); }
+.lab-sub { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-dim); margin-top: 0.15rem; }
 
 /* tabs */
-.tabs{display:flex;gap:1.6rem;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:1.4rem 0 2.6rem;}
-.tab{font-family:var(--mono);font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);background:none;border:none;border-bottom:1px solid transparent;padding:0.6rem 0 0.7rem;margin-bottom:-1px;cursor:pointer;transition:color 0.2s;}
-.tab:hover{color:var(--parchment);}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.panel{display:none;}
-.panel.active{display:block;animation:fade 0.4s ease;}
-@keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+.tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); margin: 1.6rem 0 2rem; }
+.tab { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: none; border: none; border-bottom: 2px solid transparent; padding: 0.7rem 1rem; cursor: pointer; transition: all 0.2s; }
+.tab:hover { color: var(--parchment); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.55s ease both; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-h2.sec{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.9rem;margin-bottom:0.25rem;letter-spacing:0.01em;}
-h2.sec em{color:var(--accent);font-style:italic;}
-.sec-hint{font-family:var(--mono);font-size:0.66rem;color:var(--muted);line-height:1.85;margin-bottom:2rem;max-width:64ch;}
+/* Section heading rhythm — mirrors the dashboard's section-label + section-heading pairing.
+   The eyebrow label is auto-inserted before each h2.sec via ::before for a consistent gold tag. */
+h2.sec { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 2.1rem; margin-bottom: 0.3rem; line-height: 1.1; color: var(--parchment); }
+h2.sec em { color: var(--accent); font-style: italic; }
+h2.sec::before {
+  content: attr(data-label);
+  display: block;
+  font-family: var(--mono); font-size: 0.62rem; font-style: normal; font-weight: 400;
+  letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.sec-hint { font-family: var(--serif); font-size: 1.05rem; font-style: italic; font-weight: 300; color: var(--muted); letter-spacing: 0; margin-bottom: 1.6rem; line-height: 1.6; max-width: 64ch; }
 
-/* inputs */
-.field{display:block;margin-bottom:1.1rem;}
-.field>span{display:block;font-family:var(--mono);font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
-input[type=text],input[type=password],input[type=number],textarea,select{width:100%;background:transparent;border:none;border-bottom:1px solid var(--line-2);color:var(--parchment);font-family:var(--serif);font-size:1.02rem;padding:0.5rem 0.1rem;transition:border-color 0.2s;}
-select{font-family:var(--mono);font-size:0.8rem;cursor:pointer;}
-select option{background:var(--raise);color:var(--parchment);}
-input:focus,textarea:focus,select:focus{outline:none;border-bottom-color:var(--accent);}
-textarea{resize:vertical;line-height:1.65;border:1px solid var(--line-2);border-radius:3px;padding:0.7rem 0.8rem;}
-.row{display:flex;gap:1.4rem;flex-wrap:wrap;align-items:flex-end;}
-.row>*{flex:1;min-width:130px;}
-.topic-pick{display:flex;gap:0.6rem;align-items:flex-end;}
-.topic-pick select{flex:1;}
-
-/* buttons */
-.btn{font-family:var(--mono);font-size:0.66rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--parchment);background:none;border:1px solid var(--line-2);border-radius:3px;padding:0.6rem 1.2rem;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
-.btn:hover{border-color:var(--accent);color:var(--accent);}
-.btn:disabled{opacity:0.35;cursor:not-allowed;}
-.btn.primary{border-color:var(--accent-dim);color:var(--accent);}
-.btn.primary:hover{background:var(--accent);color:#0a0a0a;border-color:var(--accent);}
-.btn.danger{color:var(--red);border-color:rgba(207,125,125,0.3);}
-.btn.danger:hover{background:rgba(207,125,125,0.12);color:var(--red);}
-.btn.sm{padding:0.34rem 0.7rem;font-size:0.56rem;}
-.btn.ghost{border-color:transparent;color:var(--muted);}
-.btn.ghost:hover{color:var(--accent);border-color:transparent;}
-.iconbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;padding:0.2rem;transition:color 0.2s;}
-.iconbtn:hover{color:var(--accent);}
-.iconbtn.on{color:var(--accent);}
+/* generic ui */
+.btn { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--parchment); background: var(--surface-2); border: 1px solid var(--border); border-radius: 3px; padding: 0.6rem 1.1rem; cursor: pointer; transition: all 0.2s; }
+.btn:hover { border-color: var(--border-hover); color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.primary { background: var(--accent-glow); border-color: var(--accent-dim); color: var(--accent); }
+.btn.primary:hover { background: var(--accent); color: #000; }
+.btn.danger { color: var(--red); border-color: rgba(201,112,112,0.3); }
+.btn.danger:hover { background: var(--red-dim); }
+.btn.sm { padding: 0.35rem 0.7rem; font-size: 0.6rem; }
+.field { display: block; margin-bottom: 1rem; }
+.field > span { display: block; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.45rem; }
+input[type=text], input[type=number], textarea, select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 3px; color: var(--parchment); font-family: var(--serif); font-size: 1rem; padding: 0.6rem 0.8rem; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-hover); }
+textarea { resize: vertical; line-height: 1.6; }
+select { font-family: var(--mono); font-size: 0.8rem; }
+.row { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: flex-end; }
+.row > * { flex: 1; min-width: 120px; }
+.chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.chip { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 0.45rem 0.9rem; cursor: pointer; transition: all 0.2s; }
+.chip:hover { color: var(--parchment); }
+.chip.active { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-glow); }
 
 /* stat strip */
-.stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:2.4rem;}
-.stat{flex:1;min-width:88px;padding:1.2rem 0.5rem;text-align:center;border-right:1px solid var(--line);}
-.stat:last-child{border-right:none;}
-.stat .num{font-family:var(--serif);font-size:2.1rem;font-weight:300;color:var(--accent);line-height:1;}
-.stat .lbl{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-top:0.5rem;}
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; margin-bottom: 1.8rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1rem; text-align: center; }
+.stat .num { font-family: var(--serif); font-size: 2rem; color: var(--accent); line-height: 1; }
+.stat .lbl { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 0.4rem; }
+@media (max-width: 620px) { .stats { grid-template-columns: repeat(2, 1fr); } }
 
-/* modes as a quiet grid */
-.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-bottom:1.8rem;}
-@media(max-width:640px){.modes{grid-template-columns:repeat(2,1fr);}}
-.mode{background:none;border:none;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.1rem 1.2rem;cursor:pointer;text-align:left;transition:background 0.2s;}
-.mode:hover{background:var(--accent-glow);}
-.mode.active{background:var(--accent-glow);}
-.mode .mt{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--parchment);transition:color 0.2s;}
-.mode.active .mt{color:var(--accent);}
-.mode .md{font-family:var(--mono);font-size:0.54rem;letter-spacing:0.04em;color:var(--muted);margin-top:0.4rem;line-height:1.6;}
-.mode .mc{font-family:var(--mono);font-size:0.56rem;color:var(--accent-dim);margin-top:0.5rem;}
+/* mode cards */
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-bottom: 1.4rem; }
+@media (max-width: 720px) { .modes { grid-template-columns: repeat(2,1fr); } }
+.mode { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 1.1rem; cursor: pointer; transition: all 0.22s; text-align: left; }
+.mode:hover { border-color: var(--border-hover); background: var(--surface-2); }
+.mode.active { border-color: var(--accent-dim); background: var(--accent-glow); }
+.mode .mt { font-family: var(--serif); font-style: italic; font-size: 1.25rem; color: var(--parchment); }
+.mode.active .mt { color: var(--accent); }
+.mode .md { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.06em; color: var(--muted); margin-top: 0.35rem; line-height: 1.5; }
+.mode .mc { font-family: var(--mono); font-size: 0.6rem; color: var(--accent-dim); margin-top: 0.5rem; }
 
-/* lists */
-.clist{display:flex;flex-direction:column;}
-.citem{padding:1rem 0;border-bottom:1px solid var(--line);}
-.citem .ctype{font-family:var(--mono);font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-dim);}
-.citem .cfront{font-size:1.08rem;margin:0.3rem 0;line-height:1.5;}
-.citem .cback{font-size:0.95rem;color:var(--muted);line-height:1.6;}
-.citem .crow{display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;align-items:center;}
-.citem.keepable{display:flex;gap:0.9rem;align-items:flex-start;}
-.citem.keepable input[type=checkbox]{margin-top:0.45rem;width:auto;accent-color:var(--accent);transform:scale(1.15);}
+/* card list */
+.clist { display: flex; flex-direction: column; gap: 0.7rem; }
+.citem { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.9rem 1rem; }
+.citem .ctype { font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-dim); }
+.citem .cfront { font-size: 1.05rem; margin: 0.3rem 0; }
+.citem .cback { font-size: 0.92rem; color: var(--muted); }
+.citem .crow { display: flex; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap; }
+.citem.keepable { display: flex; gap: 0.8rem; align-items: flex-start; }
+.citem.keepable input[type=checkbox] { margin-top: 0.4rem; width: auto; transform: scale(1.2); accent-color: var(--accent); }
 
-.empty{font-family:var(--mono);font-size:0.7rem;color:var(--muted);text-align:center;padding:3rem 1rem;line-height:1.9;border:1px dashed var(--line-2);border-radius:5px;}
-.spinner{font-family:var(--mono);font-size:0.68rem;color:var(--accent);letter-spacing:0.08em;padding:0.9rem 0;display:none;}
-.spinner.on{display:block;}
-.note{font-family:var(--mono);font-size:0.62rem;color:var(--muted);line-height:1.85;border-left:1px solid var(--accent-dim);padding:0.2rem 0 0.2rem 1rem;margin:1.2rem 0;}
-.divider{height:1px;background:var(--line);margin:2.4rem 0;}
-.chips{display:flex;gap:0.5rem;flex-wrap:wrap;}
-.chip{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.06em;color:var(--muted);border:1px solid var(--line-2);border-radius:999px;padding:0.4rem 0.85rem;}
-.chart-wrap{margin-top:2rem;}
-.chart-wrap h4{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
-.toggle{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted);cursor:pointer;}
-.toggle input{width:auto;accent-color:var(--accent);}
+/* review overlay */
+.rev { position: fixed; inset: 0; background: rgba(5,5,4,0.97); z-index: 2000; display: none; flex-direction: column; padding: 1.5rem; }
+.rev.open { display: flex; }
+.rev-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.rev-prog { flex: 1; height: 3px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.rev-prog > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 0.3s; }
+.rev-count { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
+.rev-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; max-width: 760px; margin: 0 auto; width: 100%; }
+.rev-q { font-family: var(--serif); font-size: 1.9rem; line-height: 1.45; margin-bottom: 1.2rem; }
+.rev-a { font-size: 1.2rem; color: var(--accent); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 1.2rem; width: 100%; }
+.rev-a.hidden { display: none; }
+.rev-expl { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.9rem; line-height: 1.6; }
+.rev-opts { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; max-width: 520px; margin: 0 auto; }
+.rev-opt { font-family: var(--serif); font-size: 1.05rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; cursor: pointer; transition: all 0.18s; color: var(--parchment); }
+.rev-opt:hover { border-color: var(--border-hover); }
+.rev-opt.correct { border-color: var(--green); background: var(--green-dim); color: var(--parchment); }
+.rev-opt.wrong { border-color: var(--red); background: var(--red-dim); }
+.rev-type-in { max-width: 480px; margin: 0 auto 1rem; }
+.rev-bottom { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; padding-top: 1rem; }
+.grade { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 4px; padding: 0.7rem 1.3rem; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--parchment); transition: all 0.18s; }
+.grade:hover { transform: translateY(-2px); }
+.grade.again { border-color: var(--red); color: var(--red); }
+.grade.good { border-color: var(--accent-dim); color: var(--accent); }
+.grade.easy { border-color: var(--green); color: var(--green); }
+.rev-reveal { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: var(--accent-glow); border: 1px solid var(--accent-dim); border-radius: 4px; padding: 0.8rem 2rem; cursor: pointer; }
+.rev-done { text-align: center; }
+.rev-done h3 { font-family: var(--serif); font-style: italic; font-size: 2.4rem; color: var(--accent); }
+.rev-close { position: absolute; top: 1.4rem; right: 1.6rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 3px; padding: 0.4rem 0.8rem; cursor: pointer; }
+.rev-close:hover { color: var(--red); border-color: var(--red); }
+.kbd { font-family: var(--mono); font-size: 0.78rem; color: #000; background: var(--accent); border-radius: 2px; padding: 0.05rem 0.4rem; }
 
-/* review + test overlay */
-.rev{position:fixed;inset:0;background:rgba(8,8,7,0.985);z-index:2000;display:none;flex-direction:column;padding:1.6rem;}
-.rev.open{display:flex;}
-.rev-top{display:flex;align-items:center;gap:1.2rem;margin-bottom:0.5rem;}
-.rev-prog{flex:1;height:2px;background:var(--line-2);overflow:hidden;}
-.rev-prog>i{display:block;height:100%;background:var(--accent);width:0;transition:width 0.3s;}
-.rev-count{font-family:var(--mono);font-size:0.58rem;color:var(--muted);white-space:nowrap;}
-.rev-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;max-width:720px;margin:0 auto;width:100%;}
-.rev-q{font-family:var(--serif);font-size:2rem;font-weight:300;line-height:1.4;margin-bottom:1.3rem;}
-.rev-a{font-size:1.25rem;color:var(--accent);line-height:1.6;border-top:1px solid var(--line);padding-top:1.3rem;width:100%;}
-.rev-a.hidden{display:none;}
-.rev-expl{font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-top:1rem;line-height:1.7;}
-.rev-opts{display:flex;flex-direction:column;gap:0.55rem;width:100%;max-width:520px;margin:0 auto;}
-.rev-opt{font-family:var(--serif);font-size:1.05rem;text-align:left;background:none;border:1px solid var(--line-2);border-radius:4px;padding:0.7rem 1rem;cursor:pointer;transition:all 0.16s;color:var(--parchment);}
-.rev-opt:hover{border-color:var(--accent);}
-.rev-opt.correct{border-color:var(--green);background:rgba(111,176,148,0.12);}
-.rev-opt.wrong{border-color:var(--red);background:rgba(207,125,125,0.12);}
-.rev-opt.chosen{border-color:var(--accent);}
-.rev-type-in{max-width:460px;margin:0 auto 1rem;}
-.rev-bottom{display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;padding-top:1.3rem;}
-.grade{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;border-radius:4px;padding:0.65rem 1.3rem;cursor:pointer;border:1px solid var(--line-2);background:none;color:var(--parchment);transition:all 0.16s;}
-.grade:hover{transform:translateY(-2px);border-color:var(--accent);}
-.grade.again:hover{border-color:var(--red);color:var(--red);}
-.grade.easy:hover{border-color:var(--green);color:var(--green);}
-.rev-reveal{font-family:var(--mono);font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-dim);border-radius:4px;padding:0.75rem 2rem;cursor:pointer;background:none;}
-.rev-reveal:hover{background:var(--accent);color:#0a0a0a;}
-.rev-close{position:absolute;top:1.5rem;right:1.6rem;font-family:var(--mono);font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;}
-.rev-close:hover{color:var(--red);}
-.rev-star{position:absolute;top:1.5rem;left:1.6rem;font-size:1.1rem;background:none;border:none;cursor:pointer;color:var(--faint);}
-.rev-star.on{color:var(--accent);}
-.rev-done{text-align:center;}
-.rev-done h3{font-family:var(--serif);font-style:italic;font-weight:300;font-size:2.6rem;color:var(--accent);}
-.kbd{font-family:var(--mono);font-size:0.74rem;color:#0a0a0a;background:var(--accent);border-radius:2px;padding:0.04rem 0.4rem;}
-.score-big{font-family:var(--serif);font-size:4rem;font-weight:300;color:var(--accent);line-height:1;}
-.score-row{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin:1.4rem 0;}
-.score-row .sc{text-align:center;}
-.score-row .sc b{font-family:var(--serif);font-size:1.6rem;font-weight:400;display:block;}
-.score-row .sc span{font-family:var(--mono);font-size:0.54rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
-
-#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);background:#161512;border:1px solid var(--accent-dim);color:var(--parchment);font-family:var(--mono);font-size:0.72rem;padding:0.7rem 1.1rem;border-radius:3px;opacity:0;pointer-events:none;transition:all 0.3s;z-index:9999;max-width:80vw;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-#toast.err{border-color:var(--red);color:#f0c4c4;}
-.star{color:var(--faint);cursor:pointer;font-size:0.95rem;}
-.star.on{color:var(--accent);}
+.empty { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); text-align: center; padding: 2.5rem 1rem; border: 1px dashed var(--border); border-radius: 5px; line-height: 1.7; }
+.spinner { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.1em; padding: 0.8rem 0; display: none; }
+.spinner.on { display: block; }
+.note { font-family: var(--mono); font-size: 0.66rem; color: var(--muted); line-height: 1.7; background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent-dim); border-radius: 3px; padding: 0.9rem 1rem; margin: 1rem 0; }
+.divider { height: 1px; background: var(--border); margin: 2rem 0; }
+.chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 1.2rem; margin-top: 1.6rem; }
+.chart-wrap h4 { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.8rem; }
+.online-dot { font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.online-dot::before { content: '●'; color: var(--green); margin-right: 0.35rem; }
+.online-dot.off::before { color: var(--red); }
+#toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(16px); background: rgba(18,17,14,0.96); border: 1px solid var(--accent-dim); color: var(--parchment); font-family: var(--mono); font-size: 0.74rem; padding: 0.7rem 1.1rem; border-radius: 3px; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 9999; max-width: 80vw; }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.err { border-color: var(--red); color: #f0c4c4; }
 </style>
 </head>
 <body>
 
 <div class="lab-nav">
-  <a class="lab-back" href="clat2027.html">&#8592; Dashboard</a>
-  <div><div class="lab-title"><em>GK</em> Recall</div><div class="lab-sub">Active Memory · Lex Apparatus</div></div>
+  <a class="lab-back" href="https://shauryapsrgn.github.io/clat2027/">&#8592; Dashboard</a>
+  <div style="text-align:center;">
+    <div class="lab-title"><em>GK</em> Recall</div>
+    <div class="lab-sub">Active Memory &middot; Lex Apparatus</div>
+  </div>
   <span class="online-dot" id="onlineDot">Online</span>
 </div>
 
 <div class="wrap">
   <div class="tabs">
     <button class="tab active" data-tab="study">Study</button>
-    <button class="tab" data-tab="test">Mock Test</button>
-    <button class="tab" data-tab="generate">Generate</button>
-    <button class="tab" data-tab="inbox">Inbox <span id="inboxBadge"></span></button>
-    <button class="tab" data-tab="reference">Reference</button>
+    <button class="tab" data-tab="generate">Generate with AI</button>
+    <button class="tab" data-tab="inbox">Capture Inbox <span id="inboxBadge"></span></button>
+    <button class="tab" data-tab="reference">Reference Material</button>
     <button class="tab" data-tab="cards">Cards &amp; Topics</button>
   </div>
 
-  <!-- ====== STUDY ====== -->
+  <!-- ============ STUDY ============ -->
   <section class="panel active" id="study">
-    <h2 class="sec"><em>Study</em> &amp; Revise</h2>
-    <p class="sec-hint">Pick a cycle and begin. Cards are shuffled every session and the schedule decides what comes back when.</p>
+    <h2 class="sec" data-label="Active Recall"><em>Study</em> &amp; Revise</h2>
+    <p class="sec-hint">Pick a cycle, hit start. Cards are jumbled every session. Grade yourself honestly, the schedule does the rest.</p>
     <div class="stats">
       <div class="stat"><div class="num" id="stDue">0</div><div class="lbl">Due now</div></div>
-      <div class="stat"><div class="num" id="stTotal">0</div><div class="lbl">Total</div></div>
-      <div class="stat"><div class="num" id="stStar">0</div><div class="lbl">Starred</div></div>
+      <div class="stat"><div class="num" id="stTotal">0</div><div class="lbl">Total cards</div></div>
       <div class="stat"><div class="num" id="stRet">--</div><div class="lbl">Retention</div></div>
-      <div class="stat"><div class="num" id="stStreak">0</div><div class="lbl">Streak</div></div>
+      <div class="stat"><div class="num" id="stStreak">0</div><div class="lbl">Day streak</div></div>
     </div>
     <div class="modes" id="modeGrid"></div>
-    <div class="row" style="margin-bottom:1.6rem;">
-      <label class="field" style="margin:0;"><span>Practice topic</span><select id="studyTopic" onchange="renderModes()"></select></label>
-      <label class="field" style="margin:0;"><span>Topic for cram</span><select id="cramDeck"></select></label>
+    <div class="row" style="margin-bottom:1.2rem;">
+      <label class="field" style="margin:0;"><span>Practice topic</span><select id="studyTopic" onchange="renderModes()"><option value="__all">All topics</option></select></label>
+      <label class="field" style="margin:0;"><span>Topic (for Cram mode)</span><select id="cramDeck"></select></label>
       <label class="field" style="margin:0;"><span>Cards this session</span><select id="sessLen"><option>10</option><option selected>20</option><option>30</option><option>50</option><option value="9999">All</option></select></label>
     </div>
-    <button class="btn primary" style="padding:0.8rem 2.2rem;" onclick="startSession()">Begin session &#8594;</button>
-    <div class="chart-wrap"><h4>Reviews, last 14 days</h4><canvas id="revChart" height="80"></canvas></div>
-  </section>
-
-  <!-- ====== MOCK TEST ====== -->
-  <section class="panel" id="test">
-    <h2 class="sec">Mock <em>Test</em></h2>
-    <p class="sec-hint">A timed run through your MCQ cards, scored like the real CLAT: +1 right, &minus;0.25 wrong, 0 for a skip. Generate MCQs in the Generate tab first if you have none.</p>
-    <div class="row" style="margin-bottom:1.2rem;">
-      <label class="field" style="margin:0;"><span>Topic</span><select id="testTopic"></select></label>
-      <label class="field" style="margin:0;"><span>Questions</span><select id="testCount"><option>10</option><option selected>20</option><option>30</option><option value="9999">All available</option></select></label>
-      <label class="field" style="margin:0;"><span>Timer</span><select id="testTimer"><option value="0">Off</option><option value="60" selected>1 min / question</option><option value="45">45 sec / question</option><option value="90">90 sec / question</option></select></label>
+    <button class="btn primary" style="font-size:0.8rem;padding:0.8rem 2rem;" onclick="startSession()">Start Session &#8594;</button>
+    <div class="chart-wrap">
+      <h4>Reviews, last 14 days</h4>
+      <canvas id="revChart" height="90"></canvas>
     </div>
-    <label class="toggle" style="margin-bottom:1.4rem;"><input type="checkbox" id="testNeg" checked> Negative marking (&minus;0.25 per wrong answer)</label>
-    <div><button class="btn primary" style="padding:0.8rem 2.2rem;" onclick="startTest()">Start test &#8594;</button></div>
-    <div id="testAvail" class="note" style="margin-top:1.4rem;"></div>
   </section>
 
-  <!-- ====== GENERATE ====== -->
+  <!-- ============ GENERATE ============ -->
   <section class="panel" id="generate">
-    <h2 class="sec">Generate with <em>AI</em></h2>
-    <p class="sec-hint">Paste GK / current-affairs material. The AI extracts the facts worth remembering and writes atomic flashcards or MCQs, using your reference library to judge what matters for CLAT.</p>
-    <div class="note">
-      <div class="topic-pick" style="align-items:flex-end;">
-        <label class="field" style="margin:0;flex:1;"><span>Groq API key (saved on this device, powers all AI here)</span><input type="password" id="groqKey" placeholder="gsk_..." autocomplete="off"></label>
-        <button class="btn primary" onclick="saveGroqKey()">Save</button>
-        <button class="btn sm" onclick="toggleKeyView()">Show</button>
+    <h2 class="sec" data-label="Card Forge"><em>Generate</em> with AI</h2>
+    <p class="sec-hint">Paste any GK / current-affairs material (notes, a compendium page, an article). The AI pulls out the facts worth remembering and turns them into flashcards or quick MCQs. No reading passages, just facts.</p>
+    <div class="note" style="border-left-color:var(--accent-dim);">
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:flex-end;">
+        <label class="field" style="margin:0;flex:1;min-width:200px;"><span>Groq API key (saved on this device, used for all AI here)</span><input type="password" id="groqKey" placeholder="gsk_..." autocomplete="off"></label>
+        <button class="btn primary" style="flex:0;" onclick="saveGroqKey()">Save key</button>
+        <button class="btn sm" style="flex:0;" onclick="toggleKeyView()">Show</button>
       </div>
-      <div id="groqStatus" style="margin-top:0.6rem;"></div>
-      <div style="margin-top:0.4rem;color:var(--faint);">Free key at console.groq.com/keys, no card. Stored only in this browser.</div>
+      <div id="groqStatus" style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);margin-top:0.5rem;letter-spacing:0.04em;"></div>
+      <div style="font-family:var(--mono);font-size:0.58rem;color:var(--muted);margin-top:0.4rem;line-height:1.6;">Get a free key in 30 seconds at <span style="color:var(--accent);">console.groq.com/keys</span>, no card needed. It stays in this browser only, never in your published files.</div>
     </div>
-    <label class="field"><span>Paste your material</span><textarea id="genInput" rows="7" placeholder="Notes, a compendium page, an Indian Express Explained article... anything fact-dense."></textarea></label>
+    <label class="field"><span>Paste your GK / CA material</span><textarea id="genInput" rows="7" placeholder="Paste notes, bullet points, an Indian Express Explained article, a compendium extract... anything fact-dense."></textarea></label>
     <div class="row">
-      <label class="field" style="margin:0;"><span>Make</span><select id="genKind"><option value="flash">Flashcards</option><option value="mcq">MCQs</option><option value="both">Both</option></select></label>
-      <label class="field" style="margin:0;"><span>Depth</span><select id="genCount"><option value="6">Light</option><option value="12" selected>Thorough</option><option value="22">Exhaustive</option></select></label>
-      <div class="field" style="margin:0;"><span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:0.5rem;">Topic</span><div class="topic-pick"><select id="genDeck"></select><button class="btn sm" onclick="newTopic('genDeck')">+ New</button></div></div>
+      <label class="field" style="margin:0;"><span>Make</span><select id="genKind">
+        <option value="flash">Flashcards (fact on front, answer on back)</option>
+        <option value="mcq">MCQs (4 options, one correct)</option>
+        <option value="both">Both</option>
+      </select></label>
+      <label class="field" style="margin:0;"><span>Depth</span><select id="genCount">
+        <option value="6">Light, top facts</option>
+        <option value="12" selected>Thorough</option>
+        <option value="22">Exhaustive, break down everything</option>
+      </select></label>
+      <label class="field" style="margin:0;"><span>Topic (pick or type a new one)</span><input type="text" id="genDeck" list="topicList" placeholder="e.g. Citizenship, Border Disputes"></label>
     </div>
-    <label class="toggle" style="margin-bottom:1.2rem;"><input type="checkbox" id="genCommon" checked> Also build consolidated cards (articles, capitals, HQs, officials, treaty dates)</label>
-    <div class="chips" style="margin-bottom:0.4rem;">
-      <button class="btn primary" onclick="runGenerate()">Generate</button>
-      <button class="btn" onclick="pullInboxIntoGen()">Pull from inbox</button>
+    <label class="chips" style="align-items:center;gap:0.6rem;margin-bottom:0.8rem;cursor:pointer;font-family:var(--mono);font-size:0.66rem;color:var(--muted);"><input type="checkbox" id="genCommon" checked style="width:auto;accent-color:var(--accent);"> Also auto-build consolidated reference cards (articles, capitals, HQs, officials, treaty dates&hellip;)</label>
+    <div class="row" style="margin-bottom:0.4rem;">
+      <button class="btn primary" style="flex:0;" onclick="runGenerate()">Generate</button>
+      <button class="btn" style="flex:0;" onclick="pullInboxIntoGen()">Pull from Capture Inbox</button>
     </div>
     <div class="spinner" id="genSpin">Reading and writing questions&hellip;</div>
-    <div id="genResults" style="margin-top:1.6rem;"></div>
+    <div id="genResults" style="margin-top:1.4rem;"></div>
   </section>
+  <datalist id="topicList"></datalist>
 
-  <!-- ====== INBOX ====== -->
+  <!-- ============ INBOX ============ -->
   <section class="panel" id="inbox">
-    <h2 class="sec">Capture <em>Inbox</em></h2>
-    <p class="sec-hint">Snippets you captured with <span class="kbd">G</span> from the PDF or article reader, grouped by topic. Process a whole topic so the AI interlinks the captures, breaks them into atomic facts, skips repeats, and adds related trivia.</p>
-    <div class="topic-pick" style="margin-bottom:1.4rem;max-width:420px;">
-      <label class="field" style="margin:0;flex:1;"><span>Topic for untagged captures</span><select id="inboxDeck"></select></label>
-      <button class="btn sm" onclick="newTopic('inboxDeck')">+ New</button>
-    </div>
-    <div class="chips" style="margin-bottom:1.4rem;">
-      <button class="btn primary" onclick="convertAllInbox()">Process everything</button>
-      <button class="btn danger" onclick="clearInbox()">Clear inbox</button>
+    <h2 class="sec" data-label="Holding Pen">Capture <em>Inbox</em></h2>
+    <p class="sec-hint">Everything you captured with <span class="kbd">G</span> from the PDF reader or article reader lands here, grouped by the topic you set while reading. Process a whole topic at once so the AI can interlink the captures, break them into atomic facts, skip repeats, and pull in related trivia.</p>
+    <div class="row" style="margin-bottom:1rem;">
+      <label class="field" style="margin:0;"><span>Default topic for untagged captures</span><input type="text" id="inboxDeck" list="topicList" placeholder="pick or type a topic"></label>
+      <button class="btn primary" style="flex:0;" onclick="convertAllInbox()">Process everything into cards</button>
+      <button class="btn danger" style="flex:0;" onclick="clearInbox()">Clear inbox</button>
     </div>
     <div class="spinner" id="inboxSpin">Interlinking the topic and writing cards&hellip;</div>
     <div id="inboxList"></div>
   </section>
 
-  <!-- ====== REFERENCE ====== -->
+  <!-- ============ REFERENCE ============ -->
   <section class="panel" id="reference">
-    <h2 class="sec">Reference <em>Material</em></h2>
-    <p class="sec-hint">Feed in CLAT papers, model MCQs, or notes on what tends to be asked. The AI reads all of this whenever it writes questions, so it mirrors real CLAT style and learns what counts as important. Keep adding to it.</p>
-    <label class="field"><span>Label (optional)</span><input type="text" id="refLabel" placeholder="e.g. CLAT 2024 GK section"></label>
-    <label class="field"><span>Paste reference material</span><textarea id="refInput" rows="6" placeholder="Real CLAT GK MCQs, previous-year questions, or notes like 'they always ask the publishing body and year of indices'..."></textarea></label>
-    <button class="btn primary" onclick="addRef()">Add to library</button>
+    <h2 class="sec" data-label="Source Texts">Reference <em>Material</em></h2>
+    <p class="sec-hint">Feed in CLAT papers, model MCQs, or notes on what tends to be asked. The AI reads this every time it makes questions, so it mirrors real CLAT style and difficulty and learns what counts as important. Keep adding to it over time.</p>
+    <label class="field"><span>Label (optional, e.g. "CLAT 2024 GK section")</span><input type="text" id="refLabel" placeholder="a short name for this batch"></label>
+    <label class="field"><span>Paste reference material (sample questions, patterns, syllabi, anything)</span><textarea id="refInput" rows="6" placeholder="Paste real CLAT GK MCQs, previous-year questions, or notes like 'they always ask the publishing body of indices and the year'..."></textarea></label>
+    <button class="btn primary" onclick="addRef()">Add to reference library</button>
     <div class="divider"></div>
     <div id="refList" class="clist"></div>
   </section>
 
-  <!-- ====== CARDS & TOPICS ====== -->
+  <!-- ============ CARDS ============ -->
   <section class="panel" id="cards">
-    <h2 class="sec">Cards &amp; <em>Topics</em></h2>
+    <h2 class="sec" data-label="The Deck">Cards &amp; <em>Topics</em></h2>
     <p class="sec-hint">Add cards by hand, manage topics, and back everything up. Your data lives only in this browser.</p>
-    <div class="topic-pick" style="margin-bottom:1.2rem;max-width:420px;">
-      <label class="field" style="margin:0;flex:1;"><span>New topic name</span><input type="text" id="newDeck" placeholder="e.g. Polity, Economy, Awards"></label>
-      <button class="btn" onclick="addDeck()">+ Topic</button>
-    </div>
-    <div id="topicChips" class="chips" style="margin-bottom:2rem;"></div>
 
-    <div class="note" style="border:none;padding:0;"><strong style="color:var(--accent);font-family:var(--mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;" id="addCardHeading">Add a card by hand</strong></div>
-    <div class="row" style="margin-top:0.8rem;">
-      <label class="field" style="margin:0;"><span>Type</span><select id="addType" onchange="renderAddFields()"><option value="flip">Flip (front / back)</option><option value="cloze">Cloze (fill the blank)</option><option value="mcq">MCQ</option><option value="type">Type the answer</option></select></label>
-      <div class="field" style="margin:0;"><span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:0.5rem;">Topic</span><div class="topic-pick"><select id="addDeck"></select><button class="btn sm" onclick="newTopic('addDeck')">+ New</button></div></div>
+    <div class="row" style="margin-bottom:1.2rem;">
+      <label class="field" style="margin:0;"><span>Add a topic</span><input type="text" id="newDeck" placeholder="e.g. Polity, Economy, Awards"></label>
+      <button class="btn" style="flex:0;" onclick="addDeck()">+ Topic</button>
+    </div>
+    <div id="topicChips" class="chips" style="margin-bottom:1.4rem;"></div>
+
+    <div class="note">
+      <strong style="color:var(--accent);">Add a card by hand</strong>
+    </div>
+    <div class="row">
+      <label class="field" style="margin:0;"><span>Type</span><select id="addType" onchange="renderAddFields()">
+        <option value="flip">Flip (front / back)</option>
+        <option value="cloze">Cloze (fill the blank)</option>
+        <option value="mcq">MCQ</option>
+        <option value="type">Type the answer</option>
+      </select></label>
+      <label class="field" style="margin:0;"><span>Topic</span><input type="text" id="addDeck" list="topicList" placeholder="pick or type a topic"></label>
     </div>
     <div id="addFields"></div>
-    <button class="btn primary" id="saveCardBtn" onclick="saveManualCard()">Save card</button>
-    <button class="btn ghost" id="cancelEditBtn" style="display:none;" onclick="cancelEdit()">Cancel edit</button>
+    <button class="btn primary" style="margin-bottom:0.5rem;" onclick="saveManualCard()">Save card</button>
 
     <div class="divider"></div>
-    <div class="row" style="margin-bottom:1.2rem;">
-      <label class="field" style="margin:0;"><span>Search</span><input type="text" id="cardSearch" oninput="renderLibrary()" placeholder="Search cards"></label>
+
+    <div class="row" style="margin-bottom:1rem;">
+      <label class="field" style="margin:0;"><span>Search</span><input type="text" id="cardSearch" oninput="renderLibrary()" placeholder="Search cards&hellip;"></label>
       <label class="field" style="margin:0;"><span>Filter topic</span><select id="libDeck" onchange="renderLibrary()"></select></label>
-      <label class="field" style="margin:0;"><span>Show</span><select id="libFilter" onchange="renderLibrary()"><option value="all">All cards</option><option value="star">Starred only</option><option value="mcq">MCQs only</option></select></label>
     </div>
     <div id="library" class="clist"></div>
 
     <div class="divider"></div>
-    <div class="chips">
-      <button class="btn sm" onclick="exportJSON()">Export backup</button>
+    <div class="chips" style="gap:0.6rem;">
+      <button class="btn sm" onclick="exportJSON()">Export backup (JSON)</button>
       <button class="btn sm" onclick="document.getElementById('importFile').click()">Import backup</button>
-      <button class="btn sm" onclick="exportAnki()">Export for Anki</button>
+      <button class="btn sm" onclick="exportAnki()">Export for Anki (TSV)</button>
       <button class="btn sm danger" onclick="wipeAll()">Wipe everything</button>
       <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJSON(event)">
     </div>
+    <p class="note" style="border-left-color:var(--accent-dim);">Tip: Anki is the best companion app for drilling on your phone. Export the TSV here, then in Anki use File &middot; Import and map the two columns to Front and Back.</p>
   </section>
 </div>
 
-<!-- review / test overlay -->
+<!-- review overlay -->
 <div class="rev" id="rev">
-  <button class="rev-star" id="revStar" onclick="toggleSessionStar()" title="Star (S)">&#9734;</button>
   <button class="rev-close" onclick="endSession()">Esc &middot; End</button>
   <div class="rev-top">
     <span class="rev-count" id="revCount">0 / 0</span>
@@ -324,95 +330,88 @@ textarea{resize:vertical;line-height:1.65;border:1px solid var(--line-2);border-
 
 <script>
 /* ---------- storage ---------- */
-function safeGet(k,fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
-function safeSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
-var K_CARDS='clatFlashCards',K_DECKS='clatFlashDecks',K_QUEUE='clatCardQueue',K_LOG='clatReviewLog',K_REF='clatRefMaterial';
+function safeGet(k, fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
+function safeSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+var K_CARDS='clatFlashCards', K_DECKS='clatFlashDecks', K_QUEUE='clatCardQueue', K_LOG='clatReviewLog', K_REF='clatRefMaterial';
 function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function uid(p){ return (p||'c')+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
-function getCards(){ return safeGet(K_CARDS,[]); }
-function setCards(c){ safeSet(K_CARDS,c); }
-function getTopics(){ var d=safeGet(K_DECKS,null); if(!d){ d=['General Knowledge']; safeSet(K_DECKS,d);} return d; }
-function setTopics(d){ safeSet(K_DECKS,d); }
+
+function getCards(){ return safeGet(K_CARDS, []); }
+function setCards(c){ safeSet(K_CARDS, c); }
+/* "decks" are topics: one store, topic-centric UI */
+function getTopics(){ var d=safeGet(K_DECKS, null); if(!d){ d=['General Knowledge']; safeSet(K_DECKS,d);} return d; }
+function setTopics(d){ safeSet(K_DECKS, d); }
+function getDecks(){ return getTopics(); }
+function setDecks(d){ setTopics(d); }
 function ensureTopic(name){ name=(name||'').trim(); if(!name) return; var t=getTopics(); if(t.indexOf(name)<0){ t.push(name); setTopics(t); fillTopicWidgets(); } }
-function getQueue(){ return safeGet(K_QUEUE,[]); }
-function setQueue(q){ safeSet(K_QUEUE,q); }
-function getRef(){ return safeGet(K_REF,[]); }
-function setRef(r){ safeSet(K_REF,r); }
-function refBlock(limit){ var r=getRef(); if(!r.length) return ''; var j=r.map(function(e){ return (e.label?('['+e.label+'] '):'')+e.text; }).join('\n\n'); limit=limit||2600; return j.length>limit?j.slice(0,limit):j; }
+function getQueue(){ return safeGet(K_QUEUE, []); }
+function setQueue(q){ safeSet(K_QUEUE, q); }
+function getRef(){ return safeGet(K_REF, []); }
+function setRef(r){ safeSet(K_REF, r); }
+/* reference material as one capped block for prompts */
+function refBlock(limit){
+  var r=getRef(); if(!r.length) return '';
+  var joined=r.map(function(e){ return (e.label?('['+e.label+'] '):'')+e.text; }).join('\n\n');
+  limit=limit||3000; return joined.length>limit ? joined.slice(0,limit) : joined;
+}
 
+/* ---------- toast ---------- */
 var toastT;
-function toast(msg,err){ var t=document.getElementById('toast'); t.textContent=msg; t.className=err?'err show':'show'; clearTimeout(toastT); toastT=setTimeout(function(){ t.className=t.className.replace('show','').trim(); },2600); }
+function toast(msg, err){ var t=document.getElementById('toast'); t.textContent=msg; t.className=err?'err show':'show'; clearTimeout(toastT); toastT=setTimeout(function(){ t.className=t.className.replace('show','').trim(); }, 2600); }
 
-/* ---------- SRS ---------- */
+/* ---------- SRS (SM-2 lite) ---------- */
 var DAY=86400000;
 function newSRS(){ return { ease:2.3, interval:0, due:Date.now(), reps:0, lapses:0 }; }
-function gradeCard(card,g){
+function gradeCard(card, g){
   var s=card.srs||newSRS();
-  if(g===0){ s.lapses++; s.reps=0; s.interval=0; s.ease=Math.max(1.3,s.ease-0.2); s.due=Date.now()+600000; }
-  else { s.reps++;
-    if(g===1){ s.interval=Math.max(1,Math.round((s.interval||1)*1.2)); s.ease=Math.max(1.3,s.ease-0.15); }
-    else if(g===2){ s.interval=s.reps<=1?1:Math.round((s.interval||1)*s.ease); }
-    else { s.interval=s.reps<=1?2:Math.round((s.interval||1)*s.ease*1.3); s.ease=Math.min(3.0,s.ease+0.12); }
-    s.due=Date.now()+s.interval*DAY;
+  if(g===0){ s.lapses++; s.reps=0; s.interval=0; s.ease=Math.max(1.3, s.ease-0.2); s.due=Date.now()+10*60000; }
+  else {
+    s.reps++;
+    if(g===1){ s.interval=Math.max(1, Math.round((s.interval||1)*1.2)); s.ease=Math.max(1.3, s.ease-0.15); }
+    else if(g===2){ s.interval = s.reps<=1 ? 1 : Math.round((s.interval||1)*s.ease); }
+    else { s.interval = s.reps<=1 ? 2 : Math.round((s.interval||1)*s.ease*1.3); s.ease=Math.min(3.0, s.ease+0.12); }
+    s.due = Date.now() + s.interval*DAY;
   }
-  card.srs=s; return card;
+  card.srs=s;
+  return card;
 }
-function isDue(card){ return (card.srs?card.srs.due:0)<=Date.now(); }
-function logReview(grade){ var log=safeGet(K_LOG,[]); log.push({ts:Date.now(),grade:grade}); if(log.length>5000) log=log.slice(-5000); safeSet(K_LOG,log); }
+function isDue(card){ return (card.srs ? card.srs.due : 0) <= Date.now(); }
+
+/* ---------- review logging ---------- */
+function logReview(grade){
+  var log=safeGet(K_LOG, []);
+  log.push({ ts:Date.now(), grade:grade });
+  if(log.length>5000) log=log.slice(-5000);
+  safeSet(K_LOG, log);
+}
 function todayStr(d){ d=d||new Date(); return d.toISOString().slice(0,10); }
 
 /* ---------- tabs ---------- */
 document.querySelectorAll('.tab').forEach(function(t){
-  t.addEventListener('click',function(){
+  t.addEventListener('click', function(){
     document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
     document.querySelectorAll('.panel').forEach(function(x){ x.classList.remove('active'); });
     t.classList.add('active');
     document.getElementById(t.dataset.tab).classList.add('active');
-    var d=t.dataset.tab;
-    if(d==='inbox') renderInbox();
-    if(d==='cards'){ renderLibrary(); renderTopicChips(); }
-    if(d==='study') refreshStudy();
-    if(d==='reference') renderRefList();
-    if(d==='test'){ fillTopicWidgets(); updateTestAvail(); }
+    if(t.dataset.tab==='inbox') renderInbox();
+    if(t.dataset.tab==='cards'){ renderLibrary(); renderTopicChips(); }
+    if(t.dataset.tab==='study') refreshStudy();
+    if(t.dataset.tab==='reference') renderRefList();
   });
 });
 
-/* ---------- topics ---------- */
-function fillDeckSelect(id,includeAll,allLabel){
-  var sel=document.getElementById(id); if(!sel||sel.tagName!=='SELECT') return;
-  var cur=sel.value; var t=getTopics();
-  sel.innerHTML=(includeAll?'<option value="__all">'+(allLabel||'All topics')+'</option>':'')+t.map(function(d){ return '<option>'+escH(d)+'</option>'; }).join('');
-  if(cur && (cur==='__all'||t.indexOf(cur)>=0)) sel.value=cur;
-}
-function fillTopicWidgets(){
-  fillDeckSelect('cramDeck'); fillDeckSelect('genDeck'); fillDeckSelect('inboxDeck'); fillDeckSelect('addDeck');
-  fillDeckSelect('libDeck',true); fillDeckSelect('studyTopic',true); fillDeckSelect('testTopic',true);
-}
-function fillAllDeckSelects(){ fillTopicWidgets(); }
-function newTopic(targetId){
-  var name=(prompt('New topic name:')||'').trim(); if(!name) return;
-  ensureTopic(name); var sel=document.getElementById(targetId); if(sel) sel.value=name;
-  renderTopicChips(); toast('Topic "'+name+'" added');
-}
-function addDeck(){ var v=document.getElementById('newDeck').value.trim(); if(!v) return; ensureTopic(v); document.getElementById('newDeck').value=''; renderTopicChips(); toast('Topic added'); }
-function renderTopicChips(){
-  var host=document.getElementById('topicChips'); if(!host) return;
-  var counts={}; getCards().forEach(function(c){ counts[c.deck]=(counts[c.deck]||0)+1; });
-  host.innerHTML=getTopics().map(function(t){ return '<span class="chip">'+escH(t)+' &middot; '+(counts[t]||0)+'</span>'; }).join('')||'<span class="chip">No topics yet</span>';
-}
-
 /* ---------- modes ---------- */
 var MODES=[
-  {id:'due',t:'Due Today',d:'What the schedule says to see now.'},
-  {id:'weekly',t:'Weekly Cycle',d:'Everything due within 7 days.'},
-  {id:'monthly',t:'Monthly Cycle',d:'Due within 30 days.'},
-  {id:'random',t:'Random Mix',d:'A shuffled handful from the bank.'},
-  {id:'weak',t:'Weak Spots',d:'Most-forgotten cards first.'},
-  {id:'starred',t:'Starred',d:'Only cards you marked important.'}
+  { id:'due', t:'Due Today', d:'Cards the schedule says you should see now.' },
+  { id:'weekly', t:'Weekly Cycle', d:'Everything due within 7 days. Your weekly sweep.' },
+  { id:'monthly', t:'Monthly Cycle', d:'Due within 30 days. The big monthly revision.' },
+  { id:'random', t:'Random Mix', d:'A jumbled handful from your whole bank.' },
+  { id:'weak', t:'Weak Spots', d:'Cards you forget most often, surfaced first.' },
+  { id:'cram', t:'Cram a Topic', d:'Drill one topic end to end, ignoring schedule.' }
 ];
 var activeMode='due';
 function studyTopicVal(){ var s=document.getElementById('studyTopic'); return s?s.value:'__all'; }
-function inStudyTopic(c){ var t=studyTopicVal(); return t==='__all'||c.deck===t; }
+function inStudyTopic(c){ var t=studyTopicVal(); return t==='__all' || c.deck===t; }
 function renderModes(){
   var g=document.getElementById('modeGrid'); g.innerHTML='';
   MODES.forEach(function(m){
@@ -425,13 +424,14 @@ function renderModes(){
   });
 }
 function poolFor(mode){
-  var cards=getCards().filter(inStudyTopic);
+  var cards=getCards();
+  if(mode!=='cram') cards=cards.filter(inStudyTopic);
   if(mode==='due') return cards.filter(isDue);
-  if(mode==='weekly') return cards.filter(function(c){ return (c.srs?c.srs.due:0)<=Date.now()+7*DAY; });
-  if(mode==='monthly') return cards.filter(function(c){ return (c.srs?c.srs.due:0)<=Date.now()+30*DAY; });
+  if(mode==='weekly') return cards.filter(function(c){ return (c.srs?c.srs.due:0) <= Date.now()+7*DAY; });
+  if(mode==='monthly') return cards.filter(function(c){ return (c.srs?c.srs.due:0) <= Date.now()+30*DAY; });
   if(mode==='random') return cards.slice();
   if(mode==='weak') return cards.slice().sort(function(a,b){ return (b.srs?b.srs.lapses:0)-(a.srs?a.srs.lapses:0); });
-  if(mode==='starred') return cards.filter(function(c){ return c.star; });
+  if(mode==='cram'){ var d=document.getElementById('cramDeck').value; return getCards().filter(function(c){ return c.deck===d; }); }
   return [];
 }
 function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
@@ -439,261 +439,308 @@ function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floo
 /* ---------- study stats ---------- */
 function refreshStudy(){
   var cards=getCards();
-  document.getElementById('stDue').textContent=cards.filter(isDue).length;
-  document.getElementById('stTotal').textContent=cards.length;
-  document.getElementById('stStar').textContent=cards.filter(function(c){return c.star;}).length;
-  var log=safeGet(K_LOG,[]); var recent=log.slice(-200);
+  document.getElementById('stDue').textContent = cards.filter(isDue).length;
+  document.getElementById('stTotal').textContent = cards.length;
+  var log=safeGet(K_LOG, []);
+  var recent=log.slice(-200);
   var good=recent.filter(function(r){ return r.grade>=2; }).length;
-  document.getElementById('stRet').textContent=recent.length?Math.round(good/recent.length*100)+'%':'--';
-  document.getElementById('stStreak').textContent=streak();
-  fillTopicWidgets(); renderModes(); drawChart();
+  document.getElementById('stRet').textContent = recent.length? Math.round(good/recent.length*100)+'%' : '--';
+  document.getElementById('stStreak').textContent = streak();
+  fillTopicWidgets();
+  renderModes();
+  drawChart();
 }
-function streak(){ var log=safeGet(K_LOG,[]); if(!log.length) return 0; var days={}; log.forEach(function(r){ days[todayStr(new Date(r.ts))]=1; }); var s=0,d=new Date(); for(;;){ if(days[todayStr(d)]){ s++; d.setDate(d.getDate()-1); } else break; } return s; }
+function streak(){
+  var log=safeGet(K_LOG, []); if(!log.length) return 0;
+  var days={}; log.forEach(function(r){ days[todayStr(new Date(r.ts))]=1; });
+  var s=0, d=new Date();
+  for(;;){ if(days[todayStr(d)]){ s++; d.setDate(d.getDate()-1); } else break; }
+  return s;
+}
 var chart;
 function drawChart(){
-  var log=safeGet(K_LOG,[]); var labels=[],counts=[];
+  var log=safeGet(K_LOG, []);
+  var labels=[], counts=[];
   for(var i=13;i>=0;i--){ var d=new Date(); d.setDate(d.getDate()-i); var ds=todayStr(d); labels.push(ds.slice(5)); counts.push(log.filter(function(r){ return todayStr(new Date(r.ts))===ds; }).length); }
-  var ctx=document.getElementById('revChart'); if(!ctx) return; if(chart) chart.destroy();
-  chart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{data:counts,borderColor:'#c9a84c',backgroundColor:'rgba(201,168,76,0.1)',fill:true,tension:0.35,pointRadius:0,borderWidth:1.5}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7d756a',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#7d756a',font:{size:9},precision:0},grid:{color:'rgba(190,172,130,0.06)'}}}}});
+  var ctx=document.getElementById('revChart'); if(!ctx) return;
+  if(chart) chart.destroy();
+  chart=new Chart(ctx, { type:'line', data:{ labels:labels, datasets:[{ data:counts, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,0.12)', fill:true, tension:0.35, pointRadius:2, pointBackgroundColor:'#c9a84c' }] },
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{ ticks:{ color:'#8a8070', font:{size:9} }, grid:{display:false} }, y:{ ticks:{ color:'#8a8070', font:{size:9}, precision:0 }, grid:{ color:'rgba(180,160,120,0.08)'} } } } });
 }
 
-/* ---------- cloze helpers ---------- */
-function clozeFront(t){ return String(t||'').replace(/\{\{(.+?)\}\}/g,'<span style="color:var(--accent-dim);">_____</span>'); }
-function clozeBack(t){ return String(t||'').replace(/\{\{(.+?)\}\}/g,'<span style="color:var(--accent);">$1</span>'); }
+/* ---------- topic widgets (selects + datalist + text inputs) ---------- */
+function fillDeckSelect(id, includeAll, allLabel){
+  var sel=document.getElementById(id); if(!sel || sel.tagName!=='SELECT') return;
+  var cur=sel.value; var decks=getTopics();
+  sel.innerHTML = (includeAll?'<option value="__all">'+(allLabel||'All topics')+'</option>':'') + decks.map(function(d){ return '<option>'+escH(d)+'</option>'; }).join('');
+  if(cur) sel.value=cur;
+}
+function fillTopicWidgets(){
+  /* select-type widgets */
+  fillDeckSelect('cramDeck');
+  fillDeckSelect('libDeck', true);
+  fillDeckSelect('studyTopic', true);
+  /* datalist for the text inputs (genDeck, inboxDeck, addDeck) */
+  var dl=document.getElementById('topicList');
+  if(dl) dl.innerHTML=getTopics().map(function(d){ return '<option value="'+escH(d)+'">'; }).join('');
+}
+function fillAllDeckSelects(){ fillTopicWidgets(); }
+function addDeck(){
+  var v=document.getElementById('newDeck').value.trim(); if(!v) return;
+  ensureTopic(v);
+  document.getElementById('newDeck').value=''; renderTopicChips(); toast('Topic added');
+}
+function renderTopicChips(){
+  var host=document.getElementById('topicChips'); if(!host) return;
+  var cards=getCards(); var counts={};
+  cards.forEach(function(c){ counts[c.deck]=(counts[c.deck]||0)+1; });
+  host.innerHTML=getTopics().map(function(t){ return '<span class="chip">'+escH(t)+' &middot; '+(counts[t]||0)+'</span>'; }).join('') || '<span class="cmeta" style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);">No topics yet.</span>';
+}
 
-/* ---------- SESSION (spaced review) ---------- */
+/* ---------- card front/back rendering helpers ---------- */
+function clozeFront(text){ return String(text||'').replace(/\{\{(.+?)\}\}/g, '<span style="color:var(--accent-dim);">_____</span>'); }
+function clozeBack(text){ return String(text||'').replace(/\{\{(.+?)\}\}/g, '<span style="color:var(--accent);">$1</span>'); }
+
+/* ---------- SESSION / REVIEW PLAYER ---------- */
 var session=null;
 function startSession(){
   var pool=poolFor(activeMode);
-  if(!pool.length){ toast('No cards in this cycle yet',true); return; }
+  if(!pool.length){ toast('No cards in this cycle yet', true); return; }
   var len=parseInt(document.getElementById('sessLen').value,10)||20;
-  session={ queue:shuffle(pool).slice(0,len), idx:0, total:0, revealed:false, answered:false };
-  session.total=session.queue.length;
+  var queue=shuffle(pool).slice(0, len);
+  session={ queue:queue, idx:0, total:queue.length, revealed:false, answered:false };
   document.getElementById('rev').classList.add('open');
-  document.getElementById('revStar').style.display='block';
-  document.getElementById('revMode').textContent=(MODES.find(function(m){return m.id===activeMode;})||{}).t||'';
+  document.getElementById('revMode').textContent = (MODES.find(function(m){return m.id===activeMode;})||{}).t || '';
   showCard();
 }
-function endSession(){ document.getElementById('rev').classList.remove('open'); session=null; testState=null; refreshStudy(); }
-function curCard(){ return session?session.queue[session.idx]:null; }
-function toggleSessionStar(){ var c=curCard(); if(!c) return; c.star=!c.star; persistCard(c); document.getElementById('revStar').classList.toggle('on',!!c.star); document.getElementById('revStar').innerHTML=c.star?'&#9733;':'&#9734;'; }
-function persistCard(c){ var cards=getCards(); var i=cards.findIndex(function(x){return x.id===c.id;}); if(i>=0){ cards[i]=c; setCards(cards); } }
+function endSession(){ document.getElementById('rev').classList.remove('open'); session=null; refreshStudy(); }
 function showCard(){
   if(!session) return;
   if(session.idx>=session.queue.length){ finishSession(); return; }
   session.revealed=false; session.answered=false;
-  var c=curCard();
+  var c=session.queue[session.idx];
   document.getElementById('revCount').textContent=(session.idx+1)+' / '+session.total;
   document.getElementById('revBar').style.width=(session.idx/session.total*100)+'%';
-  var st=document.getElementById('revStar'); st.classList.toggle('on',!!c.star); st.innerHTML=c.star?'&#9733;':'&#9734;';
   var host=document.getElementById('revCard');
-  if(c.type==='mcq') renderMCQ(host,c);
-  else if(c.type==='type') renderType(host,c);
-  else renderFlip(host,c);
+  if(c.type==='mcq'){ renderMCQ(host, c); }
+  else if(c.type==='type'){ renderType(host, c); }
+  else { renderFlip(host, c); }
 }
-function renderFlip(host,c){
-  var front=c.type==='cloze'?clozeFront(c.text):escH(c.front);
-  var back=c.type==='cloze'?clozeBack(c.text):escH(c.back);
-  host.innerHTML='<div class="rev-q">'+front+'</div><div class="rev-a hidden" id="revA">'+back+(c.expl?'<div class="rev-expl">'+escH(c.expl)+'</div>':'')+'</div><div class="rev-bottom" id="revBtns"><button class="rev-reveal" onclick="reveal()">Reveal &middot; <span class="kbd">Space</span></button></div>';
+function renderFlip(host, c){
+  var front = c.type==='cloze' ? clozeFront(c.text) : escH(c.front);
+  var back = c.type==='cloze' ? clozeBack(c.text) : escH(c.back);
+  host.innerHTML='<div class="rev-q">'+front+'</div>'
+    +'<div class="rev-a hidden" id="revA">'+back+(c.expl?'<div class="rev-expl">'+escH(c.expl)+'</div>':'')+'</div>'
+    +'<div class="rev-bottom" id="revBtns"><button class="rev-reveal" onclick="reveal()">Reveal &middot; <span class="kbd">Space</span></button></div>';
 }
-function reveal(){ if(!session||session.revealed) return; session.revealed=true; var a=document.getElementById('revA'); if(a) a.classList.remove('hidden'); document.getElementById('revBtns').innerHTML=gradeButtons(); }
-function gradeButtons(){ return '<button class="grade again" onclick="grade(0)"><span class="kbd">1</span> Again</button><button class="grade" onclick="grade(1)"><span class="kbd">2</span> Hard</button><button class="grade" onclick="grade(2)"><span class="kbd">3</span> Good</button><button class="grade easy" onclick="grade(3)"><span class="kbd">4</span> Easy</button>'; }
-function renderMCQ(host,c){
+function reveal(){
+  if(!session||session.revealed) return;
+  session.revealed=true;
+  var a=document.getElementById('revA'); if(a) a.classList.remove('hidden');
+  document.getElementById('revBtns').innerHTML=gradeButtons();
+}
+function gradeButtons(){
+  return '<button class="grade again" onclick="grade(0)"><span class="kbd">1</span> Again</button>'
+    +'<button class="grade" onclick="grade(1)"><span class="kbd">2</span> Hard</button>'
+    +'<button class="grade good" onclick="grade(2)"><span class="kbd">3</span> Good</button>'
+    +'<button class="grade easy" onclick="grade(3)"><span class="kbd">4</span> Easy</button>';
+}
+function renderMCQ(host, c){
   var opts=(c.options||[]).map(function(o,i){ return '<button class="rev-opt" data-i="'+i+'" onclick="answerMCQ('+i+')">'+escH(o)+'</button>'; }).join('');
   host.innerHTML='<div class="rev-q">'+escH(c.question||c.front)+'</div><div class="rev-opts">'+opts+'</div><div class="rev-bottom" id="revBtns"></div>';
 }
 function answerMCQ(i){
   if(!session||session.answered) return; session.answered=true; session.revealed=true;
-  var c=curCard();
-  document.querySelectorAll('.rev-opt').forEach(function(b){ var bi=parseInt(b.dataset.i,10); if(bi===c.answer) b.classList.add('correct'); else if(bi===i) b.classList.add('wrong'); b.style.pointerEvents='none'; });
-  if(c.expl){ var e=document.createElement('div'); e.className='rev-expl'; e.style.maxWidth='520px'; e.style.margin='1rem auto 0'; e.textContent=c.expl; document.getElementById('revCard').querySelector('.rev-opts').after(e); }
+  var c=session.queue[session.idx]; var correct=c.answer;
+  document.querySelectorAll('.rev-opt').forEach(function(b){
+    var bi=parseInt(b.dataset.i,10);
+    if(bi===correct) b.classList.add('correct');
+    else if(bi===i) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  var host=document.getElementById('revCard');
+  if(c.expl){ var e=document.createElement('div'); e.className='rev-expl'; e.style.maxWidth='520px'; e.style.margin='1rem auto 0'; e.textContent=c.expl; host.querySelector('.rev-opts').after(e); }
   document.getElementById('revBtns').innerHTML=gradeButtons();
 }
-function renderType(host,c){
-  host.innerHTML='<div class="rev-q">'+escH(c.front||c.question)+'</div><div class="rev-type-in"><input type="text" id="typeIn" placeholder="Type your answer, then Enter"></div><div class="rev-a hidden" id="revA"></div><div class="rev-bottom" id="revBtns"><button class="rev-reveal" onclick="checkType()">Check &middot; <span class="kbd">Enter</span></button></div>';
+function renderType(host, c){
+  host.innerHTML='<div class="rev-q">'+escH(c.front||c.question)+'</div>'
+    +'<div class="rev-type-in"><input type="text" id="typeIn" placeholder="Type your answer, then Enter"></div>'
+    +'<div class="rev-a hidden" id="revA"></div>'
+    +'<div class="rev-bottom" id="revBtns"><button class="rev-reveal" onclick="checkType()">Check &middot; <span class="kbd">Enter</span></button></div>';
   setTimeout(function(){ var t=document.getElementById('typeIn'); if(t) t.focus(); },50);
 }
 function norm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
 function checkType(){
   if(!session||session.revealed) return; session.revealed=true;
-  var c=curCard(); var ok=norm(document.getElementById('typeIn').value)===norm(c.answer||c.back);
+  var c=session.queue[session.idx]; var given=document.getElementById('typeIn').value;
+  var ok=norm(given)===norm(c.answer||c.back);
   var a=document.getElementById('revA'); a.classList.remove('hidden');
   a.innerHTML=(ok?'<span style="color:var(--green);">Correct.</span> ':'<span style="color:var(--red);">Answer:</span> ')+escH(c.answer||c.back)+(c.expl?'<div class="rev-expl">'+escH(c.expl)+'</div>':'');
   document.getElementById('typeIn').disabled=true;
   document.getElementById('revBtns').innerHTML=gradeButtons();
 }
 function grade(g){
-  if(!session) return; var c=curCard(); gradeCard(c,g); persistCard(c); logReview(g);
-  if(g===0) session.queue.push(c);
-  session.idx++; showCard();
+  if(!session) return;
+  var c=session.queue[session.idx];
+  gradeCard(c, g);
+  var cards=getCards(); var idx=cards.findIndex(function(x){ return x.id===c.id; });
+  if(idx>=0){ cards[idx]=c; setCards(cards); }
+  logReview(g);
+  if(g===0){ session.queue.push(c); } /* requeue 'Again' within session */
+  session.idx++;
+  showCard();
 }
 function finishSession(){
   document.getElementById('revBar').style.width='100%';
-  document.getElementById('revStar').style.display='none';
-  document.getElementById('revCard').innerHTML='<div class="rev-done"><h3>Session complete</h3><p style="font-family:var(--mono);font-size:0.74rem;color:var(--muted);margin-top:1rem;">'+session.total+' cards reviewed.</p><button class="btn primary" style="margin-top:1.6rem;" onclick="endSession()">Done</button></div>';
+  document.getElementById('revCard').innerHTML='<div class="rev-done"><h3>Session complete</h3><p style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);margin-top:0.8rem;">'+session.total+' cards reviewed. Come back when the next cycle is due.</p><button class="btn primary" style="margin-top:1.5rem;" onclick="endSession()">Done</button></div>';
 }
-
-/* ---------- MOCK TEST ---------- */
-var testState=null;
-function mcqPool(){
-  var t=document.getElementById('testTopic').value;
-  return getCards().filter(function(c){ return c.type==='mcq' && (t==='__all'||c.deck===t); });
-}
-function updateTestAvail(){
-  var n=mcqPool().length;
-  document.getElementById('testAvail').textContent = n? (n+' MCQ card'+(n===1?'':'s')+' available in this topic.') : 'No MCQ cards in this topic yet. Make some in the Generate tab (set Make to MCQs).';
-}
-document.addEventListener('change',function(e){ if(e.target&&e.target.id==='testTopic') updateTestAvail(); });
-function startTest(){
-  var pool=mcqPool();
-  if(!pool.length){ toast('No MCQ cards in this topic',true); return; }
-  var count=parseInt(document.getElementById('testCount').value,10)||20;
-  var perQ=parseInt(document.getElementById('testTimer').value,10)||0;
-  var neg=document.getElementById('testNeg').checked;
-  var q=shuffle(pool).slice(0,count);
-  testState={ queue:q, idx:0, total:q.length, answers:new Array(q.length).fill(null), neg:neg, perQ:perQ, startTs:Date.now(), timer:null };
-  document.getElementById('rev').classList.add('open');
-  document.getElementById('revStar').style.display='none';
-  document.getElementById('revMode').textContent='Mock Test';
-  showTestQ();
-}
-function showTestQ(){
-  if(!testState) return;
-  if(testState.idx>=testState.total){ finishTest(); return; }
-  var c=testState.queue[testState.idx];
-  document.getElementById('revCount').textContent=(testState.idx+1)+' / '+testState.total;
-  document.getElementById('revBar').style.width=(testState.idx/testState.total*100)+'%';
-  var chosen=testState.answers[testState.idx];
-  var opts=(c.options||[]).map(function(o,i){ return '<button class="rev-opt'+(chosen===i?' chosen':'')+'" onclick="pickTest('+i+')">'+escH(o)+'</button>'; }).join('');
-  var timerHtml=testState.perQ?'<div class="rev-count" id="qTimer" style="margin-bottom:0.8rem;color:var(--accent);"></div>':'';
-  document.getElementById('revCard').innerHTML=timerHtml+'<div class="rev-q">'+escH(c.question||c.front)+'</div><div class="rev-opts">'+opts+'</div><div class="rev-bottom"><button class="grade" onclick="navTest(-1)" '+(testState.idx===0?'disabled':'')+'>&#8592; Prev</button><button class="grade" onclick="navTest(1)">Skip / Next &#8594;</button><button class="grade easy" onclick="finishTest()">Finish</button></div>';
-  startQTimer();
-}
-function startQTimer(){
-  if(testState.timer){ clearInterval(testState.timer); testState.timer=null; }
-  if(!testState.perQ) return;
-  var left=testState.perQ;
-  var el=document.getElementById('qTimer');
-  var tick=function(){ if(!testState) return; if(el) el.textContent=left+'s'; if(left<=0){ navTest(1); return; } left--; };
-  tick(); testState.timer=setInterval(tick,1000);
-}
-function pickTest(i){ if(!testState) return; testState.answers[testState.idx]=i; document.querySelectorAll('.rev-opt').forEach(function(b){ b.classList.toggle('chosen',parseInt(b.dataset.i,10)===i); }); }
-function navTest(dir){ if(!testState) return; if(testState.timer){ clearInterval(testState.timer); testState.timer=null; } testState.idx+=dir; if(testState.idx<0) testState.idx=0; if(testState.idx>=testState.total){ finishTest(); return; } showTestQ(); }
-function finishTest(){
-  if(!testState) return; if(testState.timer){ clearInterval(testState.timer); testState.timer=null; }
-  var right=0,wrong=0,skip=0;
-  testState.queue.forEach(function(c,i){ var a=testState.answers[i]; if(a==null) skip++; else if(a===c.answer) right++; else wrong++; });
-  var score=right - (testState.neg?0.25*wrong:0);
-  var secs=Math.round((Date.now()-testState.startTs)/1000);
-  var mins=Math.floor(secs/60), rem=secs%60;
-  var review=testState.queue.map(function(c,i){
-    var a=testState.answers[i]; var ok=a===c.answer;
-    var your=a==null?'<span style="color:var(--muted);">skipped</span>':(ok?'<span style="color:var(--green);">'+escH(c.options[a])+'</span>':'<span style="color:var(--red);">'+escH(c.options[a])+'</span>');
-    return '<div class="citem"><div class="cfront" style="font-size:0.98rem;">'+escH(c.question)+'</div><div class="cback">Correct: <span style="color:var(--green);">'+escH(c.options[c.answer])+'</span>'+(a!=null&&!ok?' &middot; You: '+your:(a==null?' &middot; '+your:''))+'</div></div>';
-  }).join('');
-  document.getElementById('revBar').style.width='100%';
-  document.getElementById('revCard').innerHTML='<div class="rev-done" style="width:100%;max-width:680px;overflow-y:auto;max-height:88vh;"><h3>'+score.toFixed(2)+'</h3><div class="rev-count" style="margin-top:0.4rem;">score out of '+testState.total+'</div>'
-    +'<div class="score-row"><div class="sc"><b style="color:var(--green);">'+right+'</b><span>Right</span></div><div class="sc"><b style="color:var(--red);">'+wrong+'</b><span>Wrong</span></div><div class="sc"><b>'+skip+'</b><span>Skipped</span></div><div class="sc"><b>'+mins+'m '+rem+'s</b><span>Time</span></div></div>'
-    +'<button class="btn primary" onclick="endSession()" style="margin-bottom:1.6rem;">Done</button>'
-    +'<div class="clist" style="text-align:left;">'+review+'</div></div>';
-  testState=null;
-}
-
-/* keyboard for review + test */
-document.addEventListener('keydown',function(e){
-  if(!document.getElementById('rev').classList.contains('open')) return;
+document.addEventListener('keydown', function(e){
+  if(!session || !document.getElementById('rev').classList.contains('open')) return;
   if(e.key==='Escape'){ endSession(); return; }
-  if(testState){
-    if(e.key==='ArrowRight') navTest(1);
-    if(e.key==='ArrowLeft') navTest(-1);
-    if(['1','2','3','4'].indexOf(e.key)>=0){ var c=testState.queue[testState.idx]; if(c&&c.options&&c.options.length>=parseInt(e.key,10)) pickTest(parseInt(e.key,10)-1); }
-    return;
-  }
-  if(!session) return;
   var tag=document.activeElement.tagName;
-  if(tag==='INPUT'){ if(e.key==='Enter'){ var c=curCard(); if(c.type==='type'&&!session.revealed) checkType(); } return; }
-  if(e.key==='s'||e.key==='S'){ toggleSessionStar(); return; }
-  if(e.key===' '){ e.preventDefault(); if(!session.revealed){ var c=curCard(); if(c.type==='flip'||c.type==='cloze') reveal(); } return; }
-  if(session.revealed&&['1','2','3','4'].indexOf(e.key)>=0) grade(parseInt(e.key,10)-1);
+  if(tag==='INPUT'){ if(e.key==='Enter'){ var c=session.queue[session.idx]; if(c.type==='type'&&!session.revealed) checkType(); } return; }
+  if(e.key===' '){ e.preventDefault(); if(!session.revealed){ var c=session.queue[session.idx]; if(c.type==='flip'||c.type==='cloze') reveal(); } return; }
+  if(session.revealed && ['1','2','3','4'].indexOf(e.key)>=0){ grade(parseInt(e.key,10)-1); }
 });
 
-/* ---------- AI ---------- */
+/* ---------- AI: Groq when a key is saved, else keyless fallback ---------- */
 var GROQ_MODEL='llama-3.3-70b-versatile';
 function getGroqKey(){ try{ return localStorage.getItem('clatGroqKey')||''; }catch(e){ return ''; } }
-function saveGroqKey(){ var v=document.getElementById('groqKey').value.trim(); try{ if(v) localStorage.setItem('clatGroqKey',v); else localStorage.removeItem('clatGroqKey'); }catch(e){} renderKeyStatus(); toast(v?'Groq key saved':'Key cleared'); }
-function renderKeyStatus(){ var k=getGroqKey(); var el=document.getElementById('groqStatus'); if(!el) return; var inp=document.getElementById('groqKey'); if(k){ if(inp&&!inp.value) inp.value=k; el.innerHTML='<span style="color:var(--green);">&#10003; Key saved.</span> AI runs on Groq, works on your live site.'; } else { el.innerHTML='No key yet. Without one, AI only works when this page is opened through Claude.'; } }
-function toggleKeyView(){ var i=document.getElementById('groqKey'); i.type=i.type==='password'?'text':'password'; }
+function saveGroqKey(){
+  var v=document.getElementById('groqKey').value.trim();
+  try{ if(v) localStorage.setItem('clatGroqKey', v); else localStorage.removeItem('clatGroqKey'); }catch(e){}
+  renderKeyStatus(); toast(v?'Groq key saved':'Key cleared');
+}
+function renderKeyStatus(){
+  var k=getGroqKey(); var el=document.getElementById('groqStatus'); if(!el) return;
+  var inp=document.getElementById('groqKey');
+  if(k){ if(inp&&!inp.value) inp.value=k; el.innerHTML='<span style="color:var(--green);">&#10003; Key saved.</span> AI runs on Groq ('+GROQ_MODEL+'), works on your live site.'; }
+  else { el.innerHTML='No key yet. AI falls back to the free mode that only works when this page is opened through Claude.'; }
+}
+function toggleKeyView(){ var i=document.getElementById('groqKey'); i.type = i.type==='password' ? 'text' : 'password'; }
 async function callAI(prompt){
   var key=getGroqKey();
   if(key){
-    var r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:GROQ_MODEL,temperature:0.35,max_tokens:4096,messages:[{role:'user',content:prompt}]})});
+    var r=await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+key },
+      body: JSON.stringify({ model:GROQ_MODEL, temperature:0.35, max_tokens:4096, messages:[{ role:'user', content: prompt }] })
+    });
     if(!r.ok){ var t=await r.text().catch(function(){return '';}); throw new Error('Groq '+r.status+' '+t.slice(0,120)); }
-    var d=await r.json(); var txt=d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content; if(!txt) throw new Error('No response'); return txt;
+    var d=await r.json();
+    var txt=d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+    if(!txt) throw new Error('No response');
+    return txt;
   }
-  var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})});
-  var data=await res.json(); var block=data.content&&data.content.find(function(b){ return b.type==='text'; }); if(!block) throw new Error('No response'); return block.text;
+  var res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, messages:[{ role:'user', content: prompt }] })
+  });
+  var data = await res.json();
+  var block = data.content && data.content.find(function(b){ return b.type==='text'; });
+  if(!block) throw new Error('No response');
+  return block.text;
 }
 function parseJSONLoose(raw){
   var s=String(raw||'').replace(/```json|```/g,'').trim();
   try{ return JSON.parse(s); }catch(e){}
-  var a=s.indexOf('['),b=s.lastIndexOf(']'); if(a>=0&&b>a){ try{ return JSON.parse(s.slice(a,b+1)); }catch(e){} }
-  var o=s.indexOf('{'),p=s.lastIndexOf('}'); if(o>=0&&p>o){ try{ return JSON.parse(s.slice(o,p+1)); }catch(e){} }
-  throw new Error('parse');
+  var a=s.indexOf('['), b=s.lastIndexOf(']');
+  if(a>=0&&b>a){ try{ return JSON.parse(s.slice(a,b+1)); }catch(e){} }
+  var o=s.indexOf('{'), p=s.lastIndexOf('}');
+  if(o>=0&&p>o){ try{ return JSON.parse(s.slice(o,p+1)); }catch(e){} }
+  throw new Error('Could not parse');
 }
-var RULES='You are an expert tutor for CLAT (Common Law Admission Test, India), building General Knowledge and Current Affairs revision cards from a student\'s material. Rules:\n'
-+'1. DATA OVER PROSE. Prefer pin-point definitions, facts, figures, dates, names, designations, purposes. No story-like narrative cards, the student already reads those. Only write an explanatory card if a passage has no discrete fact.\n'
-+'2. ATOMIC. Break rich material into many small single-fact cards, not one card with a long answer. Keep answers short (aim under 20 words). If a passage covers several aspects, make one card each, then drill into sub-facts (alternate names, specific deities, specific dates).\n'
-+'3. USE CONTEXT, DO NOT DEFINE THE OBVIOUS. Never ask a bare "What is X?". Ask about the specific role or fact the surrounding text attributes to it. Highlighted "Constituent Assembly" in a passage about it rejecting jus sanguinis should yield "Why did the Constituent Assembly reject jus sanguinis?", not "What is the Constituent Assembly?".\n'
-+'4. INTERLINK. All material belongs to one topic. If a term is defined elsewhere in it, use that. Combine related parts for sharper questions (for example contrast jus soli and jus sanguinis).\n'
-+'5. RELATED TRIVIA. Beyond the literal highlight, add the related facts the material supports: dates, treaties, people and designations, places, amendments and years. From a Mahakali River passage, also ask the amendment year, who voiced the stance, and any treaty named (e.g. Treaty of Sugauli).\n'
-+'6. CONSOLIDATE when asked: group like facts into single cards, Constitutional Articles, Officials with designations, Capitals, Headquarters, Treaty/Convention dates, Indices with publishers.\n'
-+'7. NO REPEATS, including anything in EXISTING CARDS.\n'
-+'OUTPUT only a valid JSON array, no markdown. Flashcard: {"type":"flip","front":"...","back":"...","cat":"short tag"}. MCQ: {"type":"mcq","question":"...","options":["..","..","..",".."],"answer":0,"cat":"..."}. Produce as many distinct high-value cards as the material supports.';
-function existingFrontsFor(topic){ return getCards().filter(function(c){ return !topic||c.deck===topic; }).map(function(c){ return c.front||c.question||''; }).filter(Boolean).slice(0,120); }
-function promptScaffold(o){
-  var p=RULES+'\n\n'+(o.commonalities?'Also build consolidated reference cards per rule 6.\n':'Do not build consolidated list cards this time.\n');
-  var ref=refBlock(2600); if(ref) p+='\nREFERENCE / PATTERN MATERIAL (judge importance and mirror real CLAT style):\n'+ref+'\n';
-  if(o.existing&&o.existing.length) p+='\nEXISTING CARDS IN THIS TOPIC (do not repeat):\n- '+o.existing.slice(0,120).join('\n- ')+'\n';
-  if(o.topic) p+='\nTOPIC: '+o.topic+'\n';
-  return p+'\n'+o.body;
+
+/* ---------- shared prompt rules ---------- */
+var RULES =
+'You are an expert tutor for CLAT (the Common Law Admission Test in India), building General Knowledge and Current Affairs revision cards from a student\'s study material. Obey these rules strictly:\n'
++'1. DATA OVER PROSE. Prefer pin-point definitions, facts, figures, dates, names, designations, and purposes. Do NOT write story-like or narrative cards, the student already reads those in the compendium. Only write an explanatory card if a passage contains no discrete fact.\n'
++'2. ATOMIC AND DECENTRALISED. Break rich material into many small single-fact cards instead of one card with a long answer. Keep each answer short (aim under 20 words). If a passage covers several aspects (for example three traditions revering one mountain), make one card per aspect, then drill deeper into specific sub-facts (alternate names, specific deities, specific dates, specific figures).\n'
++'3. USE CONTEXT, DO NOT DEFINE THE OBVIOUS. When a term is highlighted, never ask a bare "What is X?". Ask about the specific role or fact the surrounding material attributes to it. Example: highlighted "Constituent Assembly" inside a passage about it rejecting jus sanguinis should yield "Why did the Constituent Assembly reject jus sanguinis?" and "On what ground did the Constituent Assembly call jus sanguinis unacceptable?", not "What is the Constituent Assembly?".\n'
++'4. INTERLINK THE WHOLE TOPIC. Everything provided belongs to ONE topic. If a highlighted term is defined or detailed elsewhere in the material, use that to build a sharper card. Combine related parts when it produces a better question (for example contrast jus soli and jus sanguinis if both appear).\n'
++'5. EXPAND TO RELATED TRIVIA. Beyond the literal highlight, generate the related factual questions the material supports: associated dates, treaties, people and their designations, places, amendments and their years. Example: from a Mahakali River boundary passage, also ask the year of the relevant constitutional amendment, who voiced the official stance, and the name and date of any treaty mentioned (for example the Treaty of Sugauli).\n'
++'6. CONSOLIDATE COMMONALITIES when asked. Scan all material and emit consolidated reference cards that group like facts into a single card each: Constitutional Articles, Ministers and Officials with designations, Capitals, Headquarters of organisations, Treaty or Convention names with dates, Indices or Reports with their publishing body. Front = the grouping question, back = the list.\n'
++'7. NO REPEATS. Never make two cards testing the same fact, and never duplicate anything in the EXISTING CARDS list.\n'
++'OUTPUT: respond ONLY with a valid JSON array, no markdown, no backticks, no preamble. Flashcard: {"type":"flip","front":"...","back":"...","cat":"short tag e.g. Definition/Date/Article/Capital/Official/Trivia"}. MCQ: {"type":"mcq","question":"...","options":["..","..","..",".."],"answer":0,"cat":"..."}. Produce as many distinct high-value cards as the material genuinely supports.';
+
+function existingFrontsFor(topic){
+  return getCards().filter(function(c){ return !topic || c.deck===topic; })
+    .map(function(c){ return c.front||c.question||''; }).filter(Boolean).slice(0,120);
+}
+function promptScaffold(opts){
+  var p=RULES+'\n\n';
+  if(opts.commonalities) p+='Also build consolidated reference cards per rule 6.\n';
+  else p+='Do not build consolidated list cards this time.\n';
+  var ref=refBlock(2600);
+  if(ref) p+='\nREFERENCE / PATTERN MATERIAL (use this to judge what is CLAT-important and to mirror real CLAT style and difficulty):\n'+ref+'\n';
+  var ex=opts.existing && opts.existing.length ? opts.existing.slice(0,120) : [];
+  if(ex.length) p+='\nEXISTING CARDS IN THIS TOPIC (do not repeat these):\n- '+ex.join('\n- ')+'\n';
+  if(opts.topic) p+='\nTOPIC: '+opts.topic+'\n';
+  p+='\n'+opts.body;
+  return p;
 }
 
 /* ---------- GENERATE ---------- */
 var genItems=[];
 function pullInboxIntoGen(){
-  var q=getQueue(); if(!q.length){ toast('Inbox is empty',true); return; }
-  document.getElementById('genInput').value=q.map(function(it){ return it.text+(it.context?('\n['+it.context.slice(0,500)+']'):''); }).join('\n\n');
-  var ft=(q.find(function(x){return x.topic;})||{}).topic; if(ft){ ensureTopic(ft); document.getElementById('genDeck').value=ft; }
+  var q=getQueue(); if(!q.length){ toast('Capture inbox is empty', true); return; }
+  document.getElementById('genInput').value = q.map(function(it){ return it.text+(it.context?('\n['+it.context.slice(0,600)+']'):''); }).join('\n\n');
+  var firstTopic=(q.find(function(x){return x.topic;})||{}).topic;
+  if(firstTopic && !document.getElementById('genDeck').value) document.getElementById('genDeck').value=firstTopic;
   toast('Pulled '+q.length+' captures');
 }
 async function runGenerate(){
-  var text=document.getElementById('genInput').value.trim(); if(!text){ toast('Paste some material first',true); return; }
-  var kind=document.getElementById('genKind').value, n=document.getElementById('genCount').value;
-  var topic=document.getElementById('genDeck').value, common=document.getElementById('genCommon').checked;
-  var spin=document.getElementById('genSpin'); spin.classList.add('on'); document.getElementById('genResults').innerHTML='';
-  var want=kind==='both'?'a rich set of flashcards AND MCQs (around '+n+' of each, more if warranted)':(kind==='mcq'?'around '+n+' MCQs (more if warranted)':'around '+n+' flashcards (more if rich)');
-  var prompt=promptScaffold({topic:topic,commonalities:common,existing:existingFrontsFor(topic),body:'Produce '+want+'.\n\nSOURCE MATERIAL:\n'+text.slice(0,6500)});
-  try{ var arr=parseJSONLoose(await callAI(prompt)); if(!Array.isArray(arr)) arr=[arr]; genItems=arr.filter(function(x){ return x&&x.type; }).map(function(x){ x.__keep=true; return x; }); renderGenResults(); }
-  catch(e){ document.getElementById('genResults').innerHTML='<div class="empty">'+(getGroqKey()?'Could not generate. Check your Groq key and connection. Free Groq has a per-minute cap, so on big material wait a minute and retry, or lower the depth.':'Could not generate. Add your free Groq key above, or open this page through Claude.')+'</div>'; }
-  finally{ spin.classList.remove('on'); }
+  var text=document.getElementById('genInput').value.trim();
+  if(!text){ toast('Paste some material first', true); return; }
+  var kind=document.getElementById('genKind').value;
+  var n=document.getElementById('genCount').value;
+  var topic=document.getElementById('genDeck').value.trim();
+  var common=document.getElementById('genCommon').checked;
+  var spin=document.getElementById('genSpin'); spin.classList.add('on');
+  document.getElementById('genResults').innerHTML='';
+  var want = kind==='both' ? 'Produce a rich set of flashcards AND a set of MCQs (aim around '+n+' of each, more if the material supports it)'
+    : (kind==='mcq' ? 'Produce around '+n+' MCQs (more if warranted)' : 'Produce around '+n+' flashcards (more if the material is rich)');
+  var body = want+'.\n\nSOURCE MATERIAL:\n'+text.slice(0,6500);
+  var prompt = promptScaffold({ topic:topic, commonalities:common, existing:existingFrontsFor(topic), body:body });
+  try{
+    var raw=await callAI(prompt);
+    var arr=parseJSONLoose(raw);
+    if(!Array.isArray(arr)) arr=[arr];
+    genItems=arr.filter(function(x){ return x&&x.type; }).map(function(x){ x.__keep=true; return x; });
+    renderGenResults();
+  }catch(e){
+    var msg = getGroqKey()
+      ? 'Could not generate. Check your Groq key and connection. Free Groq has a per-minute cap, so on big material wait a minute and retry, or lower the depth.'
+      : 'Could not generate. Add your free Groq key above to run AI on your live site, or open this page through Claude for the keyless mode. Everything else works anywhere.';
+    document.getElementById('genResults').innerHTML='<div class="empty">'+msg+'</div>';
+  }finally{ spin.classList.remove('on'); }
 }
 function renderGenResults(){
-  var host=document.getElementById('genResults'); if(!genItems.length){ host.innerHTML='<div class="empty">Nothing generated.</div>'; return; }
-  var topic=document.getElementById('genDeck').value||'General Knowledge';
-  var html='<div class="chips" style="margin-bottom:1rem;"><button class="btn primary" onclick="addGenerated()">Add kept to '+escH(topic)+'</button><span class="chip">'+genItems.length+' generated, untick to drop</span></div><div class="clist">';
+  var host=document.getElementById('genResults');
+  if(!genItems.length){ host.innerHTML='<div class="empty">Nothing generated.</div>'; return; }
+  var topic=document.getElementById('genDeck').value.trim()||'(no topic)';
+  var html='<div class="row" style="margin-bottom:0.8rem;"><button class="btn primary" style="flex:0;" onclick="addGenerated()">Add kept cards to '+escH(topic)+'</button><span style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);align-self:center;">'+genItems.length+' generated, untick any you don\'t want</span></div><div class="clist">';
   genItems.forEach(function(it,i){
-    var body=it.type==='mcq'?'<div class="cfront">'+escH(it.question)+'</div><div class="cback">'+(it.options||[]).map(function(o,oi){ return (oi===it.answer?'&#10003; ':'&middot; ')+escH(o); }).join('<br>')+'</div>':'<div class="cfront">'+escH(it.front)+'</div><div class="cback">'+escH(it.back)+'</div>';
+    var body = it.type==='mcq'
+      ? '<div class="cfront">'+escH(it.question)+'</div><div class="cback">'+(it.options||[]).map(function(o,oi){ return (oi===it.answer?'&#10003; ':'&middot; ')+escH(o); }).join('<br>')+'</div>'
+      : '<div class="cfront">'+escH(it.front)+'</div><div class="cback">'+escH(it.back)+'</div>';
     html+='<div class="citem keepable"><input type="checkbox" '+(it.__keep?'checked':'')+' onchange="genItems['+i+'].__keep=this.checked"><div style="flex:1;"><div class="ctype">'+it.type+(it.cat?' &middot; '+escH(it.cat):'')+'</div>'+body+'</div></div>';
   });
-  host.innerHTML=html+'</div>';
+  html+='</div>';
+  host.innerHTML=html;
 }
 function addGenerated(){
-  var topic=document.getElementById('genDeck').value||'General Knowledge'; ensureTopic(topic);
-  var cards=getCards(),n=0; genItems.forEach(function(it){ if(it.__keep){ cards.push(mkCard(it,topic)); n++; } }); setCards(cards);
-  toast(n+' card'+(n===1?'':'s')+' added to '+topic); genItems=[]; document.getElementById('genResults').innerHTML=''; refreshStudy();
+  var topic=document.getElementById('genDeck').value.trim()||'General Knowledge';
+  ensureTopic(topic);
+  var cards=getCards(); var n=0;
+  genItems.forEach(function(it){ if(!it.__keep) return; cards.push(mkCard(it, topic)); n++; });
+  setCards(cards);
+  toast(n+' card'+(n===1?'':'s')+' added to '+topic);
+  genItems=[]; document.getElementById('genResults').innerHTML='';
+  refreshStudy();
 }
-function mkCard(it,deck){
-  var c={ id:uid(), type:it.type, deck:deck, srs:newSRS(), created:Date.now(), expl:it.expl||'', cat:it.cat||'', star:false };
+function mkCard(it, deck){
+  var c={ id:uid(), type:it.type, deck:deck, srs:newSRS(), created:Date.now(), expl:it.expl||'', cat:it.cat||'' };
   if(it.type==='mcq'){ c.question=it.question; c.options=it.options||[]; c.answer=(typeof it.answer==='number'?it.answer:0); }
   else if(it.type==='cloze'){ c.text=it.text||it.front; }
   else if(it.type==='type'){ c.front=it.front||it.question; c.answer=it.answer||it.back; }
@@ -701,25 +748,33 @@ function mkCard(it,deck){
   return c;
 }
 
-/* ---------- INBOX ---------- */
-function captureTopic(it){ return (it.topic&&it.topic.trim())?it.topic.trim():(document.getElementById('inboxDeck').value||'General Knowledge'); }
-function groupQueue(){ var g={}; getQueue().forEach(function(it){ var t=captureTopic(it); (g[t]=g[t]||[]).push(it); }); return g; }
+/* ---------- INBOX (grouped by topic) ---------- */
+function captureTopic(it){ return (it.topic&&it.topic.trim()) ? it.topic.trim() : (document.getElementById('inboxDeck').value.trim()||'General Knowledge'); }
+function groupQueue(){
+  var q=getQueue(); var groups={};
+  q.forEach(function(it){ var t=captureTopic(it); (groups[t]=groups[t]||[]).push(it); });
+  return groups;
+}
 function renderInbox(){
-  var q=getQueue(); document.getElementById('inboxBadge').textContent=q.length?'('+q.length+')':'';
+  var q=getQueue();
+  document.getElementById('inboxBadge').textContent = q.length? '('+q.length+')' : '';
   var host=document.getElementById('inboxList');
   if(!q.length){ host.innerHTML='<div class="empty">Nothing captured yet.<br>On the dashboard, set a topic, open a PDF or article, select text, press <span class="kbd">G</span>.</div>'; return; }
   var groups=groupQueue(); host.innerHTML='';
   Object.keys(groups).forEach(function(topic){
     var items=groups[topic];
-    var wrap=document.createElement('div'); wrap.style.marginBottom='2rem';
-    var head=document.createElement('div'); head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--line-2);padding-bottom:0.6rem;margin-bottom:0.4rem;';
-    head.innerHTML='<span style="font-family:var(--serif);font-style:italic;font-size:1.25rem;color:var(--accent);">'+escH(topic)+' <span style="font-family:var(--mono);font-size:0.56rem;color:var(--muted);font-style:normal;">'+items.length+' captures</span></span>';
-    var btn=document.createElement('button'); btn.className='btn primary sm'; btn.textContent='Process into cards'; btn.onclick=function(){ processTopic(topic,items); };
+    var wrap=document.createElement('div'); wrap.style.marginBottom='1.6rem';
+    var head=document.createElement('div'); head.className='capture-head'; head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.6rem;border-bottom:1px solid var(--border);padding-bottom:0.5rem;';
+    head.innerHTML='<span style="font-family:var(--serif);font-style:italic;font-size:1.25rem;color:var(--accent);">'+escH(topic)+' <span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);font-style:normal;">'+items.length+' captures</span></span>';
+    var btn=document.createElement('button'); btn.className='btn primary sm'; btn.textContent='Process this topic into cards';
+    btn.onclick=function(){ processTopic(topic, items); };
     head.appendChild(btn); wrap.appendChild(head);
     var list=document.createElement('div'); list.className='clist';
     items.forEach(function(it){
       var el=document.createElement('div'); el.className='citem';
-      el.innerHTML='<div class="ctype">'+escH(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'')+(it.context?' &middot; with context':'')+'</div><div class="cfront" style="font-size:0.98rem;">'+escH(it.text)+'</div><div class="crow"><button class="btn sm danger" onclick="removeCapture(\''+it.id+'\')">Remove</button></div>';
+      el.innerHTML='<div class="ctype">'+escH(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'')+(it.context?' &middot; with context':'')+'</div>'
+        +'<div class="cfront" style="font-size:0.98rem;">'+escH(it.text)+'</div>'
+        +'<div class="crow"><button class="btn sm danger" onclick="removeCapture(\''+it.id+'\')">Remove</button></div>';
       list.appendChild(el);
     });
     wrap.appendChild(list); host.appendChild(wrap);
@@ -727,114 +782,140 @@ function renderInbox(){
 }
 function removeCapture(id){ setQueue(getQueue().filter(function(x){ return x.id!==id; })); renderInbox(); }
 function clearInbox(){ if(confirm('Clear all captured snippets?')){ setQueue([]); renderInbox(); toast('Inbox cleared'); } }
-async function processTopic(topic,items){
+async function processTopic(topic, items){
   var spin=document.getElementById('inboxSpin'); spin.classList.add('on');
   try{
-    var cards=await snippetToCards(items,topic); ensureTopic(topic);
-    var all=getCards(); cards.forEach(function(c){ all.push(mkCard(c,topic)); }); setCards(all);
-    var ids={}; items.forEach(function(it){ ids[it.id]=1; }); setQueue(getQueue().filter(function(x){ return !ids[x.id]; }));
-    renderInbox(); refreshStudy(); toast(cards.length+' cards made for '+topic);
-  }catch(e){ toast('AI failed. Check your Groq key, or open via Claude. Captures kept.',true); }
+    var cards=await snippetToCards(items, topic);
+    ensureTopic(topic);
+    var all=getCards(); cards.forEach(function(c){ all.push(mkCard(c, topic)); }); setCards(all);
+    var ids={}; items.forEach(function(it){ ids[it.id]=1; });
+    setQueue(getQueue().filter(function(x){ return !ids[x.id]; }));
+    renderInbox(); refreshStudy();
+    toast(cards.length+' cards made for '+topic);
+  }catch(e){ toast('AI failed. Check your Groq key, or open via Claude. Captures kept.', true); }
   finally{ spin.classList.remove('on'); }
 }
-async function convertAllInbox(){ var g=groupQueue(),k=Object.keys(g); if(!k.length){ toast('Inbox empty',true); return; } for(var i=0;i<k.length;i++){ await processTopic(k[i],g[k[i]]); } }
-async function snippetToCards(items,topic){
+async function convertAllInbox(){
+  var groups=groupQueue(); var keys=Object.keys(groups);
+  if(!keys.length){ toast('Inbox empty', true); return; }
+  for(var i=0;i<keys.length;i++){ await processTopic(keys[i], groups[keys[i]]); }
+}
+async function snippetToCards(items, topic){
   if(!Array.isArray(items)) items=[items];
-  var blocks=items.map(function(it,i){ var ctx=(it.context&&it.context.length>20)?it.context:''; var src=it.source?(it.source+(it.page?', p.'+it.page:'')):''; return 'CAPTURE '+(i+1)+(src?' (from '+src+')':'')+':\nHIGHLIGHTED: "'+String(it.text||'').slice(0,800)+'"\n'+(ctx?'SURROUNDING TEXT (context only): '+ctx.slice(0,2600):'(no context available)'); }).join('\n\n');
-  var prompt=promptScaffold({topic:topic,commonalities:true,existing:existingFrontsFor(topic),body:'The student highlighted the items below while reading one topic. HIGHLIGHTED is what they want to remember; SURROUNDING TEXT only helps you understand it. Treat all captures together and interlink them. Build a thorough, decentralised set of atomic cards plus related trivia.\n\nMATERIAL:\n'+blocks});
-  var arr=parseJSONLoose(await callAI(prompt)); if(!Array.isArray(arr)) arr=[arr]; return arr.filter(function(x){ return x&&(x.front||x.question); });
+  var blocks=items.map(function(it,i){
+    var ctx = (it.context && it.context.length>20) ? it.context : '';
+    var src = it.source ? (it.source+(it.page?', p.'+it.page:'')) : '';
+    return 'CAPTURE '+(i+1)+(src?' (from '+src+')':'')+':\n'
+      + 'HIGHLIGHTED: "'+String(it.text||'').slice(0,800)+'"\n'
+      + (ctx ? 'SURROUNDING TEXT (context only, may overlap with other captures): '+ctx.slice(0,2600) : '(no surrounding context available)');
+  }).join('\n\n');
+  var body = 'The student highlighted the items below while reading one topic. The HIGHLIGHTED part of each is what they want to remember; SURROUNDING TEXT is only there so you understand it. Treat all captures together as one body of knowledge and interlink them. Build a thorough, decentralised set of atomic cards plus related trivia, following every rule above.\n\nMATERIAL:\n'+blocks;
+  var prompt = promptScaffold({ topic:topic, commonalities:true, existing:existingFrontsFor(topic), body:body });
+  var raw=await callAI(prompt); var arr=parseJSONLoose(raw); if(!Array.isArray(arr)) arr=[arr];
+  return arr.filter(function(x){ return x&&(x.front||x.question); });
 }
 
-/* ---------- REFERENCE ---------- */
-function addRef(){ var text=document.getElementById('refInput').value.trim(); if(!text){ toast('Paste material first',true); return; } var r=getRef(); r.push({ id:uid('ref'), label:document.getElementById('refLabel').value.trim(), text:text, ts:Date.now() }); setRef(r); document.getElementById('refInput').value=''; document.getElementById('refLabel').value=''; renderRefList(); toast('Added to reference library'); }
+/* ---------- REFERENCE MATERIAL ---------- */
+function addRef(){
+  var text=document.getElementById('refInput').value.trim();
+  if(!text){ toast('Paste some reference material first', true); return; }
+  var label=document.getElementById('refLabel').value.trim();
+  var r=getRef(); r.push({ id:uid('ref'), label:label, text:text, ts:Date.now() }); setRef(r);
+  document.getElementById('refInput').value=''; document.getElementById('refLabel').value='';
+  renderRefList(); toast('Added to reference library');
+}
 function delRef(id){ setRef(getRef().filter(function(x){ return x.id!==id; })); renderRefList(); }
 function renderRefList(){
-  var host=document.getElementById('refList'); if(!host) return; var r=getRef();
-  if(!r.length){ host.innerHTML='<div class="empty">No reference material yet. Paste CLAT papers, model MCQs, or notes on what gets asked.</div>'; return; }
-  host.innerHTML=''; r.slice().reverse().forEach(function(e){ var el=document.createElement('div'); el.className='citem'; el.innerHTML='<div class="ctype">'+escH(e.label||'Reference')+' &middot; '+e.text.length+' chars</div><div class="cback" style="white-space:pre-wrap;max-height:110px;overflow:hidden;">'+escH(e.text.slice(0,380))+(e.text.length>380?'&hellip;':'')+'</div><div class="crow"><button class="btn sm danger" onclick="delRef(\''+e.id+'\')">Remove</button></div>'; host.appendChild(el); });
-}
-
-/* ---------- MANUAL ADD + EDIT ---------- */
-var editingId=null;
-function renderAddFields(pref){
-  pref=pref||{}; var t=document.getElementById('addType').value, h='';
-  if(t==='flip'){ h='<label class="field"><span>Front (question/cue)</span><textarea id="fa_front" rows="2">'+escH(pref.front||'')+'</textarea></label><label class="field"><span>Back (answer)</span><textarea id="fa_back" rows="2">'+escH(pref.back||'')+'</textarea></label>'; }
-  else if(t==='cloze'){ h='<label class="field"><span>Text, wrap the answer in {{ }}</span><textarea id="fa_text" rows="3" placeholder="The {{Quad}} groups India, US, Japan and Australia.">'+escH(pref.text||'')+'</textarea></label>'; }
-  else if(t==='mcq'){ var optsTxt=pref.options?pref.options.map(function(o,i){ return (i===pref.answer?'*':'')+o; }).join('\n'):''; h='<label class="field"><span>Question</span><textarea id="fa_q" rows="2">'+escH(pref.question||'')+'</textarea></label><label class="field"><span>Options, one per line, mark the correct one with a leading *</span><textarea id="fa_opts" rows="4" placeholder="*Correct option&#10;Distractor&#10;Distractor&#10;Distractor">'+escH(optsTxt)+'</textarea></label>'; }
-  else if(t==='type'){ h='<label class="field"><span>Question / cue</span><textarea id="fa_front" rows="2">'+escH(pref.front||'')+'</textarea></label><label class="field"><span>Exact answer</span><input type="text" id="fa_ans" value="'+escH(pref.answer||'')+'"></label>'; }
-  h+='<label class="field"><span>Explanation (optional)</span><input type="text" id="fa_exp" value="'+escH(pref.expl||'')+'"></label>';
-  document.getElementById('addFields').innerHTML=h;
-}
-function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
-function readCardForm(){
-  var t=document.getElementById('addType').value; var it={ type:t, expl:val('fa_exp') };
-  if(t==='flip'){ if(!val('fa_front')){ toast('Front is empty',true); return null; } it.front=val('fa_front'); it.back=val('fa_back'); }
-  else if(t==='cloze'){ if(val('fa_text').indexOf('{{')<0){ toast('Wrap an answer in {{ }}',true); return null; } it.text=val('fa_text'); }
-  else if(t==='mcq'){ var lines=val('fa_opts').split('\n').filter(function(x){ return x.trim(); }); var ans=0; var opts=lines.map(function(l,i){ if(l.trim()[0]==='*'){ ans=i; return l.trim().slice(1).trim(); } return l.trim(); }); if(!val('fa_q')||opts.length<2){ toast('Need a question and options',true); return null; } it.question=val('fa_q'); it.options=opts; it.answer=ans; }
-  else if(t==='type'){ if(!val('fa_front')||!val('fa_ans')){ toast('Need a cue and answer',true); return null; } it.front=val('fa_front'); it.answer=val('fa_ans'); }
-  return it;
-}
-function saveManualCard(){
-  var it=readCardForm(); if(!it) return;
-  var deck=document.getElementById('addDeck').value||'General Knowledge'; ensureTopic(deck);
-  var cards=getCards();
-  if(editingId){
-    var i=cards.findIndex(function(c){ return c.id===editingId; });
-    if(i>=0){ var keep=cards[i]; var nc=mkCard(it,deck); nc.id=keep.id; nc.srs=keep.srs; nc.star=keep.star; nc.created=keep.created; cards[i]=nc; }
-    setCards(cards); cancelEdit(); toast('Card updated');
-  } else { cards.push(mkCard(it,deck)); setCards(cards); renderAddFields(); toast('Card saved to '+deck); }
-  refreshStudy(); renderTopicChips(); renderLibrary();
-}
-function editCard(id){
-  var c=getCards().find(function(x){ return x.id===id; }); if(!c) return;
-  editingId=id;
-  document.getElementById('addType').value=c.type; renderAddFields(c);
-  fillDeckSelect('addDeck'); document.getElementById('addDeck').value=c.deck;
-  document.getElementById('addCardHeading').textContent='Editing a card';
-  document.getElementById('saveCardBtn').textContent='Update card';
-  document.getElementById('cancelEditBtn').style.display='inline-block';
-  document.getElementById('addType').scrollIntoView({behavior:'smooth',block:'center'});
-}
-function cancelEdit(){ editingId=null; document.getElementById('addCardHeading').textContent='Add a card by hand'; document.getElementById('saveCardBtn').textContent='Save card'; document.getElementById('cancelEditBtn').style.display='none'; renderAddFields(); }
-
-/* ---------- LIBRARY ---------- */
-function toggleStar(id){ var cards=getCards(); var i=cards.findIndex(function(c){ return c.id===id; }); if(i<0) return; cards[i].star=!cards[i].star; setCards(cards); renderLibrary(); refreshStudy(); }
-function renderLibrary(){
-  var cards=getCards(); var q=val('cardSearch').toLowerCase(); var deck=document.getElementById('libDeck').value; var f=document.getElementById('libFilter').value;
-  var filtered=cards.filter(function(c){
-    if(deck&&deck!=='__all'&&c.deck!==deck) return false;
-    if(f==='star'&&!c.star) return false;
-    if(f==='mcq'&&c.type!=='mcq') return false;
-    if(q&&JSON.stringify(c).toLowerCase().indexOf(q)<0) return false;
-    return true;
-  });
-  var host=document.getElementById('library');
-  if(!filtered.length){ host.innerHTML='<div class="empty">No cards here yet. Generate some, capture some, or add one above.</div>'; return; }
+  var host=document.getElementById('refList'); if(!host) return;
+  var r=getRef();
+  if(!r.length){ host.innerHTML='<div class="empty">No reference material yet. Paste CLAT papers, model MCQs, or notes on what gets asked. The AI reads all of it whenever it writes questions.</div>'; return; }
   host.innerHTML='';
-  filtered.slice().reverse().forEach(function(c){
-    var front=c.type==='mcq'?c.question:(c.type==='cloze'?clozeBack(c.text):c.front);
-    var back=c.type==='mcq'?(c.options||[]).map(function(o,i){ return (i===c.answer?'&#10003; ':'')+escH(o); }).join(' &middot; '):(c.type==='cloze'?'':escH(c.back||c.answer||''));
+  r.slice().reverse().forEach(function(e){
     var el=document.createElement('div'); el.className='citem';
-    el.innerHTML='<div class="ctype"><span class="star'+(c.star?' on':'')+'" onclick="toggleStar(\''+c.id+'\')">'+(c.star?'&#9733;':'&#9734;')+'</span> '+c.type+' &middot; '+escH(c.deck)+(c.cat?' &middot; '+escH(c.cat):'')+'</div><div class="cfront">'+front+'</div>'+(back?'<div class="cback">'+back+'</div>':'')+'<div class="crow"><button class="btn sm" onclick="editCard(\''+c.id+'\')">Edit</button><button class="btn sm danger" onclick="delCard(\''+c.id+'\')">Delete</button></div>';
+    el.innerHTML='<div class="ctype">'+escH(e.label||'Reference')+' &middot; '+e.text.length+' chars</div>'
+      +'<div class="cback" style="white-space:pre-wrap;max-height:120px;overflow:hidden;">'+escH(e.text.slice(0,400))+(e.text.length>400?'&hellip;':'')+'</div>'
+      +'<div class="crow"><button class="btn sm danger" onclick="delRef(\''+e.id+'\')">Remove</button></div>';
     host.appendChild(el);
   });
 }
-function delCard(id){ if(editingId===id) cancelEdit(); setCards(getCards().filter(function(c){ return c.id!==id; })); renderLibrary(); refreshStudy(); renderTopicChips(); }
+
+/* ---------- MANUAL ADD ---------- */
+function renderAddFields(){
+  var t=document.getElementById('addType').value; var h='';
+  if(t==='flip'){ h='<label class="field"><span>Front (question/cue)</span><textarea id="fa_front" rows="2"></textarea></label><label class="field"><span>Back (answer)</span><textarea id="fa_back" rows="2"></textarea></label>'; }
+  else if(t==='cloze'){ h='<label class="field"><span>Text, wrap the answer in {{ }}</span><textarea id="fa_text" rows="3" placeholder="The {{Quad}} groups India, US, Japan and Australia."></textarea></label>'; }
+  else if(t==='mcq'){ h='<label class="field"><span>Question</span><textarea id="fa_q" rows="2"></textarea></label><label class="field"><span>Options, one per line, mark the correct one with a leading *</span><textarea id="fa_opts" rows="4" placeholder="*Correct option&#10;Distractor&#10;Distractor&#10;Distractor"></textarea></label>'; }
+  else if(t==='type'){ h='<label class="field"><span>Question / cue</span><textarea id="fa_front" rows="2"></textarea></label><label class="field"><span>Exact answer</span><input type="text" id="fa_ans"></label>'; }
+  h+='<label class="field"><span>Explanation (optional)</span><input type="text" id="fa_exp"></label>';
+  document.getElementById('addFields').innerHTML=h;
+}
+function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+function saveManualCard(){
+  var t=document.getElementById('addType').value; var deck=document.getElementById('addDeck').value.trim()||'General Knowledge';
+  var it={ type:t, expl:val('fa_exp') };
+  if(t==='flip'){ if(!val('fa_front')){ toast('Front is empty', true); return; } it.front=val('fa_front'); it.back=val('fa_back'); }
+  else if(t==='cloze'){ if(val('fa_text').indexOf('{{')<0){ toast('Wrap an answer in {{ }}', true); return; } it.text=val('fa_text'); }
+  else if(t==='mcq'){ var lines=val('fa_opts').split('\n').filter(function(x){ return x.trim(); }); var ans=0; var opts=lines.map(function(l,i){ if(l.trim()[0]==='*'){ ans=i; return l.trim().slice(1).trim(); } return l.trim(); }); if(!val('fa_q')||opts.length<2){ toast('Need a question and options', true); return; } it.question=val('fa_q'); it.options=opts; it.answer=ans; }
+  else if(t==='type'){ if(!val('fa_front')||!val('fa_ans')){ toast('Need a cue and answer', true); return; } it.front=val('fa_front'); it.answer=val('fa_ans'); }
+  ensureTopic(deck);
+  var cards=getCards(); cards.push(mkCard(it, deck)); setCards(cards);
+  renderAddFields(); refreshStudy(); renderTopicChips(); toast('Card saved to '+deck);
+}
+
+/* ---------- LIBRARY ---------- */
+function renderLibrary(){
+  var cards=getCards(); var q=val('cardSearch').toLowerCase(); var deck=document.getElementById('libDeck').value;
+  var filtered=cards.filter(function(c){
+    if(deck && deck!=='__all' && c.deck!==deck) return false;
+    if(!q) return true;
+    return JSON.stringify(c).toLowerCase().indexOf(q)>=0;
+  });
+  var host=document.getElementById('library');
+  if(!filtered.length){ host.innerHTML='<div class="empty">No cards yet. Generate some, capture some, or add one above.</div>'; return; }
+  host.innerHTML='';
+  filtered.slice().reverse().forEach(function(c){
+    var front = c.type==='mcq'? c.question : (c.type==='cloze'? clozeBack(c.text) : c.front);
+    var back = c.type==='mcq'? (c.options||[]).map(function(o,i){ return (i===c.answer?'&#10003; ':'')+escH(o); }).join(' &middot; ') : (c.type==='cloze'? '' : escH(c.back||c.answer||''));
+    var el=document.createElement('div'); el.className='citem';
+    el.innerHTML='<div class="ctype">'+c.type+' &middot; '+escH(c.deck)+(c.cat?' &middot; '+escH(c.cat):'')+'</div><div class="cfront">'+front+'</div>'+(back?'<div class="cback">'+back+'</div>':'')
+      +'<div class="crow"><button class="btn sm danger" onclick="delCard(\''+c.id+'\')">Delete</button></div>';
+    host.appendChild(el);
+  });
+}
+function delCard(id){ setCards(getCards().filter(function(c){ return c.id!==id; })); renderLibrary(); refreshStudy(); }
 
 /* ---------- EXPORT / IMPORT ---------- */
-function download(name,text,mime){ var b=new Blob([text],{type:mime||'text/plain'}); var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
-function exportJSON(){ download('gk-recall-backup.json',JSON.stringify({cards:getCards(),decks:getTopics(),log:safeGet(K_LOG,[]),ref:getRef()},null,2),'application/json'); }
-function importJSON(ev){ var f=ev.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ try{ var d=JSON.parse(r.result); if(d.cards) setCards(d.cards); if(d.decks) setTopics(d.decks); if(d.log) safeSet(K_LOG,d.log); if(d.ref) setRef(d.ref); fillTopicWidgets(); refreshStudy(); renderLibrary(); renderRefList(); renderTopicChips(); toast('Backup imported'); }catch(e){ toast('Invalid file',true); } }; r.readAsText(f); ev.target.value=''; }
-function exportAnki(){ var rows=getCards().map(function(c){ var front=c.type==='mcq'?c.question+'  '+(c.options||[]).map(function(o,i){ return String.fromCharCode(65+i)+') '+o; }).join('  '):(c.type==='cloze'?clozeFront(c.text).replace(/<[^>]+>/g,'____'):(c.front||'')); var back=c.type==='mcq'?(c.options||[])[c.answer]||'':(c.type==='cloze'?c.text.replace(/\{\{(.+?)\}\}/g,'$1'):(c.back||c.answer||'')); return (front+'\t'+back+(c.expl?'  ('+c.expl+')':'')).replace(/\r?\n/g,' '); }); download('gk-recall-anki.tsv',rows.join('\n'),'text/tab-separated-values'); }
-function wipeAll(){ if(confirm('Delete ALL cards, topics, reference material and history? This cannot be undone.')){ [K_CARDS,K_DECKS,K_LOG,K_REF].forEach(function(k){ localStorage.removeItem(k); }); fillTopicWidgets(); refreshStudy(); renderLibrary(); renderRefList(); renderTopicChips(); toast('Wiped'); } }
+function download(name, text, mime){ var b=new Blob([text],{type:mime||'text/plain'}); var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=name; a.click(); URL.revokeObjectURL(u); }
+function exportJSON(){ download('gk-recall-backup.json', JSON.stringify({ cards:getCards(), decks:getTopics(), log:safeGet(K_LOG,[]), ref:getRef() }, null, 2), 'application/json'); }
+function importJSON(ev){
+  var f=ev.target.files[0]; if(!f) return; var r=new FileReader();
+  r.onload=function(){ try{ var d=JSON.parse(r.result); if(d.cards) setCards(d.cards); if(d.decks) setTopics(d.decks); if(d.log) safeSet(K_LOG,d.log); if(d.ref) setRef(d.ref); fillAllDeckSelects(); refreshStudy(); renderLibrary(); renderRefList(); renderTopicChips(); toast('Backup imported'); }catch(e){ toast('Invalid file', true); } };
+  r.readAsText(f); ev.target.value='';
+}
+function exportAnki(){
+  var rows=getCards().map(function(c){
+    var front = c.type==='mcq' ? c.question+' \\n '+(c.options||[]).map(function(o,i){ return String.fromCharCode(65+i)+') '+o; }).join('  ') : (c.type==='cloze'? clozeFront(c.text).replace(/<[^>]+>/g,'____') : (c.front||''));
+    var back = c.type==='mcq' ? (c.options||[])[c.answer]||'' : (c.type==='cloze'? c.text.replace(/\{\{(.+?)\}\}/g,'$1') : (c.back||c.answer||''));
+    return (front+'\t'+back+(c.expl?'  ('+c.expl+')':'')).replace(/\r?\n/g,' ');
+  });
+  download('gk-recall-anki.tsv', rows.join('\n'), 'text/tab-separated-values');
+}
+function wipeAll(){ if(confirm('Delete ALL cards, topics, reference material and history? This cannot be undone.')){ [K_CARDS,K_DECKS,K_LOG,K_REF].forEach(function(k){ localStorage.removeItem(k); }); fillAllDeckSelects(); refreshStudy(); renderLibrary(); renderRefList(); renderTopicChips(); toast('Wiped'); } }
 
-/* ---------- online + cross-page ---------- */
+/* ---------- online indicator + cross-page capture refresh ---------- */
 function setOnline(){ var d=document.getElementById('onlineDot'); if(navigator.onLine){ d.textContent='Online'; d.classList.remove('off'); } else { d.textContent='Offline'; d.classList.add('off'); } }
-window.addEventListener('online',setOnline); window.addEventListener('offline',setOnline);
-window.addEventListener('storage',function(e){ if(e.key===K_QUEUE) renderInbox(); });
+window.addEventListener('online', setOnline); window.addEventListener('offline', setOnline);
+window.addEventListener('storage', function(e){ if(e.key===K_QUEUE){ renderInbox(); } });
 
 /* ---------- init ---------- */
-fillTopicWidgets(); renderAddFields(); refreshStudy(); renderInbox(); renderRefList(); renderTopicChips(); updateTestAvail(); setOnline(); renderKeyStatus();
+fillAllDeckSelects();
+renderAddFields();
+refreshStudy();
+renderInbox();
+renderRefList();
+renderTopicChips();
+setOnline();
+renderKeyStatus();
 </script>
 </body>
 </html>
