@@ -153,6 +153,10 @@ select { font-family: var(--mono); font-size: 0.8rem; }
 .empty { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); text-align: center; padding: 2.5rem 1rem; border: 1px dashed var(--border); border-radius: 5px; line-height: 1.7; }
 .spinner { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.1em; padding: 0.8rem 0; display: none; }
 .spinner.on { display: block; }
+.gen-status { font-family: var(--mono); font-size: 0.68rem; color: var(--parchment); letter-spacing: 0.04em; line-height: 1.7; margin: 0.4rem 0 0; min-height: 1.2em; }
+.gen-status strong { color: var(--accent); font-weight: 400; }
+.gen-status .genbar { display: inline-block; vertical-align: middle; width: 120px; height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; margin-left: 0.6rem; }
+.gen-status .genbar > span { display: block; height: 100%; background: var(--accent); transition: width 0.4s ease; }
 .note { font-family: var(--mono); font-size: 0.66rem; color: var(--muted); line-height: 1.7; background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent-dim); border-radius: 3px; padding: 0.9rem 1rem; margin: 1rem 0; }
 .divider { height: 1px; background: var(--border); margin: 2rem 0; }
 .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 1.2rem; margin-top: 1.6rem; }
@@ -237,9 +241,11 @@ select { font-family: var(--mono); font-size: 0.8rem; }
     </div>
     <label class="chips" style="align-items:center;gap:0.6rem;margin-bottom:0.8rem;cursor:pointer;font-family:var(--mono);font-size:0.66rem;color:var(--muted);"><input type="checkbox" id="genCommon" checked style="width:auto;accent-color:var(--accent);"> Also auto-build consolidated reference cards (articles, capitals, HQs, officials, treaty dates&hellip;)</label>
     <div class="row" style="margin-bottom:0.4rem;">
-      <button class="btn primary" style="flex:0;" onclick="runGenerate()">Generate</button>
+      <button class="btn primary" id="genRunBtn" style="flex:0;" onclick="runGenerate()">Generate</button>
       <button class="btn" style="flex:0;" onclick="pullInboxIntoGen()">Pull from Capture Inbox</button>
+      <button class="btn danger" id="genCancelBtn" style="flex:0;display:none;" onclick="cancelGenerate()">Stop</button>
     </div>
+    <div class="gen-status" id="genStatus"></div>
     <div class="spinner" id="genSpin">Reading and writing questions&hellip;</div>
     <div id="genResults" style="margin-top:1.4rem;"></div>
   </section>
@@ -618,15 +624,25 @@ function renderKeyStatus(){
   else { el.innerHTML='No key yet. AI falls back to the free mode that only works when this page is opened through Claude.'; }
 }
 function toggleKeyView(){ var i=document.getElementById('groqKey'); i.type = i.type==='password' ? 'text' : 'password'; }
-async function callAI(prompt){
+async function callAI(prompt, maxTokens){
   var key=getGroqKey();
   if(key){
     var r=await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+key },
-      body: JSON.stringify({ model:GROQ_MODEL, temperature:0.35, max_tokens:4096, messages:[{ role:'user', content: prompt }] })
+      body: JSON.stringify({ model:GROQ_MODEL, temperature:0.35, max_tokens:(maxTokens||4096), messages:[{ role:'user', content: prompt }] })
     });
-    if(!r.ok){ var t=await r.text().catch(function(){return '';}); throw new Error('Groq '+r.status+' '+t.slice(0,120)); }
+    if(!r.ok){
+      var t=await r.text().catch(function(){return '';});
+      var err=new Error('Groq '+r.status+' '+t.slice(0,160));
+      err.status=r.status;
+      /* Pull Groq's suggested wait time out of the body if present (e.g. "try again in 12.3s") */
+      var m=t.match(/try again in ([\d.]+)s/i);
+      if(m) err.retryAfter=parseFloat(m[1]);
+      var ra=r.headers.get('retry-after');
+      if(ra && !err.retryAfter) err.retryAfter=parseFloat(ra);
+      throw err;
+    }
     var d=await r.json();
     var txt=d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
     if(!txt) throw new Error('No response');
@@ -634,7 +650,7 @@ async function callAI(prompt){
   }
   var res = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2000, messages:[{ role:'user', content: prompt }] })
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:(maxTokens||2000), messages:[{ role:'user', content: prompt }] })
   });
   var data = await res.json();
   var block = data.content && data.content.find(function(b){ return b.type==='text'; });
@@ -680,8 +696,10 @@ function promptScaffold(opts){
   return p;
 }
 
-/* ---------- GENERATE ---------- */
+/* ---------- GENERATE (auto-batched to respect Groq's free-tier per-minute cap) ---------- */
 var genItems=[];
+var genCancel=false;
+
 function pullInboxIntoGen(){
   var q=getQueue(); if(!q.length){ toast('Capture inbox is empty', true); return; }
   document.getElementById('genInput').value = q.map(function(it){ return it.text+(it.context?('\n['+it.context.slice(0,600)+']'):''); }).join('\n\n');
@@ -689,32 +707,172 @@ function pullInboxIntoGen(){
   if(firstTopic && !document.getElementById('genDeck').value) document.getElementById('genDeck').value=firstTopic;
   toast('Pulled '+q.length+' captures');
 }
+
+function sleep(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+
+/* Split source material into chunks that each stay comfortably within the free-tier
+   per-minute token budget. ~2200 chars of source per chunk keeps a single request
+   (rules + source + ~15 cards of output) under the ~6,000 token/minute ceiling.
+   Splits on paragraph breaks first, then sentences, so facts aren't cut mid-thought. */
+function chunkMaterial(text, maxChars){
+  maxChars = maxChars || 2200;
+  text = text.trim();
+  if(text.length <= maxChars) return [text];
+  /* Prefer paragraph boundaries */
+  var paras = text.split(/\n\s*\n/);
+  var chunks = [], cur = '';
+  function flush(){ if(cur.trim()) chunks.push(cur.trim()); cur=''; }
+  paras.forEach(function(p){
+    p = p.trim();
+    if(!p) return;
+    if(p.length > maxChars){
+      /* A single huge paragraph — split it on sentence boundaries */
+      flush();
+      var sentences = p.match(/[^.!?]+[.!?]+|\S[^.!?]*$/g) || [p];
+      var sc = '';
+      sentences.forEach(function(s){
+        if((sc + s).length > maxChars){ if(sc.trim()) chunks.push(sc.trim()); sc = s; }
+        else sc += s;
+      });
+      if(sc.trim()) chunks.push(sc.trim());
+    } else if((cur + '\n\n' + p).length > maxChars){
+      flush(); cur = p;
+    } else {
+      cur = cur ? (cur + '\n\n' + p) : p;
+    }
+  });
+  flush();
+  return chunks.length ? chunks : [text];
+}
+
+/* Dedupe generated items by their front/question text (case-insensitive) */
+function dedupeGen(items){
+  var seen = {}, out = [];
+  items.forEach(function(it){
+    var key = String(it.front || it.question || it.text || '').toLowerCase().replace(/\s+/g,' ').trim();
+    if(!key || seen[key]) return;
+    seen[key] = 1; out.push(it);
+  });
+  return out;
+}
+
+function setGenStatus(html){
+  var el = document.getElementById('genStatus');
+  if(el) el.innerHTML = html;
+}
+
 async function runGenerate(){
   var text=document.getElementById('genInput').value.trim();
   if(!text){ toast('Paste some material first', true); return; }
   var kind=document.getElementById('genKind').value;
-  var n=document.getElementById('genCount').value;
+  var n=parseInt(document.getElementById('genCount').value,10) || 12;
   var topic=document.getElementById('genDeck').value.trim();
   var common=document.getElementById('genCommon').checked;
   var spin=document.getElementById('genSpin'); spin.classList.add('on');
   document.getElementById('genResults').innerHTML='';
-  var want = kind==='both' ? 'Produce a rich set of flashcards AND a set of MCQs (aim around '+n+' of each, more if the material supports it)'
-    : (kind==='mcq' ? 'Produce around '+n+' MCQs (more if warranted)' : 'Produce around '+n+' flashcards (more if the material is rich)');
-  var body = want+'.\n\nSOURCE MATERIAL:\n'+text.slice(0,6500);
-  var prompt = promptScaffold({ topic:topic, commonalities:common, existing:existingFrontsFor(topic), body:body });
-  try{
-    var raw=await callAI(prompt);
-    var arr=parseJSONLoose(raw);
-    if(!Array.isArray(arr)) arr=[arr];
-    genItems=arr.filter(function(x){ return x&&x.type; }).map(function(x){ x.__keep=true; return x; });
+  genItems=[]; genCancel=false;
+
+  var btn=document.getElementById('genRunBtn');
+  if(btn){ btn.disabled=true; }
+  document.getElementById('genCancelBtn').style.display='inline-block';
+
+  /* Decide chunking. Small material → one request (fast path). Large → auto-batch. */
+  var chunks = chunkMaterial(text, 2200);
+  var hasKey = !!getGroqKey();
+
+  /* Per-chunk card target: spread the requested total across batches, min 6 per chunk
+     so each batch is still worthwhile, capped so output stays under the token budget. */
+  var perChunk = Math.max(6, Math.min(15, Math.ceil(n / chunks.length)));
+
+  try {
+    if(chunks.length === 1){
+      setGenStatus('Generating&hellip;');
+      var want1 = kind==='both' ? 'Produce a rich set of flashcards AND a set of MCQs (aim around '+n+' of each, more if the material supports it)'
+        : (kind==='mcq' ? 'Produce around '+n+' MCQs (more if warranted)' : 'Produce around '+n+' flashcards (more if the material is rich)');
+      var body1 = want1+'.\n\nSOURCE MATERIAL:\n'+chunks[0];
+      var prompt1 = promptScaffold({ topic:topic, commonalities:common, existing:existingFrontsFor(topic), body:body1 });
+      var raw1 = await callAI(prompt1, 3500);
+      var arr1 = parseJSONLoose(raw1); if(!Array.isArray(arr1)) arr1=[arr1];
+      genItems = dedupeGen(arr1.filter(function(x){ return x&&x.type; })).map(function(x){ x.__keep=true; return x; });
+      renderGenResults();
+      return;
+    }
+
+    /* ── Auto-batched path ── */
+    var all = [];
+    var consolidatedDone = false;
+    for(var i=0; i<chunks.length; i++){
+      if(genCancel){ setGenStatus('Stopped. Keeping what was generated so far.'); break; }
+
+      var pct = Math.round((i/chunks.length)*100);
+      setGenStatus('Batch <strong>'+(i+1)+'</strong> of <strong>'+chunks.length+'</strong> &middot; <strong>'+all.length+'</strong> cards so far <span class="genbar"><span style="width:'+pct+'%"></span></span>');
+
+      /* Only ask for consolidated reference cards once (on the last chunk, seeing all material) */
+      var askCommon = common && !consolidatedDone && i === chunks.length-1;
+      var wantB = kind==='both' ? 'Produce flashcards AND MCQs from this section (around '+perChunk+' items total)'
+        : (kind==='mcq' ? 'Produce around '+perChunk+' MCQs from this section' : 'Produce around '+perChunk+' flashcards from this section');
+      var bodyB = wantB+'.\n\nSOURCE MATERIAL (section '+(i+1)+' of '+chunks.length+'):\n'+chunks[i];
+      var promptB = promptScaffold({ topic:topic, commonalities:askCommon, existing:existingFrontsFor(topic).concat(all.map(function(x){return x.front||x.question||'';})).slice(0,160), body:bodyB });
+
+      var attempts = 0, ok = false;
+      while(attempts < 4 && !ok){
+        if(genCancel) break;
+        attempts++;
+        try {
+          var raw = await callAI(promptB, 2600);
+          var arr = parseJSONLoose(raw); if(!Array.isArray(arr)) arr=[arr];
+          arr.filter(function(x){ return x&&x.type; }).forEach(function(x){ all.push(x); });
+          if(askCommon) consolidatedDone = true;
+          ok = true;
+        } catch(e){
+          if(e.status === 429){
+            /* Rate limited — wait the suggested time (or 60s) then retry the SAME chunk */
+            var waitS = e.retryAfter ? Math.ceil(e.retryAfter)+1 : 62;
+            for(var w=waitS; w>0; w--){
+              if(genCancel) break;
+              setGenStatus('Hit Groq&rsquo;s per-minute limit. Auto-resuming in <strong>'+w+'s</strong>&hellip; <span style="color:var(--muted);">('+all.length+' cards held, batch '+(i+1)+'/'+chunks.length+')</span>');
+              await sleep(1000);
+            }
+          } else if(attempts >= 4){
+            /* Give up on this chunk but keep going with the rest */
+            setGenStatus('Batch '+(i+1)+' failed, skipping it. Continuing&hellip;');
+            await sleep(1200);
+            ok = true; /* move on */
+          } else {
+            await sleep(1500); /* transient error, quick retry */
+          }
+        }
+      }
+
+      /* Gentle spacing between batches to respect 30 requests/min and ease the token window */
+      if(i < chunks.length-1 && !genCancel) await sleep(2500);
+    }
+
+    genItems = dedupeGen(all).map(function(x){ x.__keep=true; return x; });
+    if(genItems.length){
+      setGenStatus('Done &middot; <strong>'+genItems.length+'</strong> unique cards generated across '+chunks.length+' batches.');
+    } else {
+      setGenStatus('');
+      document.getElementById('genResults').innerHTML='<div class="empty">'+(hasKey
+        ? 'Could not generate. Free Groq has a per-minute cap — try again in a minute, or lower the depth.'
+        : 'Add your free Groq key above to run AI on your live site, or open this page through Claude.')+'</div>';
+    }
     renderGenResults();
-  }catch(e){
+
+  } catch(e){
+    setGenStatus('');
     var msg = getGroqKey()
-      ? 'Could not generate. Check your Groq key and connection. Free Groq has a per-minute cap, so on big material wait a minute and retry, or lower the depth.'
+      ? 'Could not generate. Check your Groq key and connection. Free Groq has a per-minute cap, so on big material the batcher waits and retries — give it a moment, or lower the depth.'
       : 'Could not generate. Add your free Groq key above to run AI on your live site, or open this page through Claude for the keyless mode. Everything else works anywhere.';
     document.getElementById('genResults').innerHTML='<div class="empty">'+msg+'</div>';
-  }finally{ spin.classList.remove('on'); }
+  } finally {
+    spin.classList.remove('on');
+    if(btn) btn.disabled=false;
+    document.getElementById('genCancelBtn').style.display='none';
+  }
 }
+
+function cancelGenerate(){ genCancel=true; toast('Stopping after this batch…'); }
 function renderGenResults(){
   var host=document.getElementById('genResults');
   if(!genItems.length){ host.innerHTML='<div class="empty">Nothing generated.</div>'; return; }
@@ -811,7 +969,20 @@ async function snippetToCards(items, topic){
   }).join('\n\n');
   var body = 'The student highlighted the items below while reading one topic. The HIGHLIGHTED part of each is what they want to remember; SURROUNDING TEXT is only there so you understand it. Treat all captures together as one body of knowledge and interlink them. Build a thorough, decentralised set of atomic cards plus related trivia, following every rule above.\n\nMATERIAL:\n'+blocks;
   var prompt = promptScaffold({ topic:topic, commonalities:true, existing:existingFrontsFor(topic), body:body });
-  var raw=await callAI(prompt); var arr=parseJSONLoose(raw); if(!Array.isArray(arr)) arr=[arr];
+  /* Retry on Groq's per-minute rate limit so a busy inbox topic doesn't just fail */
+  var attempts=0, raw=null;
+  while(attempts<3 && raw===null){
+    attempts++;
+    try { raw = await callAI(prompt, 2600); }
+    catch(e){
+      if(e.status===429 && attempts<3){
+        var waitS = e.retryAfter ? Math.ceil(e.retryAfter)+1 : 62;
+        toast('Groq per-minute limit — auto-resuming in '+waitS+'s', true);
+        await sleep(waitS*1000);
+      } else { throw e; }
+    }
+  }
+  var arr=parseJSONLoose(raw); if(!Array.isArray(arr)) arr=[arr];
   return arr.filter(function(x){ return x&&(x.front||x.question); });
 }
 
