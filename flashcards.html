@@ -239,6 +239,15 @@ select { font-family: var(--mono); font-size: 0.8rem; }
       </select></label>
       <label class="field" style="margin:0;"><span>Topic (pick or type a new one)</span><input type="text" id="genDeck" list="topicList" placeholder="e.g. Citizenship, Border Disputes"></label>
     </div>
+    <div class="row">
+      <label class="field" style="margin:0;"><span>AI model</span><select id="genModel" onchange="saveGenModel()">
+        <option value="llama-3.1-8b-instant" selected>8B Instant &mdash; big daily allowance, best for bulk</option>
+        <option value="llama-3.3-70b-versatile">70B Versatile &mdash; higher quality, small daily limit</option>
+      </select></label>
+      <div class="field" style="margin:0;justify-content:flex-end;">
+        <span style="font-family:var(--mono);font-size:0.56rem;color:var(--muted);line-height:1.6;">On Groq&rsquo;s free tier the 70B model only allows ~100K tokens/day, which big jobs exhaust fast. 8B allows ~5&times; more &mdash; use it for large batches, switch to 70B for small high-quality sets.</span>
+      </div>
+    </div>
     <label class="chips" style="align-items:center;gap:0.6rem;margin-bottom:0.8rem;cursor:pointer;font-family:var(--mono);font-size:0.66rem;color:var(--muted);"><input type="checkbox" id="genCommon" checked style="width:auto;accent-color:var(--accent);"> Also auto-build consolidated reference cards (articles, capitals, HQs, officials, treaty dates&hellip;)</label>
     <div class="row" style="margin-bottom:0.4rem;">
       <button class="btn primary" id="genRunBtn" style="flex:0;" onclick="runGenerate()">Generate</button>
@@ -610,7 +619,27 @@ document.addEventListener('keydown', function(e){
 });
 
 /* ---------- AI: Groq when a key is saved, else keyless fallback ---------- */
-var GROQ_MODEL='llama-3.3-70b-versatile';
+/* Model choice. The 70B model is higher quality but on Groq's free tier it has a
+   tight DAILY token budget (~100K tokens/day) that big batch jobs blow through fast.
+   The 8B "instant" model has a far larger free allowance (~500K tokens/day, 14.4K req/day),
+   so we default bulk generation to it. User can switch via the Depth/model control. */
+var GROQ_MODEL_QUALITY = 'llama-3.3-70b-versatile';
+var GROQ_MODEL_BULK = 'llama-3.1-8b-instant';
+function getGenModel(){
+  try {
+    var sel = document.getElementById('genModel');
+    if(sel && sel.value) return sel.value;
+  } catch(e){}
+  try { return localStorage.getItem('clatGenModel') || GROQ_MODEL_BULK; } catch(e){ return GROQ_MODEL_BULK; }
+}
+function saveGenModel(){
+  try {
+    var v = document.getElementById('genModel').value;
+    localStorage.setItem('clatGenModel', v);
+    toast(v.indexOf('8b')>=0 ? 'Using 8B Instant — best for big batches' : 'Using 70B — higher quality, smaller daily limit');
+  } catch(e){}
+}
+var GROQ_MODEL = GROQ_MODEL_BULK; /* back-compat default for any older reference */
 function getGroqKey(){ try{ return localStorage.getItem('clatGroqKey')||''; }catch(e){ return ''; } }
 function saveGroqKey(){
   var v=document.getElementById('groqKey').value.trim();
@@ -624,19 +653,24 @@ function renderKeyStatus(){
   else { el.innerHTML='No key yet. AI falls back to the free mode that only works when this page is opened through Claude.'; }
 }
 function toggleKeyView(){ var i=document.getElementById('groqKey'); i.type = i.type==='password' ? 'text' : 'password'; }
-async function callAI(prompt, maxTokens){
+async function callAI(prompt, maxTokens, model){
   var key=getGroqKey();
   if(key){
     var r=await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+key },
-      body: JSON.stringify({ model:GROQ_MODEL, temperature:0.35, max_tokens:(maxTokens||4096), messages:[{ role:'user', content: prompt }] })
+      body: JSON.stringify({ model:(model||getGenModel()), temperature:0.35, max_tokens:(maxTokens||4096), messages:[{ role:'user', content: prompt }] })
     });
     if(!r.ok){
       var t=await r.text().catch(function(){return '';});
-      var err=new Error('Groq '+r.status+' '+t.slice(0,160));
+      var err=new Error('Groq '+r.status+' '+t.slice(0,200));
       err.status=r.status;
-      /* Pull Groq's suggested wait time out of the body if present (e.g. "try again in 12.3s") */
+      err.bodyText=t;
+      /* Distinguish a DAILY quota hit (waiting won't help until reset) from a
+         per-minute hit (waiting ~60s helps). Groq phrases daily limits with "per day"
+         or "RPD"/"TPD"; per-minute with "per minute" and a "try again in Xs". */
+      var low=t.toLowerCase();
+      err.daily = /per day|requests per day|tokens per day|\brpd\b|\btpd\b|daily/.test(low);
       var m=t.match(/try again in ([\d.]+)s/i);
       if(m) err.retryAfter=parseFloat(m[1]);
       var ra=r.headers.get('retry-after');
@@ -825,14 +859,24 @@ async function runGenerate(){
           if(askCommon) consolidatedDone = true;
           ok = true;
         } catch(e){
-          if(e.status === 429){
-            /* Rate limited — wait the suggested time (or 60s) then retry the SAME chunk */
+          if(e.status === 429 && e.daily){
+            /* DAILY quota exhausted — waiting won't help (resets at midnight UTC).
+               Stop the whole job, keep what we have, and tell the user plainly. */
+            setGenStatus('<span style="color:var(--red);">Daily Groq limit reached.</span> Kept <strong>'+all.length+'</strong> cards generated so far. Free quota resets at midnight UTC \u2014 or switch the model to <strong>8B (instant)</strong> above for a much larger daily allowance.');
+            genCancel = true;
+            ok = true;
+            break;
+          } else if(e.status === 429){
+            /* Per-minute limit — wait the suggested time (or 60s) then retry the SAME chunk */
             var waitS = e.retryAfter ? Math.ceil(e.retryAfter)+1 : 62;
             for(var w=waitS; w>0; w--){
               if(genCancel) break;
               setGenStatus('Hit Groq&rsquo;s per-minute limit. Auto-resuming in <strong>'+w+'s</strong>&hellip; <span style="color:var(--muted);">('+all.length+' cards held, batch '+(i+1)+'/'+chunks.length+')</span>');
               await sleep(1000);
             }
+          } else if(e.status === 401 || e.status === 403){
+            setGenStatus('<span style="color:var(--red);">Groq rejected the key.</span> Open the key box above and paste a fresh key from console.groq.com/keys.');
+            genCancel = true; ok = true; break;
           } else if(attempts >= 4){
             /* Give up on this chunk but keep going with the rest */
             setGenStatus('Batch '+(i+1)+' failed, skipping it. Continuing&hellip;');
@@ -950,7 +994,13 @@ async function processTopic(topic, items){
     setQueue(getQueue().filter(function(x){ return !ids[x.id]; }));
     renderInbox(); refreshStudy();
     toast(cards.length+' cards made for '+topic);
-  }catch(e){ toast('AI failed. Check your Groq key, or open via Claude. Captures kept.', true); }
+  }catch(e){
+    if(e && e.daily){
+      toast('Daily Groq limit reached. Switch to 8B model on the Generate tab, or wait for the midnight-UTC reset. Captures kept.', true);
+    } else {
+      toast('AI failed. Check your Groq key, or open via Claude. Captures kept.', true);
+    }
+  }
   finally{ spin.classList.remove('on'); }
 }
 async function convertAllInbox(){
@@ -975,7 +1025,9 @@ async function snippetToCards(items, topic){
     attempts++;
     try { raw = await callAI(prompt, 2600); }
     catch(e){
-      if(e.status===429 && attempts<3){
+      if(e.status===429 && e.daily){
+        var err=new Error('daily'); err.daily=true; throw err; /* surfaced by caller */
+      } else if(e.status===429 && attempts<3){
         var waitS = e.retryAfter ? Math.ceil(e.retryAfter)+1 : 62;
         toast('Groq per-minute limit — auto-resuming in '+waitS+'s', true);
         await sleep(waitS*1000);
@@ -1087,6 +1139,14 @@ renderRefList();
 renderTopicChips();
 setOnline();
 renderKeyStatus();
+/* Restore saved AI model choice */
+(function(){
+  try {
+    var saved = localStorage.getItem('clatGenModel');
+    var sel = document.getElementById('genModel');
+    if(saved && sel) sel.value = saved;
+  } catch(e){}
+})();
 </script>
 </body>
 </html>
