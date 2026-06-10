@@ -157,6 +157,38 @@ select { font-family: var(--mono); font-size: 0.8rem; }
 .gen-status strong { color: var(--accent); font-weight: 400; }
 .gen-status .genbar { display: inline-block; vertical-align: middle; width: 120px; height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; margin-left: 0.6rem; }
 .gen-status .genbar > span { display: block; height: 100%; background: var(--accent); transition: width 0.4s ease; }
+
+/* Progress tracker */
+.progress-wrap { border: 1px solid var(--border); border-radius: 5px; background: var(--surface); margin: 1rem 0 1.4rem; }
+.progress-summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; font-family:var(--mono); font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent-dim); transition:color 0.2s; }
+.progress-summary::-webkit-details-marker { display:none; }
+.progress-summary:hover { color:var(--accent); }
+.progress-wrap[open] .progress-summary { color:var(--accent); border-bottom:1px solid var(--border); }
+.ftt-chevron { font-family:var(--mono); font-size:0.7rem; transition:transform 0.25s ease; display:inline-block; }
+.progress-wrap[open] .ftt-chevron { transform:rotate(90deg); }
+.progress-tracker { padding:0.8rem 1rem 1rem; }
+.pt-head { display:flex; gap:1.4rem; flex-wrap:wrap; font-family:var(--mono); font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding-bottom:0.7rem; margin-bottom:0.6rem; border-bottom:1px solid var(--border); }
+.pt-head strong { color:var(--accent); font-weight:400; }
+.pt-row { display:flex; align-items:center; gap:0.6rem; padding:0.35rem 0; font-family:var(--serif); font-size:1rem; color:var(--parchment); }
+.pt-dot { width:7px; height:7px; border-radius:50%; flex:0 0 auto; background:var(--border); }
+.pt-done .pt-dot { background:var(--green); box-shadow:0 0 5px rgba(90,158,122,0.5); }
+.pt-empty .pt-dot { background:var(--accent-dim); }
+.pt-queued .pt-dot { background:var(--red); }
+.pt-name { flex:1; }
+.pt-count { font-family:var(--mono); font-size:0.62rem; letter-spacing:0.06em; color:var(--accent); }
+.pt-pending { font-family:var(--mono); font-size:0.58rem; letter-spacing:0.06em; color:var(--red); border:1px solid rgba(201,112,112,0.3); border-radius:10px; padding:0.1rem 0.5rem; margin-left:0.5rem; }
+.pt-sub { font-family:var(--mono); font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin:0.8rem 0 0.3rem; }
+.pt-none { font-family:var(--serif); font-style:italic; font-size:0.95rem; color:var(--muted); padding:0.6rem 0; }
+
+/* Reference PDF uploader */
+.ref-upload-zone { border:1px dashed var(--border); border-radius:5px; padding:1.1rem 1.2rem; background:var(--surface); margin-bottom:0.4rem; }
+.ref-pdf-status { font-family:var(--mono); font-size:0.62rem; letter-spacing:0.05em; color:var(--accent); min-height:1em; margin-top:0.4rem; }
+
+/* Parallel deck pills in gen results */
+.gen-deck-summary { font-family:var(--mono); font-size:0.62rem; color:var(--muted); margin-bottom:0.9rem; line-height:1.9; }
+.gen-deck-pill { display:inline-block; border:1px solid var(--accent-dim); color:var(--accent); border-radius:10px; padding:0.1rem 0.6rem; margin:0 0.3rem 0.3rem 0; }
+.cdeck-tag { color:var(--accent); margin-left:0.5rem; font-family:var(--mono); font-size:0.85em; }
+
 .note { font-family: var(--mono); font-size: 0.66rem; color: var(--muted); line-height: 1.7; background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent-dim); border-radius: 3px; padding: 0.9rem 1rem; margin: 1rem 0; }
 .divider { height: 1px; background: var(--border); margin: 2rem 0; }
 .chart-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 1.2rem; margin-top: 1.6rem; }
@@ -168,6 +200,7 @@ select { font-family: var(--mono); font-size: 0.8rem; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 #toast.err { border-color: var(--red); color: #f0c4c4; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -215,7 +248,12 @@ select { font-family: var(--mono); font-size: 0.8rem; }
   <!-- ============ GENERATE ============ -->
   <section class="panel" id="generate">
     <h2 class="sec" data-label="Card Forge"><em>Generate</em> with AI</h2>
-    <p class="sec-hint">Paste any GK / current-affairs material (notes, a compendium page, an article). The AI pulls out the facts worth remembering and turns them into flashcards or quick MCQs. No reading passages, just facts.</p>
+    <p class="sec-hint">Paste any GK / current-affairs material (notes, a compendium page, an article), or pull material from the PDF reader on the dashboard. The AI uses the whole page as context, focuses on what you marked, merges repeats, mirrors real PYQ style, and auto-files structured facts (officials, capitals, currencies&hellip;) into their own decks.</p>
+
+    <details class="progress-wrap" id="progressWrap">
+      <summary class="progress-summary"><span>Topic progress &mdash; what&rsquo;s carded, what&rsquo;s pending</span><span class="ftt-chevron">&#9656;</span></summary>
+      <div class="progress-tracker" id="progressTracker"></div>
+    </details>
     <div class="note" style="border-left-color:var(--accent-dim);">
       <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:flex-end;">
         <label class="field" style="margin:0;flex:1;min-width:200px;"><span>Groq API key (saved on this device, used for all AI here)</span><input type="password" id="groqKey" placeholder="gsk_..." autocomplete="off"></label>
@@ -237,7 +275,15 @@ select { font-family: var(--mono); font-size: 0.8rem; }
         <option value="12" selected>Thorough</option>
         <option value="22">Exhaustive, break down everything</option>
       </select></label>
-      <label class="field" style="margin:0;"><span>Topic (pick or type a new one)</span><input type="text" id="genDeck" list="topicList" placeholder="e.g. Citizenship, Border Disputes"></label>
+      <div class="field" style="margin:0;">
+        <span>Topic</span>
+        <select id="genDeckMode" onchange="onTopicModeChange('gen')">
+          <option value="new">+ New topic&hellip;</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" id="genNewTopicRow">
+      <label class="field" style="margin:0;"><span>New topic name</span><input type="text" id="genDeck" placeholder="e.g. Citizenship, Border Disputes, Yamuna Pollution"></label>
     </div>
     <div class="row">
       <label class="field" style="margin:0;"><span>AI model</span><select id="genModel" onchange="saveGenModel()">
@@ -275,11 +321,21 @@ select { font-family: var(--mono); font-size: 0.8rem; }
 
   <!-- ============ REFERENCE ============ -->
   <section class="panel" id="reference">
-    <h2 class="sec" data-label="Source Texts">Reference <em>Material</em></h2>
-    <p class="sec-hint">Feed in CLAT papers, model MCQs, or notes on what tends to be asked. The AI reads this every time it makes questions, so it mirrors real CLAT style and difficulty and learns what counts as important. Keep adding to it over time.</p>
+    <h2 class="sec" data-label="Pattern Bank">Reference <em>Material</em></h2>
+    <p class="sec-hint">Feed in past CLAT papers (PYQs), model MCQs, or notes on what tends to be asked. The AI does <strong>not</strong> turn this into cards. It reads it only to learn <em>how CLAT frames questions and which themes recur</em>, then mirrors that style when building cards from your own material &mdash; giving PYQ-like angles top priority. Upload a PDF of past papers, or paste text. Keep adding over time.</p>
+
+    <div class="ref-upload-zone">
+      <label class="field" style="margin:0 0 0.6rem;"><span>Upload a PDF of past papers / PYQs / pattern notes</span>
+        <input type="file" id="refPdfInput" accept="application/pdf" onchange="handleRefPdf(event)" style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);">
+      </label>
+      <div class="ref-pdf-status" id="refPdfStatus"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <label class="field"><span>&hellip;or paste reference material (sample questions, PYQs, patterns, syllabi)</span><textarea id="refInput" rows="6" placeholder="Paste real CLAT GK MCQs or previous-year questions, or notes like 'they always ask the publishing body of indices and the year', 'frequent: heads of international organisations', 'comparative questions on treaties'..."></textarea></label>
     <label class="field"><span>Label (optional, e.g. "CLAT 2024 GK section")</span><input type="text" id="refLabel" placeholder="a short name for this batch"></label>
-    <label class="field"><span>Paste reference material (sample questions, patterns, syllabi, anything)</span><textarea id="refInput" rows="6" placeholder="Paste real CLAT GK MCQs, previous-year questions, or notes like 'they always ask the publishing body of indices and the year'..."></textarea></label>
-    <button class="btn primary" onclick="addRef()">Add to reference library</button>
+    <button class="btn primary" onclick="addRef()">Add to pattern bank</button>
     <div class="divider"></div>
     <div id="refList" class="clist"></div>
   </section>
@@ -347,15 +403,25 @@ select { font-family: var(--mono); font-size: 0.8rem; }
 /* ---------- storage ---------- */
 function safeGet(k, fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
 function safeSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-var K_CARDS='clatFlashCards', K_DECKS='clatFlashDecks', K_QUEUE='clatCardQueue', K_LOG='clatReviewLog', K_REF='clatRefMaterial';
+var K_CARDS='clatFlashCards', K_DECKS='clatFlashDecks', K_QUEUE='clatCardQueue', K_LOG='clatReviewLog', K_REF='clatRefMaterial', K_GENLOG='clatGenLog';
 function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function uid(p){ return (p||'c')+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
 
 function getCards(){ return safeGet(K_CARDS, []); }
 function setCards(c){ safeSet(K_CARDS, c); }
 /* "decks" are topics: one store, topic-centric UI */
-function getTopics(){ var d=safeGet(K_DECKS, null); if(!d){ d=['General Knowledge']; safeSet(K_DECKS,d);} return d; }
+function getTopics(){ var d=safeGet(K_DECKS, null); if(!d){ d=[]; safeSet(K_DECKS,d);} return d; }
 function setTopics(d){ safeSet(K_DECKS, d); }
+/* One-time cleanup: drop the legacy auto-created "General Knowledge" topic if it has no cards */
+(function(){
+  try {
+    var t=getTopics();
+    if(t.indexOf('General Knowledge')>=0){
+      var hasCards=getCards().some(function(c){ return c.deck==='General Knowledge'; });
+      if(!hasCards){ setTopics(t.filter(function(x){ return x!=='General Knowledge'; })); }
+    }
+  } catch(e){}
+})();
 function getDecks(){ return getTopics(); }
 function setDecks(d){ setTopics(d); }
 function ensureTopic(name){ name=(name||'').trim(); if(!name) return; var t=getTopics(); if(t.indexOf(name)<0){ t.push(name); setTopics(t); fillTopicWidgets(); } }
@@ -363,10 +429,69 @@ function getQueue(){ return safeGet(K_QUEUE, []); }
 function setQueue(q){ safeSet(K_QUEUE, q); }
 function getRef(){ return safeGet(K_REF, []); }
 function setRef(r){ safeSet(K_REF, r); }
+
+/* Track which topics have had cards generated, and when (for the progress tracker) */
+function getGenLog(){ return safeGet(K_GENLOG, {}); }
+function markTopicsGenerated(names){
+  var log=getGenLog();
+  (names||[]).forEach(function(n){ if(n) log[n]=Date.now(); });
+  safeSet(K_GENLOG, log);
+  renderProgressTracker();
+}
+/* Render the progress tracker: topics with cards, and queue items still pending by topic. */
+function renderProgressTracker(){
+  var host=document.getElementById('progressTracker'); if(!host) return;
+  var cards=getCards();
+  var counts={}; cards.forEach(function(c){ counts[c.deck]=(counts[c.deck]||0)+1; });
+  var genLog=getGenLog();
+
+  /* Pending: queue items grouped by their topic that haven't been turned into cards yet */
+  var queue=getQueue();
+  var pending={};
+  queue.forEach(function(it){
+    var t=(it.topic&&it.topic.trim())?it.topic.trim():'(untagged)';
+    pending[t]=(pending[t]||0)+1;
+  });
+
+  var topics=getTopics();
+  var doneHtml = topics.length
+    ? topics.map(function(t){
+        var c=counts[t]||0;
+        var isPending=pending[t]>0;
+        return '<div class="pt-row '+(c>0?'pt-done':'pt-empty')+'">'
+          +'<span class="pt-dot"></span>'
+          +'<span class="pt-name">'+escH(t)+'</span>'
+          +'<span class="pt-count">'+c+' card'+(c===1?'':'s')+'</span>'
+          +(isPending?'<span class="pt-pending">'+pending[t]+' queued</span>':'')
+          +'</div>';
+      }).join('')
+    : '<div class="pt-none">No topics yet. Generate cards or pull pages to begin.</div>';
+
+  /* Untagged / unconverted queue items not matching a known topic */
+  var extraPending=Object.keys(pending).filter(function(t){ return topics.indexOf(t)<0; });
+  var pendHtml = extraPending.length
+    ? '<div class="pt-sub">Waiting in queue (not yet carded):</div>'+extraPending.map(function(t){
+        return '<div class="pt-row pt-queued"><span class="pt-dot"></span><span class="pt-name">'+escH(t)+'</span><span class="pt-pending">'+pending[t]+' queued</span></div>';
+      }).join('')
+    : '';
+
+  var totalCards=cards.length;
+  var totalQueued=queue.length;
+  host.innerHTML='<div class="pt-head">'
+    +'<span><strong>'+topics.length+'</strong> topics</span>'
+    +'<span><strong>'+totalCards+'</strong> cards</span>'
+    +'<span><strong>'+totalQueued+'</strong> in queue</span>'
+    +'</div>'+doneHtml+pendHtml;
+}
 /* reference material as one capped block for prompts */
 function refBlock(limit){
   var r=getRef(); if(!r.length) return '';
-  var joined=r.map(function(e){ return (e.label?('['+e.label+'] '):'')+e.text; }).join('\n\n');
+  /* PYQ-flagged material first, so the model weights real past papers most heavily */
+  r=r.slice().sort(function(a,b){ return (b.isPyq?1:0)-(a.isPyq?1:0); });
+  var joined=r.map(function(e){
+    var tag=e.isPyq?'[PAST PAPER / PYQ':'[';
+    return tag+(e.label?(' '+e.label):'')+'] '+e.text;
+  }).join('\n\n');
   limit=limit||3000; return joined.length>limit ? joined.slice(0,limit) : joined;
 }
 
@@ -412,6 +537,7 @@ document.querySelectorAll('.tab').forEach(function(t){
     if(t.dataset.tab==='cards'){ renderLibrary(); renderTopicChips(); }
     if(t.dataset.tab==='study') refreshStudy();
     if(t.dataset.tab==='reference') renderRefList();
+    if(t.dataset.tab==='generate') renderProgressTracker();
   });
 });
 
@@ -495,9 +621,42 @@ function fillTopicWidgets(){
   fillDeckSelect('cramDeck');
   fillDeckSelect('libDeck', true);
   fillDeckSelect('studyTopic', true);
-  /* datalist for the text inputs (genDeck, inboxDeck, addDeck) */
+  /* datalist for any remaining text inputs */
   var dl=document.getElementById('topicList');
   if(dl) dl.innerHTML=getTopics().map(function(d){ return '<option value="'+escH(d)+'">'; }).join('');
+  /* New-vs-existing topic mode dropdown (Generate tab) */
+  fillTopicModeSelect('genDeckMode');
+}
+/* Populate a "topic mode" <select> with: New topic, then each existing topic. */
+function fillTopicModeSelect(id){
+  var sel=document.getElementById(id); if(!sel) return;
+  var cur=sel.value;
+  var topics=getTopics();
+  sel.innerHTML='<option value="new">+ New topic&hellip;</option>'
+    + topics.map(function(t){ return '<option value="ex:'+escH(t)+'">'+escH(t)+'</option>'; }).join('');
+  if(cur && sel.querySelector('option[value="'+cur.replace(/"/g,'\\"')+'"]')) sel.value=cur;
+}
+/* Toggle the "new topic name" text row depending on the mode dropdown. which='gen'|'add' */
+function onTopicModeChange(which){
+  var modeSel=document.getElementById(which+'DeckMode');
+  var row=document.getElementById(which+'NewTopicRow');
+  if(!modeSel) return;
+  var isNew = modeSel.value==='new';
+  if(row) row.style.display = isNew ? '' : 'none';
+}
+/* Resolve the chosen topic for a tab: either the typed new name or the selected existing one. */
+function resolveTopic(which){
+  var modeSel=document.getElementById(which+'DeckMode');
+  if(modeSel){
+    if(modeSel.value && modeSel.value.indexOf('ex:')===0){
+      return modeSel.value.slice(3).trim();
+    }
+    /* new mode → read the text input */
+    var inp=document.getElementById(which+'Deck');
+    return inp ? inp.value.trim() : '';
+  }
+  var inp2=document.getElementById(which+'Deck');
+  return inp2 ? inp2.value.trim() : '';
 }
 function fillAllDeckSelects(){ fillTopicWidgets(); }
 function addDeck(){
@@ -703,15 +862,17 @@ function parseJSONLoose(raw){
 
 /* ---------- shared prompt rules ---------- */
 var RULES =
-'You are an expert tutor for CLAT (the Common Law Admission Test in India), building General Knowledge and Current Affairs revision cards from a student\'s study material. Obey these rules strictly:\n'
-+'1. DATA OVER PROSE. Prefer pin-point definitions, facts, figures, dates, names, designations, and purposes. Do NOT write story-like or narrative cards, the student already reads those in the compendium. Only write an explanatory card if a passage contains no discrete fact.\n'
-+'2. ATOMIC AND DECENTRALISED. Break rich material into many small single-fact cards instead of one card with a long answer. Keep each answer short (aim under 20 words). If a passage covers several aspects (for example three traditions revering one mountain), make one card per aspect, then drill deeper into specific sub-facts (alternate names, specific deities, specific dates, specific figures).\n'
-+'3. USE CONTEXT, DO NOT DEFINE THE OBVIOUS. When a term is highlighted, never ask a bare "What is X?". Ask about the specific role or fact the surrounding material attributes to it. Example: highlighted "Constituent Assembly" inside a passage about it rejecting jus sanguinis should yield "Why did the Constituent Assembly reject jus sanguinis?" and "On what ground did the Constituent Assembly call jus sanguinis unacceptable?", not "What is the Constituent Assembly?".\n'
-+'4. INTERLINK THE WHOLE TOPIC. Everything provided belongs to ONE topic. If a highlighted term is defined or detailed elsewhere in the material, use that to build a sharper card. Combine related parts when it produces a better question (for example contrast jus soli and jus sanguinis if both appear).\n'
-+'5. EXPAND TO RELATED TRIVIA. Beyond the literal highlight, generate the related factual questions the material supports: associated dates, treaties, people and their designations, places, amendments and their years. Example: from a Mahakali River boundary passage, also ask the year of the relevant constitutional amendment, who voiced the official stance, and the name and date of any treaty mentioned (for example the Treaty of Sugauli).\n'
-+'6. CONSOLIDATE COMMONALITIES when asked. Scan all material and emit consolidated reference cards that group like facts into a single card each: Constitutional Articles, Ministers and Officials with designations, Capitals, Headquarters of organisations, Treaty or Convention names with dates, Indices or Reports with their publishing body. Front = the grouping question, back = the list.\n'
-+'7. NO REPEATS. Never make two cards testing the same fact, and never duplicate anything in the EXISTING CARDS list.\n'
-+'OUTPUT: respond ONLY with a valid JSON array, no markdown, no backticks, no preamble. Flashcard: {"type":"flip","front":"...","back":"...","cat":"short tag e.g. Definition/Date/Article/Capital/Official/Trivia"}. MCQ: {"type":"mcq","question":"...","options":["..","..","..",".."],"answer":0,"cat":"..."}. Produce as many distinct high-value cards as the material genuinely supports.';
+'You are an expert tutor for CLAT (the Common Law Admission Test in India), building General Knowledge and Current Affairs revision cards from a student\'s study material. CLAT GK never asks vague "what is X" questions \u2014 it asks precise, factual, often comparative questions tied to current affairs and static GK. Obey these rules strictly:\n'
++'1. DATA OVER PROSE. Prefer pin-point definitions, facts, figures, dates, names, designations, and purposes. Never write story-like or narrative cards. Only write an explanatory card if a passage contains no discrete fact.\n'
++'2. ATOMIC AND DECENTRALISED. Break rich material into many small single-fact cards rather than one card with a long answer. Keep each answer under ~20 words. If a passage covers several aspects, make one card per aspect, then drill into sub-facts (alternate names, specific deities, dates, figures).\n'
++'3. USE THE WHOLE PAGE AS CONTEXT, FOCUS ON THE MARKED PART. The material may include a FULL PAGE of text plus specific MARKED excerpts (the bits the student flagged). Treat the full page as context to understand what the topic actually is, but make the marked excerpts the PRIORITY for what gets tested. Identify the specific topic under discussion from the whole page, and frame questions about the specific role/fact the surrounding material attributes to a term \u2014 never a bare "What is X?".\n'
++'4. MERGE REPEATS. If the same fact appears more than once across the material, produce ONE card for it \u2014 not duplicates. Only split into multiple cards when genuinely distinct important sub-facts exist. Actively detect repetition and consolidate.\n'
++'5. INTERLINK THE WHOLE TOPIC. Everything provided belongs to ONE topic unless it clearly belongs to a structured parallel category (see rule 8). If a term is defined elsewhere in the material, use that to build a sharper card. Combine related parts when it makes a better question (e.g. contrast jus soli and jus sanguinis if both appear).\n'
++'6. EXPAND TO RELATED TRIVIA. Beyond the literal marked text, generate the related factual questions the material supports: associated dates, treaties, people and designations, places, amendments and years.\n'
++'7. MIRROR CLAT / PYQ STYLE \u2014 DO NOT COPY REFERENCE MATERIAL LITERALLY. Any REFERENCE / PATTERN MATERIAL provided (past papers, PYQs, pattern notes) is NOT content to be turned into cards. It is there ONLY to teach you what CLAT tends to ask and HOW questions are framed. Study its style, difficulty, and recurring themes, then frame the student\'s actual study material in that same style. Give topics and angles that resemble real PYQs the HIGHEST priority. Never output a card that is just a reference/PYQ item copied over.\n'
++'8. AUTO-BUILD PARALLEL STRUCTURED DECKS. Whenever the material surfaces facts that belong to a reusable structured category, ALSO emit cards tagged with a separate "deck" so they accumulate across topics. Create these decks freely as facts surface. Categories include (but are not limited to): "Officials \u2014 Indian", "Officials \u2014 Foreign Ministers", "Officials \u2014 Heads of State/Government", "Cabinets" (e.g. USA Cabinet, Iran Cabinet \u2014 use a per-country deck like "Cabinet \u2014 USA"), "Capitals", "Currencies", "Headquarters", "Ranks & Indices", "Treaties & Conventions", "Constitutional Articles", and per-country profiles like "Country \u2014 Iran". For any card belonging to such a category, set its "deck" field to that category name. Cards about the student\'s actual topic get NO deck field (they default to the current topic). Keep these structured cards crisp and list-aware.\n'
++'9. NO REPEATS ACROSS THE DECK. Never make two cards testing the same fact, and never duplicate anything in the EXISTING CARDS list.\n'
++'OUTPUT: respond ONLY with a valid JSON array, no markdown, no backticks, no preamble. Flashcard: {"type":"flip","front":"...","back":"...","cat":"short tag","deck":"(optional parallel-deck name per rule 8; omit for normal topic cards)"}. MCQ: {"type":"mcq","question":"...","options":["..","..","..",".."],"answer":0,"cat":"...","deck":"(optional)"}. Produce as many distinct high-value cards as the material genuinely supports.';
 
 function existingFrontsFor(topic){
   return getCards().filter(function(c){ return !topic || c.deck===topic; })
@@ -719,10 +880,10 @@ function existingFrontsFor(topic){
 }
 function promptScaffold(opts){
   var p=RULES+'\n\n';
-  if(opts.commonalities) p+='Also build consolidated reference cards per rule 6.\n';
-  else p+='Do not build consolidated list cards this time.\n';
-  var ref=refBlock(2600);
-  if(ref) p+='\nREFERENCE / PATTERN MATERIAL (use this to judge what is CLAT-important and to mirror real CLAT style and difficulty):\n'+ref+'\n';
+  if(opts.commonalities) p+='Also build consolidated reference cards and parallel structured decks per rules 6 and 8.\n';
+  else p+='Build parallel structured decks per rule 8 where warranted, but do not force consolidated list cards this time.\n';
+  var ref=refBlock(3000);
+  if(ref) p+='\nREFERENCE / PATTERN MATERIAL \u2014 STYLE GUIDE ONLY, NOT CONTENT TO CONVERT. Study how these are framed and which themes recur, then mirror that style and prioritise similar angles when building cards from the student\'s material below. Do NOT turn these into cards verbatim:\n'+ref+'\n';
   var ex=opts.existing && opts.existing.length ? opts.existing.slice(0,120) : [];
   if(ex.length) p+='\nEXISTING CARDS IN THIS TOPIC (do not repeat these):\n- '+ex.join('\n- ')+'\n';
   if(opts.topic) p+='\nTOPIC: '+opts.topic+'\n';
@@ -738,7 +899,16 @@ function pullInboxIntoGen(){
   var q=getQueue(); if(!q.length){ toast('Capture inbox is empty', true); return; }
   document.getElementById('genInput').value = q.map(function(it){ return it.text+(it.context?('\n['+it.context.slice(0,600)+']'):''); }).join('\n\n');
   var firstTopic=(q.find(function(x){return x.topic;})||{}).topic;
-  if(firstTopic && !document.getElementById('genDeck').value) document.getElementById('genDeck').value=firstTopic;
+  if(firstTopic){
+    /* Prefer matching an existing topic in the dropdown; else set as new */
+    var modeSel=document.getElementById('genDeckMode');
+    if(modeSel && getTopics().indexOf(firstTopic)>=0){
+      modeSel.value='ex:'+firstTopic; onTopicModeChange('gen');
+    } else {
+      if(modeSel){ modeSel.value='new'; onTopicModeChange('gen'); }
+      var gd=document.getElementById('genDeck'); if(gd && !gd.value) gd.value=firstTopic;
+    }
+  }
   toast('Pulled '+q.length+' captures');
 }
 
@@ -800,7 +970,7 @@ async function runGenerate(){
   if(!text){ toast('Paste some material first', true); return; }
   var kind=document.getElementById('genKind').value;
   var n=parseInt(document.getElementById('genCount').value,10) || 12;
-  var topic=document.getElementById('genDeck').value.trim();
+  var topic=resolveTopic('gen');
   var common=document.getElementById('genCommon').checked;
   var spin=document.getElementById('genSpin'); spin.classList.add('on');
   document.getElementById('genResults').innerHTML='';
@@ -848,7 +1018,7 @@ async function runGenerate(){
       var bodyB = wantB+'.\n\nSOURCE MATERIAL (section '+(i+1)+' of '+chunks.length+'):\n'+chunks[i];
       var promptB = promptScaffold({ topic:topic, commonalities:askCommon, existing:existingFrontsFor(topic).concat(all.map(function(x){return x.front||x.question||'';})).slice(0,160), body:bodyB });
 
-      var attempts = 0, ok = false;
+      var attempts = 0, ok = false, rlWaits = 0;
       while(attempts < 4 && !ok){
         if(genCancel) break;
         attempts++;
@@ -867,7 +1037,15 @@ async function runGenerate(){
             ok = true;
             break;
           } else if(e.status === 429){
-            /* Per-minute limit — wait the suggested time (or 60s) then retry the SAME chunk */
+            /* Per-minute limit — wait the suggested time (or 60s) then retry the SAME chunk.
+               A throttle wait must NOT burn a retry attempt, or big jobs die after 3 waits.
+               Decrement attempts so the only cap is rlWaits (guards against infinite loops). */
+            attempts--;
+            rlWaits++;
+            if(rlWaits > 8){
+              setGenStatus('<span style="color:var(--red);">Groq keeps throttling.</span> Kept <strong>'+all.length+'</strong> cards. Try the 8B model, lower the depth, or wait a few minutes.');
+              genCancel = true; ok = true; break;
+            }
             var waitS = e.retryAfter ? Math.ceil(e.retryAfter)+1 : 62;
             for(var w=waitS; w>0; w--){
               if(genCancel) break;
@@ -920,26 +1098,43 @@ function cancelGenerate(){ genCancel=true; toast('Stopping after this batch…')
 function renderGenResults(){
   var host=document.getElementById('genResults');
   if(!genItems.length){ host.innerHTML='<div class="empty">Nothing generated.</div>'; return; }
-  var topic=document.getElementById('genDeck').value.trim()||'(no topic)';
-  var html='<div class="row" style="margin-bottom:0.8rem;"><button class="btn primary" style="flex:0;" onclick="addGenerated()">Add kept cards to '+escH(topic)+'</button><span style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);align-self:center;">'+genItems.length+' generated, untick any you don\'t want</span></div><div class="clist">';
+  var topic=resolveTopic('gen')||'(no topic)';
+  /* Count how many distinct parallel decks were produced */
+  var deckSet={};
+  genItems.forEach(function(it){ deckSet[it.deck||topic]=(deckSet[it.deck||topic]||0)+1; });
+  var deckNames=Object.keys(deckSet);
+  var deckSummary = deckNames.length>1
+    ? '<div class="gen-deck-summary">Filing into '+deckNames.length+' decks: '+deckNames.map(function(d){ return '<span class="gen-deck-pill">'+escH(d)+' &middot; '+deckSet[d]+'</span>'; }).join(' ')+'</div>'
+    : '';
+  var html='<div class="row" style="margin-bottom:0.8rem;"><button class="btn primary" style="flex:0;" onclick="addGenerated()">Add kept cards</button><span style="font-family:var(--mono);font-size:0.62rem;color:var(--muted);align-self:center;">'+genItems.length+' generated, untick any you don\'t want</span></div>'+deckSummary+'<div class="clist">';
   genItems.forEach(function(it,i){
     var body = it.type==='mcq'
       ? '<div class="cfront">'+escH(it.question)+'</div><div class="cback">'+(it.options||[]).map(function(o,oi){ return (oi===it.answer?'&#10003; ':'&middot; ')+escH(o); }).join('<br>')+'</div>'
       : '<div class="cfront">'+escH(it.front)+'</div><div class="cback">'+escH(it.back)+'</div>';
-    html+='<div class="citem keepable"><input type="checkbox" '+(it.__keep?'checked':'')+' onchange="genItems['+i+'].__keep=this.checked"><div style="flex:1;"><div class="ctype">'+it.type+(it.cat?' &middot; '+escH(it.cat):'')+'</div>'+body+'</div></div>';
+    var deckTag = (it.deck && it.deck!==topic) ? '<span class="cdeck-tag">&#8631; '+escH(it.deck)+'</span>' : '';
+    html+='<div class="citem keepable"><input type="checkbox" '+(it.__keep?'checked':'')+' onchange="genItems['+i+'].__keep=this.checked"><div style="flex:1;"><div class="ctype">'+it.type+(it.cat?' &middot; '+escH(it.cat):'')+deckTag+'</div>'+body+'</div></div>';
   });
   html+='</div>';
   host.innerHTML=html;
 }
 function addGenerated(){
-  var topic=document.getElementById('genDeck').value.trim()||'General Knowledge';
-  ensureTopic(topic);
-  var cards=getCards(); var n=0;
-  genItems.forEach(function(it){ if(!it.__keep) return; cards.push(mkCard(it, topic)); n++; });
+  var topic=resolveTopic('gen');
+  var cards=getCards(); var n=0; var decksTouched={};
+  genItems.forEach(function(it){
+    if(!it.__keep) return;
+    var deck=(it.deck&&it.deck.trim())?it.deck.trim():topic;
+    if(!deck) deck='Uncategorised';
+    ensureTopic(deck);
+    decksTouched[deck]=1;
+    cards.push(mkCard(it, deck)); n++;
+  });
   setCards(cards);
-  toast(n+' card'+(n===1?'':'s')+' added to '+topic);
+  /* Mark these topics as having been generated, for the progress tracker */
+  markTopicsGenerated(Object.keys(decksTouched));
+  var dn=Object.keys(decksTouched);
+  toast(n+' card'+(n===1?'':'s')+' added across '+dn.length+' deck'+(dn.length===1?'':'s'));
   genItems=[]; document.getElementById('genResults').innerHTML='';
-  refreshStudy();
+  fillTopicWidgets(); renderTopicChips(); refreshStudy();
 }
 function mkCard(it, deck){
   var c={ id:uid(), type:it.type, deck:deck, srs:newSRS(), created:Date.now(), expl:it.expl||'', cat:it.cat||'' };
@@ -951,7 +1146,7 @@ function mkCard(it, deck){
 }
 
 /* ---------- INBOX (grouped by topic) ---------- */
-function captureTopic(it){ return (it.topic&&it.topic.trim()) ? it.topic.trim() : (document.getElementById('inboxDeck').value.trim()||'General Knowledge'); }
+function captureTopic(it){ return (it.topic&&it.topic.trim()) ? it.topic.trim() : (document.getElementById('inboxDeck').value.trim()); }
 function groupQueue(){
   var q=getQueue(); var groups={};
   q.forEach(function(it){ var t=captureTopic(it); (groups[t]=groups[t]||[]).push(it); });
@@ -988,12 +1183,19 @@ async function processTopic(topic, items){
   var spin=document.getElementById('inboxSpin'); spin.classList.add('on');
   try{
     var cards=await snippetToCards(items, topic);
-    ensureTopic(topic);
-    var all=getCards(); cards.forEach(function(c){ all.push(mkCard(c, topic)); }); setCards(all);
+    var all=getCards(); var decksTouched={};
+    cards.forEach(function(c){
+      var deck=(c.deck&&c.deck.trim())?c.deck.trim():topic;
+      if(!deck) deck='Uncategorised';
+      ensureTopic(deck); decksTouched[deck]=1;
+      all.push(mkCard(c, deck));
+    });
+    setCards(all);
+    markTopicsGenerated(Object.keys(decksTouched));
     var ids={}; items.forEach(function(it){ ids[it.id]=1; });
     setQueue(getQueue().filter(function(x){ return !ids[x.id]; }));
-    renderInbox(); refreshStudy();
-    toast(cards.length+' cards made for '+topic);
+    renderInbox(); refreshStudy(); fillTopicWidgets(); renderTopicChips();
+    toast(cards.length+' cards made'+(Object.keys(decksTouched).length>1?(' across '+Object.keys(decksTouched).length+' decks'):(' for '+topic)));
   }catch(e){
     if(e && e.daily){
       toast('Daily Groq limit reached. Switch to 8B model on the Generate tab, or wait for the midnight-UTC reset. Captures kept.', true);
@@ -1045,7 +1247,44 @@ function addRef(){
   var label=document.getElementById('refLabel').value.trim();
   var r=getRef(); r.push({ id:uid('ref'), label:label, text:text, ts:Date.now() }); setRef(r);
   document.getElementById('refInput').value=''; document.getElementById('refLabel').value='';
-  renderRefList(); toast('Added to reference library');
+  renderRefList(); toast('Added to pattern bank');
+}
+
+/* Extract text from an uploaded reference PDF (past papers / PYQs) and add it
+   to the pattern bank. Works fully in-browser via PDF.js (so it works on the live site). */
+async function handleRefPdf(ev){
+  var file=ev.target && ev.target.files && ev.target.files[0];
+  if(!file) return;
+  var statusEl=document.getElementById('refPdfStatus');
+  if(typeof pdfjsLib==='undefined'){ statusEl.textContent='PDF engine not loaded \u2014 try reloading the page.'; return; }
+  try{ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }catch(e){}
+  statusEl.textContent='Reading '+file.name+'\u2026';
+  try{
+    var buf=await file.arrayBuffer();
+    var pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    var pages=[];
+    var max=Math.min(pdf.numPages, 40); /* cap so a huge paper doesn't bloat storage */
+    for(var pg=1; pg<=max; pg++){
+      statusEl.textContent='Reading page '+pg+' of '+max+'\u2026';
+      var page=await pdf.getPage(pg);
+      var tc=await page.getTextContent();
+      var txt=(tc.items||[]).map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim();
+      if(txt) pages.push(txt);
+    }
+    var full=pages.join('\n\n');
+    if(!full){ statusEl.textContent='No selectable text found (the PDF may be scanned images).'; return; }
+    /* Reference material is stored capped — it is a style guide, not bulk content */
+    if(full.length>16000) full=full.slice(0,16000);
+    var r=getRef();
+    r.push({ id:uid('ref'), label:(file.name.replace(/\.pdf$/i,'')+' (PYQ PDF)'), text:full, ts:Date.now(), isPyq:true });
+    setRef(r);
+    renderRefList();
+    statusEl.textContent='\u2713 Added '+max+' page(s) from '+file.name+' to the pattern bank';
+    ev.target.value='';
+    setTimeout(function(){ statusEl.textContent=''; }, 5000);
+  }catch(e){
+    statusEl.textContent='Could not read that PDF.';
+  }
 }
 function delRef(id){ setRef(getRef().filter(function(x){ return x.id!==id; })); renderRefList(); }
 function renderRefList(){
@@ -1074,7 +1313,7 @@ function renderAddFields(){
 }
 function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
 function saveManualCard(){
-  var t=document.getElementById('addType').value; var deck=document.getElementById('addDeck').value.trim()||'General Knowledge';
+  var t=document.getElementById('addType').value; var deck=document.getElementById('addDeck').value.trim();
   var it={ type:t, expl:val('fa_exp') };
   if(t==='flip'){ if(!val('fa_front')){ toast('Front is empty', true); return; } it.front=val('fa_front'); it.back=val('fa_back'); }
   else if(t==='cloze'){ if(val('fa_text').indexOf('{{')<0){ toast('Wrap an answer in {{ }}', true); return; } it.text=val('fa_text'); }
@@ -1137,6 +1376,8 @@ refreshStudy();
 renderInbox();
 renderRefList();
 renderTopicChips();
+renderProgressTracker();
+onTopicModeChange('gen');
 setOnline();
 renderKeyStatus();
 /* Restore saved AI model choice */

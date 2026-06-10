@@ -565,10 +565,18 @@ body::before {
 .pdf-text-layer ::selection { background: rgba(255,220,0,0.55); }
 .pdf-text-layer .highlight-mark,
 .pdf-text-layer-fs .highlight-mark {
-  background: rgba(255,220,0,0.42);
-  border-radius: 1px;
+  background: linear-gradient(180deg, rgba(201,168,76,0.30), rgba(201,168,76,0.20));
+  box-shadow: inset 0 -2px 0 rgba(201,168,76,0.55);
+  border-radius: 2px;
   position: absolute;
   pointer-events: none;
+  mix-blend-mode: screen;
+}
+/* G-capture highlights — red, so it's clear which bits were sent to the AI */
+.pdf-text-layer .highlight-mark.cap,
+.pdf-text-layer-fs .highlight-mark.cap {
+  background: linear-gradient(180deg, rgba(201,112,112,0.34), rgba(201,112,112,0.22));
+  box-shadow: inset 0 -2px 0 rgba(201,112,112,0.7);
 }
 .pdf-text-layer .search-mark,
 .pdf-text-layer-fs .search-mark {
@@ -1653,9 +1661,19 @@ body::before {
       <span class="cmeta"><span id="captureCount">0</span> waiting &nbsp;&middot;&nbsp; <a href="flashcards.html" style="color:var(--accent);text-decoration:none;">Turn into flashcards &#8594;</a></span>
     </div>
     <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;padding:0.6rem 1rem;border-bottom:1px solid var(--border);">
-      <span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Current topic</span>
+      <span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);">Topic</span>
       <input type="text" id="activeTopic" placeholder="e.g. Citizenship, Border Disputes" style="flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--parchment);font-family:var(--serif);font-size:0.95rem;padding:0.4rem 0.6rem;" oninput="saveActiveTopic()">
-      <span class="cmeta">every capture is filed under this</span>
+      <span class="cmeta">G-captures &amp; bulk pulls file under this</span>
+    </div>
+    <!-- Bulk page-range pull: grab a whole topic's pages at once as AI material -->
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;padding:0.6rem 1rem;border-bottom:1px solid var(--border);background:rgba(201,168,76,0.025);">
+      <span style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-dim);">Bulk pull</span>
+      <span class="cmeta">This topic spans</span>
+      <input type="number" id="bulkPages" min="1" max="60" value="1" style="width:54px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--parchment);font-family:'DM Mono',monospace;font-size:0.8rem;padding:0.35rem 0.4rem;text-align:center;">
+      <span class="cmeta">page(s), starting at</span>
+      <input type="number" id="bulkStart" min="1" style="width:60px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--parchment);font-family:'DM Mono',monospace;font-size:0.8rem;padding:0.35rem 0.4rem;text-align:center;" placeholder="pg">
+      <button class="pdf-tool-btn" style="color:var(--accent);border-color:var(--accent-dim);" onclick="bulkPullTopic()">&#8681; Pull pages</button>
+      <span class="cmeta" id="bulkPullStatus"></span>
     </div>
     <div class="capture-list" id="captureList"></div>
   </div>
@@ -2700,21 +2718,32 @@ function zoomFit(){
 /* Stores the GEOMETRY of the actual selection (one rect per visual line),
    normalised to unscaled page units. Redraw just re-scales those rects.
    No text re-searching => a highlight only ever covers what you selected. */
-function applyHighlight(){
+/* Returns true if two rects overlap meaningfully (used to prevent stacked highlights) */
+function rectsOverlap(a, b){
+  var ax2=a.x+a.w, ay2=a.y+a.h, bx2=b.x+b.w, by2=b.y+b.h;
+  var ix=Math.max(0, Math.min(ax2,bx2)-Math.max(a.x,b.x));
+  var iy=Math.max(0, Math.min(ay2,by2)-Math.max(a.y,b.y));
+  var inter=ix*iy;
+  if(inter<=0) return false;
+  var smaller=Math.min(a.w*a.h, b.w*b.h);
+  return smaller>0 && (inter/smaller)>0.35; /* >35% of the smaller rect covered = overlap */
+}
+
+function applyHighlight(kind){
+  /* kind: undefined/'mark' = yellow study highlight; 'cap' = red G-capture highlight */
+  kind = kind==='cap' ? 'cap' : 'mark';
   var sel=window.getSelection();
   if(!sel||sel.rangeCount===0||sel.isCollapsed) return;
   var selectedText=sel.toString().trim();
   if(!selectedText) return;
 
   var range=sel.getRangeAt(0);
-  /* find which text layer the selection lives in */
   var node=range.commonAncestorContainer;
   if(node.nodeType===3) node=node.parentNode;
   var layer=node.closest && node.closest('.pdf-text-layer, .pdf-text-layer-fs');
   if(!layer) return;
   var layerBox=layer.getBoundingClientRect();
 
-  /* getClientRects() returns one rect per line fragment of the selection */
   var clientRects=range.getClientRects();
   var rects=[];
   for(var i=0;i<clientRects.length;i++){
@@ -2730,7 +2759,19 @@ function applyHighlight(){
   if(!rects.length) return;
 
   if(!pdfHighlights[pdfCurPage]) pdfHighlights[pdfCurPage]=[];
-  pdfHighlights[pdfCurPage].push({rects:rects,text:selectedText});
+
+  /* NON-STACKING: drop any existing highlight whose rects overlap the new selection,
+     so re-highlighting the same words replaces rather than darkens. */
+  pdfHighlights[pdfCurPage] = pdfHighlights[pdfCurPage].filter(function(h){
+    if(!h.rects) return true;
+    var hit=false;
+    h.rects.forEach(function(er){
+      rects.forEach(function(nr){ if(rectsOverlap(er,nr)) hit=true; });
+    });
+    return !hit;
+  });
+
+  pdfHighlights[pdfCurPage].push({rects:rects,text:selectedText,kind:kind});
   safeSet('pdfHL',pdfHighlights);
   sel.removeAllRanges();
   redrawHighlights();
@@ -2742,10 +2783,10 @@ function redrawHighlights(){
     layer.querySelectorAll('.highlight-mark').forEach(function(el){el.remove();});
     var pageHL=pdfHighlights[pdfCurPage]||[];
     pageHL.forEach(function(h){
-      if(!h.rects||!h.rects.length) return; /* only geometry-anchored highlights */
+      if(!h.rects||!h.rects.length) return;
       h.rects.forEach(function(rc){
         var div=document.createElement('div');
-        div.className='highlight-mark';
+        div.className='highlight-mark'+(h.kind==='cap'?' cap':'');
         div.style.left=(rc.x*pdfScale)+'px';
         div.style.top=(rc.y*pdfScale)+'px';
         div.style.width=(rc.w*pdfScale)+'px';
@@ -3398,13 +3439,59 @@ function captureSelectionToFlashcards(){
     status:'raw'
   });
   safeSet('clatCardQueue', q);
-  try{ if(inArticle) highlightArticleSelection(); else applyHighlight(); }catch(e){}
+  try{ if(inArticle) highlightArticleSelection(); else applyHighlight('cap'); }catch(e){}
   renderCaptureBox();
   flashToast('Captured with context (' + q.length + ' waiting) \u00b7 turn into flashcards on the Recall page');
 }
 
-/* capture box (lives with the PDF viewer) */
-function escHtmlSafe(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* Bulk pull: extract text from a range of PDF pages and queue it as one big
+   topic-tagged item, so the AI gets the whole topic's material at once. */
+async function bulkPullTopic(){
+  if(typeof pdfDoc==='undefined' || !pdfDoc){ flashToast('Open a PDF first', true); return; }
+  var topicEl=document.getElementById('activeTopic');
+  var topic=topicEl?topicEl.value.trim():'';
+  if(!topic){ flashToast('Name the topic first (the Topic box above)', true); return; }
+  var count=parseInt(document.getElementById('bulkPages').value,10)||1;
+  var start=parseInt(document.getElementById('bulkStart').value,10)|| (typeof pdfCurPage!=='undefined'?pdfCurPage:1);
+  count=Math.max(1,Math.min(60,count));
+  var total=(typeof pdfTotalPages!=='undefined'?pdfTotalPages:1);
+  start=Math.max(1,Math.min(total,start));
+  var end=Math.min(total,start+count-1);
+  var statusEl=document.getElementById('bulkPullStatus');
+  statusEl.textContent='Reading p.'+start+'\u2013'+end+'\u2026';
+
+  var parts=[];
+  try{
+    for(var pg=start; pg<=end; pg++){
+      statusEl.textContent='Reading p.'+pg+' of '+end+'\u2026';
+      var page=await pdfDoc.getPage(pg);
+      var tc=await page.getTextContent();
+      var txt=(tc.items||[]).map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim();
+      if(txt) parts.push('[Page '+pg+']\n'+txt);
+    }
+  }catch(e){ statusEl.textContent='Could not read pages'; return; }
+
+  var material=parts.join('\n\n');
+  if(!material){ statusEl.textContent='No text found on those pages'; return; }
+
+  var q=safeGet('clatCardQueue', []);
+  q.push({
+    id:'bulk_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    text:'[FULL TOPIC MATERIAL: '+topic+', pages '+start+'\u2013'+end+']',
+    context:material.slice(0,14000), /* generous — the batcher will chunk it */
+    topic:topic,
+    page:start,
+    source:(window.__pdfName||'PDF'),
+    kind:'bulk',
+    ts:Date.now(),
+    status:'raw'
+  });
+  safeSet('clatCardQueue', q);
+  renderCaptureBox();
+  statusEl.textContent='\u2713 Pulled p.'+start+'\u2013'+end;
+  flashToast('Pulled '+(end-start+1)+' page(s) of "'+topic+'" \u00b7 '+q.length+' items queued');
+  setTimeout(function(){ statusEl.textContent=''; }, 4000);
+}
 function renderCaptureBox(){
   var q=safeGet('clatCardQueue', []);
   var cnt=document.getElementById('captureCount'); if(cnt) cnt.textContent=q.length;
@@ -3413,8 +3500,9 @@ function renderCaptureBox(){
   list.innerHTML='';
   q.slice().reverse().forEach(function(it){
     var row=document.createElement('div'); row.className='capture-item';
+    var tag = it.kind==='bulk' ? 'BULK' : 'G';
     var meta=escHtmlSafe(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'')+(it.topic?' &middot; '+escHtmlSafe(it.topic):'');
-    row.innerHTML='<span class="cx">'+meta+'</span><span class="ctext">'+escHtmlSafe(it.text)+'</span><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
+    row.innerHTML='<span class="cx">'+tag+' &middot; '+meta+'</span><span class="ctext">'+escHtmlSafe(it.text)+'</span><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
     list.appendChild(row);
   });
 }
