@@ -565,18 +565,17 @@ body::before {
 .pdf-text-layer ::selection { background: rgba(255,220,0,0.55); }
 .pdf-text-layer .highlight-mark,
 .pdf-text-layer-fs .highlight-mark {
-  background: linear-gradient(180deg, rgba(201,168,76,0.30), rgba(201,168,76,0.20));
-  box-shadow: inset 0 -2px 0 rgba(201,168,76,0.55);
+  background: rgba(255,216,0,0.42);
+  box-shadow: inset 0 0 0 1px rgba(255,216,0,0.28);
   border-radius: 2px;
   position: absolute;
   pointer-events: none;
-  mix-blend-mode: screen;
 }
 /* G-capture highlights — red, so it's clear which bits were sent to the AI */
 .pdf-text-layer .highlight-mark.cap,
 .pdf-text-layer-fs .highlight-mark.cap {
-  background: linear-gradient(180deg, rgba(201,112,112,0.34), rgba(201,112,112,0.22));
-  box-shadow: inset 0 -2px 0 rgba(201,112,112,0.7);
+  background: rgba(255,80,80,0.42);
+  box-shadow: inset 0 0 0 1px rgba(255,80,80,0.3);
 }
 .pdf-text-layer .search-mark,
 .pdf-text-layer-fs .search-mark {
@@ -813,15 +812,16 @@ body::before {
   color: var(--muted); border: 1px solid var(--border);
   padding: 0.18rem 0.55rem; border-radius: 2px;
 }
-.vocab-lookup-save-btn {
+.vl-save-status {
   position: absolute; top: 1rem; right: 1rem;
-  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.16em;
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--green);
-  background: none; border: 1px solid rgba(90,158,122,0.3);
-  padding: 0.28rem 0.65rem; cursor: pointer; border-radius: 2px;
-  transition: background 0.2s;
+  border: 1px solid rgba(90,158,122,0.3); border-radius: 2px;
+  padding: 0.28rem 0.65rem; opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
 }
-.vocab-lookup-save-btn:hover { background: var(--green-dim); }
+.vl-save-status.visible { opacity: 1; }
+.vl-save-status.refreshed { color: var(--accent); border-color: rgba(201,168,76,0.35); }
 .vocab-lookup-spinner {
   font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.15em;
   color: var(--muted); text-transform: uppercase; padding: 1rem 0;
@@ -863,29 +863,93 @@ body::before {
   color: transparent; -webkit-text-stroke: 1px rgba(201,168,76,0.25);
   line-height: 1; margin-bottom: 0.6rem;
 }
+/* Prettier card-style entries */
 .wb-entry {
-  display: flex; align-items: flex-start; gap: 0.8rem;
-  padding: 0.55rem 0; border-bottom: 1px solid rgba(180,160,120,0.07);
+  position: relative;
+  padding: 0.9rem 1.1rem; margin-bottom: 0.6rem;
+  border: 1px solid var(--border); border-radius: 4px;
+  background: rgba(255,255,255,0.012);
+  transition: border-color 0.25s, background 0.25s;
 }
-.wb-entry:last-child { border-bottom: none; }
+.wb-entry:hover { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.025); }
+.wb-entry-head { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
 .wb-word {
-  font-family: var(--serif); font-size: 1.15rem; font-weight: 400;
-  color: var(--accent); min-width: 160px; flex-shrink: 0;
+  font-family: var(--serif); font-size: 1.3rem; font-weight: 400;
+  font-style: italic; color: var(--accent);
+}
+.wb-root {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.1em;
+  color: var(--accent-dim); text-transform: uppercase;
 }
 .wb-def {
-  font-family: var(--serif); font-size: 0.95rem; font-weight: 300;
-  font-style: italic; color: var(--muted); line-height: 1.5;
+  font-family: var(--serif); font-size: 1rem; font-weight: 300;
+  color: var(--parchment); line-height: 1.5; margin-top: 0.35rem;
 }
+.wb-syn {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.04em;
+  color: var(--muted); margin-top: 0.5rem; line-height: 1.6;
+}
+.wb-syn b { color: var(--accent-dim); font-weight: 400; }
 .wb-del {
+  position: absolute; top: 0.7rem; right: 0.7rem;
   background: none; border: none; color: rgba(138,128,112,0.3);
-  cursor: pointer; font-size: 0.65rem; padding: 2px 4px;
-  margin-left: auto; flex-shrink: 0; transition: color 0.2s;
+  cursor: pointer; font-size: 0.7rem; padding: 2px 4px; transition: color 0.2s;
 }
 .wb-del:hover { color: var(--red); }
 .wb-empty {
   font-family: var(--serif); font-size: 1.1rem; font-style: italic;
   color: var(--muted); padding: 2rem 0; text-align: center;
 }
+
+/* Word bank mode tabs */
+.wb-tabs { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.8rem; }
+.wb-tab {
+  font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: 1px solid var(--border);
+  padding: 0.5rem 1.1rem; cursor: pointer; border-radius: 2px;
+  transition: all 0.25s;
+}
+.wb-tab:hover { color: var(--parchment); }
+.wb-tab.active { color: #000; background: var(--accent); border-color: var(--accent); }
+.wb-count-pill {
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted); margin-left: auto;
+}
+
+/* Word bank flashcards */
+.wb-fc-stage { min-height: 320px; display: flex; align-items: center; justify-content: center; }
+.wb-fc-empty { font-family: var(--serif); font-style: italic; font-size: 1.2rem; color: var(--muted); }
+.wb-fc-card {
+  position: relative; width: 100%; max-width: 520px; min-height: 300px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: linear-gradient(160deg, rgba(201,168,76,0.05), rgba(255,255,255,0.012));
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 3rem 2.5rem; cursor: pointer; text-align: center;
+  transition: border-color 0.25s, transform 0.15s;
+}
+.wb-fc-card:hover { border-color: rgba(201,168,76,0.35); }
+.wb-fc-card:active { transform: scale(0.995); }
+.wb-fc-progress {
+  position: absolute; top: 1rem; left: 1.2rem;
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.12em; color: var(--accent-dim);
+}
+.wb-fc-front { font-family: var(--serif); font-size: 2.6rem; font-weight: 300; font-style: italic; color: var(--accent); }
+.wb-fc-back { width: 100%; }
+.wb-fc-back .wb-fc-def { font-family: var(--serif); font-size: 1.4rem; font-weight: 300; color: var(--parchment); line-height: 1.4; margin-bottom: 1rem; }
+.wb-fc-back .wb-fc-detail { font-family: var(--serif); font-size: 1rem; font-style: italic; color: var(--muted); line-height: 1.6; margin-bottom: 0.5rem; }
+.wb-fc-back .wb-fc-tags { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.05em; color: var(--accent-dim); margin-top: 0.8rem; }
+.wb-fc-hint { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(138,128,112,0.45); }
+.wb-fc-controls { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.6rem; }
+.wb-fc-btn {
+  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted);
+  background: none; border: 1px solid var(--border);
+  padding: 0.6rem 1.2rem; cursor: pointer; border-radius: 2px; transition: all 0.25s;
+}
+.wb-fc-btn:hover { color: var(--parchment); border-color: var(--accent-dim); }
+.wb-fc-btn.primary { color: var(--accent); border-color: var(--accent-dim); }
+.wb-fc-btn.primary:hover { background: var(--accent); color: #000; }
 
 /* ══ READING FEED ══ */
 .reading-feed-section {
@@ -1795,7 +1859,7 @@ body::before {
     <div class="vocab-lookup-spinner" id="vocabLookupSpinner">Consulting the lexicon&hellip;</div>
     <div class="vocab-lookup-error" id="vocabLookupError"></div>
     <div class="vocab-lookup-result" id="vocabLookupResult">
-      <button class="vocab-lookup-save-btn" onclick="saveFromLookup()">+ Save to Bank</button>
+      <span class="vl-save-status" id="vlSaveStatus"></span>
       <div class="vocab-lookup-word" id="vlWord"></div>
       <div class="vocab-lookup-simple" id="vlSimple"></div>
       <div class="vocab-lookup-section">
@@ -1854,20 +1918,47 @@ body::before {
 
 <!-- ═══ WORD BANK OVERLAY ═══ -->
 <div id="wordBankOverlay" style="display:none;position:fixed;inset:0;background:#050505;z-index:800;overflow-y:auto;">
-  <div style="max-width:760px;margin:0 auto;padding:3rem 2rem;">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2.5rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+  <div style="max-width:780px;margin:0 auto;padding:3rem 2rem;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.6rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
       <div>
         <p style="font-family:var(--mono);font-size:0.54rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:0.3rem;">Vocabulary</p>
         <h2 style="font-family:var(--serif);font-size:2.8rem;font-weight:300;font-style:italic;color:var(--parchment);line-height:1;">Word Bank</h2>
       </div>
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <div class="vocab-search-wrap" style="margin:0;width:200px;">
-          <input type="text" id="wbSearch" placeholder="Filter words&hellip;" oninput="renderWordBank()" />
+      <button onclick="closeWordBank()" style="font-family:var(--mono);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:0.5rem 1rem;cursor:pointer;border-radius:2px;transition:color 0.3s,border-color 0.3s;" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">&#10005; Close</button>
+    </div>
+
+    <!-- mode tabs -->
+    <div class="wb-tabs">
+      <button class="wb-tab active" id="wbTabBrowse" onclick="wbSetMode('browse')">Browse</button>
+      <button class="wb-tab" id="wbTabCards" onclick="wbSetMode('cards')">Flashcards</button>
+      <span class="wb-count-pill" id="wbCountPill"></span>
+    </div>
+
+    <!-- BROWSE mode -->
+    <div id="wbBrowse">
+      <div class="vocab-search-wrap" style="margin:0 0 1.6rem;width:100%;max-width:280px;">
+        <input type="text" id="wbSearch" placeholder="Filter words&hellip;" oninput="renderWordBank()" />
+      </div>
+      <div id="wbAlphaList"></div>
+    </div>
+
+    <!-- FLASHCARDS mode -->
+    <div id="wbCards" style="display:none;">
+      <div class="wb-fc-stage" id="wbFcStage">
+        <div class="wb-fc-empty" id="wbFcEmpty">No words yet. Look some up to start practising.</div>
+        <div class="wb-fc-card" id="wbFcCard" style="display:none;" onclick="wbFlipCard()">
+          <div class="wb-fc-progress" id="wbFcProgress"></div>
+          <div class="wb-fc-face wb-fc-front" id="wbFcFront"></div>
+          <div class="wb-fc-face wb-fc-back" id="wbFcBack" style="display:none;"></div>
+          <div class="wb-fc-hint" id="wbFcHint">click to flip</div>
         </div>
-        <button onclick="closeWordBank()" style="font-family:var(--mono);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:0.5rem 1rem;cursor:pointer;border-radius:2px;transition:color 0.3s,border-color 0.3s;" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">&#10005; Close</button>
+      </div>
+      <div class="wb-fc-controls" id="wbFcControls" style="display:none;">
+        <button class="wb-fc-btn" onclick="event.stopPropagation();wbPrevCard()">&larr; Prev</button>
+        <button class="wb-fc-btn" onclick="event.stopPropagation();wbShuffleCards()">&#8646; Shuffle</button>
+        <button class="wb-fc-btn primary" onclick="event.stopPropagation();wbNextCard()">Next &rarr;</button>
       </div>
     </div>
-    <div id="wbAlphaList"></div>
   </div>
 </div>
 
@@ -2583,18 +2674,43 @@ renderMock();
 /* ══ PDF VIEWER ══ */
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 var pdfDoc=null, pdfCurPage=1, pdfTotalPages=1, pdfScale=1.5, pdfFsOpen=false;
-var pdfHighlights={}; /* {pageNum: [{text, rects}]} */
+var pdfHighlights={}; /* {pageNum: [{text, rects, kind}]} — for the CURRENTLY OPEN pdf only */
+var pdfDocKey=''; /* identity of the open PDF, so highlights don't bleed between files */
 var pdfSearchResults=[], pdfSearchIdx=0;
 var pdfRenderToken=0; /* guards against stale async renders during fast nav */
+
+/* All highlights live under one localStorage object keyed by PDF identity:
+   { "<pdfKey>": { "<page>": [ {rects,text,kind}, ... ] } }
+   This prevents one document's highlights from appearing on another. */
+function loadHighlightsForCurrentPdf(){
+  var all=safeGet('pdfHLByDoc', {});
+  var docHL=all[pdfDocKey] || {};
+  pdfHighlights={};
+  Object.keys(docHL).forEach(function(pg){
+    var arr=docHL[pg];
+    if(Array.isArray(arr)){
+      var clean=arr.filter(function(h){ return h && Array.isArray(h.rects) && h.rects.length; });
+      if(clean.length) pdfHighlights[pg]=clean;
+    }
+  });
+}
+function saveHighlightsForCurrentPdf(){
+  if(!pdfDocKey) return;
+  var all=safeGet('pdfHLByDoc', {});
+  all[pdfDocKey]=pdfHighlights;
+  safeSet('pdfHLByDoc', all);
+}
 
 document.getElementById('pdfFileInput').addEventListener('change', function(e){
   var file=e.target.files[0]; if(!file) return;
   window.__pdfName=file.name;
+  pdfDocKey=file.name+'::'+file.size; /* identity for this specific PDF */
   var fr=new FileReader();
   fr.onload=function(ev){
     var data=new Uint8Array(ev.target.result);
     pdfjsLib.getDocument({data:data}).promise.then(function(pdf){
       pdfDoc=pdf; pdfTotalPages=pdf.numPages; pdfCurPage=1;
+      loadHighlightsForCurrentPdf(); /* only THIS pdf's marks */
       pdfSearchResults=[]; pdfSearchIdx=0; syncSearchInputs('');
       document.getElementById('pdfSearchCount').textContent='';
       document.getElementById('pdfSearchCountFs').textContent='';
@@ -2745,17 +2861,43 @@ function applyHighlight(kind){
   var layerBox=layer.getBoundingClientRect();
 
   var clientRects=range.getClientRects();
-  var rects=[];
+  /* Collect raw fragment rects (layer-relative, unscaled) */
+  var raw=[];
   for(var i=0;i<clientRects.length;i++){
     var r=clientRects[i];
     if(r.width<1||r.height<1) continue;
-    rects.push({
+    raw.push({
       x:(r.left-layerBox.left)/pdfScale,
       y:(r.top -layerBox.top )/pdfScale,
       w:r.width /pdfScale,
       h:r.height/pdfScale
     });
   }
+  if(!raw.length) return;
+
+  /* MERGE BY LINE: getClientRects() returns one rect per word/fragment, leaving gaps
+     over the spaces between words (the "broken" look). Group rects that sit on the same
+     visual line (their vertical centres are close) and merge each group into ONE rect
+     spanning left-most to right-most — so spaces get covered and each line is solid. */
+  raw.sort(function(a,b){ return a.y-b.y || a.x-b.x; });
+  var lines=[];
+  raw.forEach(function(rc){
+    var cy=rc.y+rc.h/2;
+    var line=null;
+    for(var j=0;j<lines.length;j++){
+      var L=lines[j];
+      /* same line if vertical centres overlap within half a line-height */
+      if(Math.abs((L.y+L.h/2)-cy) < Math.max(L.h,rc.h)*0.6){ line=L; break; }
+    }
+    if(line){
+      var x1=Math.min(line.x,rc.x), y1=Math.min(line.y,rc.y);
+      var x2=Math.max(line.x+line.w,rc.x+rc.w), y2=Math.max(line.y+line.h,rc.y+rc.h);
+      line.x=x1; line.y=y1; line.w=x2-x1; line.h=y2-y1;
+    } else {
+      lines.push({x:rc.x,y:rc.y,w:rc.w,h:rc.h});
+    }
+  });
+  var rects=lines;
   if(!rects.length) return;
 
   if(!pdfHighlights[pdfCurPage]) pdfHighlights[pdfCurPage]=[];
@@ -2772,7 +2914,7 @@ function applyHighlight(kind){
   });
 
   pdfHighlights[pdfCurPage].push({rects:rects,text:selectedText,kind:kind});
-  safeSet('pdfHL',pdfHighlights);
+  saveHighlightsForCurrentPdf();
   sel.removeAllRanges();
   redrawHighlights();
 }
@@ -2799,7 +2941,7 @@ function redrawHighlights(){
 
 function clearHighlights(){
   pdfHighlights[pdfCurPage]=[];
-  safeSet('pdfHL',pdfHighlights);
+  saveHighlightsForCurrentPdf();
   redrawHighlights();
 }
 
@@ -2972,19 +3114,10 @@ function closePDF(){
   updatePageUI();
 }
 
-/* load saved highlights — keep ONLY geometry-anchored ones.
-   Old text-only entries are discarded (they were the cause of the
-   page-wide smear: a single common word re-matched dozens of spans). */
-var rawHL=safeGet('pdfHL',{});
+/* Highlights are now loaded per-PDF when a file opens (loadHighlightsForCurrentPdf).
+   Clean up the legacy global key from older versions so it can't bleed in. */
+try { localStorage.removeItem('pdfHL'); } catch(e){}
 pdfHighlights={};
-Object.keys(rawHL).forEach(function(pg){
-  var arr=rawHL[pg];
-  if(Array.isArray(arr)){
-    var clean=arr.filter(function(h){ return h && Array.isArray(h.rects) && h.rects.length; });
-    if(clean.length) pdfHighlights[pg]=clean;
-  }
-});
-safeSet('pdfHL',pdfHighlights); /* persist cleaned set so corrupt old data is gone for good */
 
 /* keyboard shortcuts */
 document.addEventListener('keydown',function(e){
@@ -3025,7 +3158,10 @@ function addVocab(){
   var d=document.getElementById('vocabDef').value.trim();
   if(!w) return;
   var list=safeGet(vocabKey(),[]);
-  list.unshift({id:Date.now(),word:w,def:d});
+  var norm=w.toLowerCase();
+  var idx=list.findIndex(function(v){ return (v.word||'').toLowerCase()===norm; });
+  if(idx>=0){ list[idx].def=d||list[idx].def; list[idx].ts=Date.now(); }
+  else { list.unshift({id:Date.now(),word:w,def:d,ts:Date.now()}); }
   safeSet(vocabKey(),list);
   document.getElementById('vocabWord').value='';
   document.getElementById('vocabDef').value='';
@@ -3050,9 +3186,72 @@ function updateVocabCount(){
 function escH(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 updateVocabCount();
 
+/* ══ WORD BANK FLASHCARDS ══ */
+var wbFcOrder=[], wbFcIdx=0, wbFcFlipped=false;
+
+function wbSetMode(mode){
+  var browse=document.getElementById('wbBrowse');
+  var cards=document.getElementById('wbCards');
+  var tB=document.getElementById('wbTabBrowse'), tC=document.getElementById('wbTabCards');
+  if(mode==='cards'){
+    browse.style.display='none'; cards.style.display='block';
+    tB.classList.remove('active'); tC.classList.add('active');
+    wbStartCards();
+  } else {
+    cards.style.display='none'; browse.style.display='block';
+    tC.classList.remove('active'); tB.classList.add('active');
+    renderWordBank();
+  }
+}
+function wbStartCards(){
+  var list=safeGet(vocabKey(),[]);
+  var empty=document.getElementById('wbFcEmpty');
+  var card=document.getElementById('wbFcCard');
+  var controls=document.getElementById('wbFcControls');
+  if(!list.length){
+    empty.style.display='block'; card.style.display='none'; controls.style.display='none';
+    return;
+  }
+  empty.style.display='none'; card.style.display='flex'; controls.style.display='flex';
+  /* fresh shuffled order each time the mode opens */
+  wbFcOrder=list.slice();
+  for(var i=wbFcOrder.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=wbFcOrder[i]; wbFcOrder[i]=wbFcOrder[j]; wbFcOrder[j]=t; }
+  wbFcIdx=0; wbFcFlipped=false;
+  wbShowCard();
+}
+function wbShowCard(){
+  if(!wbFcOrder.length) return;
+  var v=wbFcOrder[wbFcIdx];
+  document.getElementById('wbFcProgress').textContent=(wbFcIdx+1)+' / '+wbFcOrder.length;
+  var front=document.getElementById('wbFcFront');
+  var back=document.getElementById('wbFcBack');
+  front.textContent=v.word;
+  var detail='';
+  if(v.root) detail+='<div class="wb-fc-detail">'+escH(v.root)+'</div>';
+  var tags='';
+  if(v.syn&&v.syn.length) tags+='syn: '+v.syn.slice(0,5).map(escH).join(', ');
+  if(v.ant&&v.ant.length) tags+=(tags?'  ·  ':'')+'ant: '+v.ant.slice(0,4).map(escH).join(', ');
+  back.innerHTML='<div class="wb-fc-def">'+escH(v.def||v.definition||'')+'</div>'+detail+(tags?'<div class="wb-fc-tags">'+tags+'</div>':'');
+  /* reset to front */
+  wbFcFlipped=false;
+  front.style.display='block'; back.style.display='none';
+  document.getElementById('wbFcHint').textContent='click to flip';
+}
+function wbFlipCard(){
+  wbFcFlipped=!wbFcFlipped;
+  document.getElementById('wbFcFront').style.display=wbFcFlipped?'none':'block';
+  document.getElementById('wbFcBack').style.display=wbFcFlipped?'block':'none';
+  document.getElementById('wbFcHint').textContent=wbFcFlipped?'click for word':'click to flip';
+}
+function wbNextCard(){ if(!wbFcOrder.length)return; wbFcIdx=(wbFcIdx+1)%wbFcOrder.length; wbShowCard(); }
+function wbPrevCard(){ if(!wbFcOrder.length)return; wbFcIdx=(wbFcIdx-1+wbFcOrder.length)%wbFcOrder.length; wbShowCard(); }
+function wbShuffleCards(){ wbStartCards(); }
+
 /* ══ WORD BANK OVERLAY ══ */
 function openWordBank(){
-  renderWordBank();
+  var pill=document.getElementById('wbCountPill');
+  if(pill){ var n=safeGet(vocabKey(),[]).length; pill.textContent=n+' word'+(n!==1?'s':''); }
+  wbSetMode('browse');
   document.getElementById('wordBankOverlay').style.display='block';
   document.body.style.overflow='hidden';
 }
@@ -3089,9 +3288,11 @@ function renderWordBank(){
     block.appendChild(head);
     grouped[letter].forEach(function(v){
       var row=document.createElement('div'); row.className='wb-entry';
-      row.innerHTML='<span class="wb-word">'+escH(v.word)+'</span>'
-        +'<span class="wb-def">'+(v.def?escH(v.def):'&mdash;')+'</span>'
-        +'<button class="wb-del" onclick="deleteVocab('+v.id+')">&#10005;</button>';
+      var head='<div class="wb-entry-head"><span class="wb-word">'+escH(v.word)+'</span>'
+        +(v.root?'<span class="wb-root">'+escH(v.root)+'</span>':'')+'</div>';
+      var def='<div class="wb-def">'+(v.def?escH(v.def):(v.definition?escH(v.definition):'&mdash;'))+'</div>';
+      var syn=(v.syn&&v.syn.length)?'<div class="wb-syn"><b>syn:</b> '+v.syn.slice(0,6).map(escH).join(', ')+'</div>':'';
+      row.innerHTML=head+def+syn+'<button class="wb-del" onclick="deleteVocab('+v.id+')">&#10005;</button>';
       block.appendChild(row);
     });
     container.appendChild(block);
@@ -3216,6 +3417,8 @@ async function lookupVocab() {
       exEl.appendChild(p);
     });
     result.classList.add('visible');
+    /* AUTO-SAVE to the word bank (no manual button needed), skipping duplicates */
+    autoSaveLookup(parsed, word);
   } catch(e) {
     err.textContent = getVocabGroqKey()
       ? 'Could not look up word. Free Groq has a per-minute cap — wait a moment and retry, or check your key and connection.'
@@ -3227,17 +3430,37 @@ async function lookupVocab() {
   }
 }
 
-function saveFromLookup() {
-  if (!vlCurrentData) return;
-  var word = vlCurrentData.word || document.getElementById('vocabLookupInput').value.trim();
-  var def = vlCurrentData.simple_meaning || vlCurrentData.definition || '';
+/* Auto-save the looked-up word into the bank, storing the FULL breakdown so the
+   word bank can show definitions, roots, synonyms, examples, and run flashcards.
+   Repetitions are not allowed: a word already in the bank is refreshed, not duplicated. */
+function autoSaveLookup(parsed, fallbackWord){
+  var word = (parsed.word || fallbackWord || '').trim();
+  if(!word) return;
   var list = safeGet(vocabKey(), []);
-  list.unshift({ id: Date.now(), word: word, def: def });
+  var norm = word.toLowerCase();
+  var existingIdx = list.findIndex(function(v){ return (v.word||'').toLowerCase()===norm; });
+  var entry = {
+    id: (existingIdx>=0 ? list[existingIdx].id : Date.now()),
+    word: word,
+    def: parsed.simple_meaning || parsed.definition || '',
+    definition: parsed.definition || '',
+    root: parsed.word_root || '',
+    syn: parsed.synonyms || [],
+    ant: parsed.antonyms || [],
+    ex: parsed.examples || [],
+    ts: Date.now()
+  };
+  var statusEl = document.getElementById('vlSaveStatus');
+  if(existingIdx>=0){
+    list[existingIdx] = entry; /* refresh in place, no duplicate */
+    if(statusEl){ statusEl.textContent = 'Already in your bank — refreshed'; statusEl.className='vl-save-status refreshed'; }
+  } else {
+    list.unshift(entry);
+    if(statusEl){ statusEl.textContent = '\u2713 Saved to Word Bank automatically'; statusEl.className='vl-save-status saved'; }
+  }
   safeSet(vocabKey(), list);
   updateVocabCount();
-  var btn = document.querySelector('.vocab-lookup-save-btn');
-  btn.textContent = '✓ Saved'; btn.style.color = 'var(--green)';
-  setTimeout(function() { btn.textContent = '+ Save to Bank'; btn.style.color = ''; }, 2000);
+  if(statusEl){ statusEl.classList.add('visible'); setTimeout(function(){ statusEl.classList.remove('visible'); }, 2600); }
 }
 
 document.getElementById('vocabLookupInput').addEventListener('keydown', function(e) {
