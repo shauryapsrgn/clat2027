@@ -1,0 +1,2588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLAT 2027 — Lex Apparatus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* muji calm — cool oatmeal paper, soft charcoal ink, matcha-sage accent */
+  --paper:       #eae8e3;
+  --paper-2:     #f2f0eb;   /* cards, a touch lighter */
+  --paper-3:     #e3e0d9;   /* recessed wells */
+  --ink:         #33322e;
+  --ink-soft:    #55524c;
+  --muted:       #8f8b83;
+  --faint:       #b4b0a7;
+  --accent:      #7a8471;   /* matcha / sage */
+  --accent-deep: #5f6a58;
+  --accent-soft: rgba(122,132,113,0.12);
+  --clay:        #b08968;   /* secondary — classes only */
+  --clay-soft:   rgba(176,137,104,0.14);
+  --line:        rgba(51,50,46,0.10);
+  --line-strong: rgba(51,50,46,0.20);
+  --surface:     rgba(51,50,46,0.015);
+
+  /* legacy aliases kept so existing markup/JS keep working */
+  --parchment:   #33322e;
+  --accent-dim:  #5f6a58;
+  --accent-glow: rgba(122,132,113,0.08);
+  --border:      rgba(51,50,46,0.10);
+  --border-hover:rgba(122,132,113,0.4);
+  --green:       #7a8471;
+  --green-dim:   rgba(122,132,113,0.15);
+  --red:         #b08968;
+
+  --serif: 'Pretendard', 'Inter', system-ui, sans-serif;
+  --mono:  'Inter', system-ui, -apple-system, sans-serif;
+  --sans:  'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --display: 'Pretendard', 'Inter', system-ui, sans-serif;
+
+  --gap: clamp(1rem, 2.4vw, 1.6rem);
+  --pad: clamp(1.4rem, 4vw, 3.2rem);
+  --maxw: 1180px;
+  --ease: cubic-bezier(.22,1,.36,1);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  padding: 0 var(--pad);
+}
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+/* faint grain / paper warmth — extremely subtle, no image */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(122,132,113,0.04), transparent 42%),
+    radial-gradient(circle at 85% 90%, rgba(176,137,104,0.035), transparent 46%);
+}
+.wrap { max-width: var(--maxw); margin: 0 auto; position: relative; z-index: 1; }
+
+/* ── shared type devices ── */
+.eyebrow, .section-label, .links-group-label {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--muted);
+}
+.section-heading {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+  line-height: 1.15;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-top: 0.1rem;
+}
+.section-heading em { font-style: normal; color: var(--ink); }
+.section-label { margin-bottom: 0.15rem; }
+
+/* reveal (kept — pure CSS) */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.reveal { animation: fadeUp 0.7s var(--ease) both; }
+.reveal:nth-child(1){animation-delay:.04s;} .reveal:nth-child(2){animation-delay:.1s;}
+.reveal:nth-child(3){animation-delay:.16s;} .reveal:nth-child(4){animation-delay:.22s;}
+.reveal:nth-child(5){animation-delay:.28s;} .reveal:nth-child(6){animation-delay:.34s;}
+.reveal:nth-child(7){animation-delay:.4s;}
+@media (prefers-reduced-motion: reduce){ .reveal{ animation: none; } * { scroll-behavior: auto !important; } }
+
+/* ══ NAV ══ */
+.lab-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 2.2rem 0 1.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.lab-nav-brand {
+  font-family: var(--sans); font-size: 0.72rem; font-weight: 400;
+  letter-spacing: 0.01em; text-transform: none; color: var(--ink-soft);
+}
+.lab-nav-brand em { font-style: normal; color: var(--accent); }
+.lab-nav::after {
+  content: 'CLAT 2027';
+  font-family: var(--sans); font-size: 0.6rem; letter-spacing: 0.01em;
+  text-transform: none; color: var(--faint);
+}
+
+/* ══ COUNTDOWN ══ */
+.countdown-strip {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 2rem; flex-wrap: wrap;
+  padding: clamp(2.4rem, 6vw, 4.6rem) 0 clamp(2rem, 5vw, 3.6rem);
+  border-bottom: 1px solid var(--line);
+}
+.countdown-left { max-width: 22rem; }
+.countdown-sub {
+  font-family: var(--sans); font-size: 0.66rem; letter-spacing: 0.01em;
+  color: var(--muted); margin-top: 0.7rem; text-transform: none;
+}
+.countdown-units { display: flex; align-items: baseline; gap: clamp(0.5rem,1.6vw,1.4rem); }
+.c-unit { display: flex; flex-direction: column; align-items: center; min-width: 3.4rem; }
+.c-num {
+  font-family: var(--display); font-weight: 600;
+  font-size: clamp(2.6rem, 7vw, 4.4rem); line-height: 0.9; color: var(--ink);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.04em;
+}
+.c-lbl {
+  font-family: var(--sans); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.01em;
+  text-transform: none; color: var(--muted); margin-top: 0.7rem;
+}
+.c-sep {
+  font-family: var(--display); font-size: clamp(1.6rem,4vw,2.8rem); color: var(--faint);
+  font-weight: 500; align-self: flex-start; margin-top: 0.2rem;
+}
+
+/* ══ SEARCH ══ */
+.search-section { display: flex; justify-content: center; padding: 2.4rem 0; }
+.search-wrap { position: relative; display: flex; }
+.search-wrap input {
+  width: 100%; background: var(--paper-2); border: 1px solid var(--line);
+  border-right: none; color: var(--ink); font-family: var(--sans); font-size: 0.95rem;
+  padding: 0.85rem 1.1rem; outline: none; transition: border-color 0.25s;
+}
+.search-wrap input::placeholder { color: var(--faint); }
+.search-wrap:focus-within input { border-color: var(--border-hover); }
+.search-btn {
+  background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+  font-family: var(--sans); font-size: 0.82rem; font-weight: 500; letter-spacing: 0;
+  text-transform: none; padding: 0 1.6rem; cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+.search-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ══ GRID ══ */
+.main-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap); padding: 2.4rem 0;
+}
+@media (max-width: 900px){ .main-grid { grid-template-columns: 1fr; } }
+.grid-cell {
+  background: var(--paper-2); border: 1px solid var(--line);
+  padding: clamp(1.4rem, 2.4vw, 2rem);
+  display: flex; flex-direction: column;
+}
+.grid-cell.full-col { grid-column: 1 / -1; }
+.wordbank-cell { border-top: 2px solid var(--accent); }
+
+/* ══ TIMER ══ */
+.timer-status {
+  font-family: var(--sans); font-size: 0.72rem; font-weight: 500; letter-spacing: 0;
+  text-transform: none; color: var(--muted); margin-top: 0.8rem;
+}
+.timer-display {
+  font-family: var(--display); font-weight: 600; font-size: clamp(2.8rem,6vw,3.6rem);
+  color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -0.03em;
+  margin: 0.4rem 0 1.2rem; line-height: 1;
+}
+.timer-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tbtn {
+  font-family: var(--sans); font-size: 0.6rem; letter-spacing: 0.01em;
+  text-transform: none; color: var(--ink-soft);
+  background: var(--paper); border: 1px solid var(--line);
+  padding: 0.55rem 0.85rem; cursor: pointer; transition: all 0.22s;
+}
+.tbtn:hover { border-color: var(--border-hover); color: var(--accent-deep); }
+.tbtn.save-btn { color: var(--accent-deep); border-color: var(--accent-soft); }
+.tbtn.save-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.save-feedback {
+  font-family: var(--sans); font-size: 0.6rem; letter-spacing: 0.08em;
+  color: var(--accent); min-height: 1em; margin-top: 0.8rem;
+}
+
+/* Forgot-to-track collapsible */
+.ftt-details { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.ftt-summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center;
+  justify-content: space-between; font-family: var(--sans); font-size: 0.6rem;
+  letter-spacing: 0.01em; text-transform: none; color: var(--muted);
+  transition: color 0.2s;
+}
+.ftt-summary::-webkit-details-marker { display: none; }
+.ftt-summary:hover { color: var(--accent-deep); }
+.ftt-chevron { transition: transform 0.25s var(--ease); font-size: 0.7rem; }
+.ftt-details[open] .ftt-chevron { transform: rotate(90deg); }
+.ftt-body { margin-top: 1rem; display: flex; flex-direction: column; gap: 1.1rem; }
+.manual-hours-wrap {}
+.manual-hours-label {
+  font-family: var(--sans); font-size: 0.56rem; letter-spacing: 0.01em;
+  text-transform: none; color: var(--accent-deep); margin-bottom: 0.55rem;
+}
+.manual-hours-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.manual-hours-input, .manual-hours-date {
+  background: var(--paper); border: 1px solid var(--line); color: var(--ink);
+  font-family: var(--sans); font-size: 0.7rem; padding: 0.45rem 0.55rem; outline: none;
+}
+.manual-hours-input { width: 7rem; }
+.manual-hours-input:focus, .manual-hours-date:focus { border-color: var(--border-hover); }
+.manual-hours-btn {
+  font-family: var(--sans); font-size: 0.56rem; letter-spacing: 0.01em;
+  text-transform: none; color: var(--accent-deep);
+  background: none; border: 1px solid var(--accent-soft); padding: 0.45rem 0.7rem;
+  cursor: pointer; transition: all 0.2s;
+}
+.manual-hours-btn:hover { background: var(--accent-soft); }
+.manual-hours-sub, .manual-hours-sub-class { color: var(--muted); border-color: var(--line); }
+.manual-hours-sub:hover, .manual-hours-sub-class:hover { color: var(--clay); border-color: var(--clay-soft); background: var(--clay-soft); }
+.manual-hours-class { color: var(--clay); border-color: var(--clay-soft); }
+.manual-hours-class:hover { background: var(--clay-soft); }
+.manual-hours-feedback { font-family: var(--sans); font-size: 0.58rem; color: var(--accent); min-height: 1em; margin-top: 0.5rem; }
+
+/* ══ CHART ══ */
+.chart-legend { display: flex; gap: 1.2rem; margin: 0.8rem 0 0.4rem; }
+.chart-legend-item { font-family: var(--sans); font-size: 0.56rem; letter-spacing: 0.01em; text-transform: none; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; }
+.chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.chart-wrap { position: relative; margin-top: 0.6rem; min-height: 140px; }
+.study-scroll-list { margin-top: 1rem; max-height: 150px; overflow-y: auto; padding-right: 4px; }
+.study-entry-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.32rem 0; border-bottom: 1px solid var(--line);
+  font-family: var(--sans); font-size: 0.6rem; color: var(--muted); letter-spacing: 0.03em;
+}
+.study-entry-row:last-child { border-bottom: none; }
+.study-week-header {
+  font-family: var(--sans); font-size: 0.5rem; letter-spacing: 0.01em; text-transform: none;
+  color: var(--accent-deep); margin-top: 0.7rem; padding: 0.4rem 0 0.2rem; border-top: 1px solid var(--line);
+}
+.study-week-row { opacity: 0.9; }
+.study-week-row > span:first-child { color: var(--accent-deep); }
+.study-entry-vals { display: flex; align-items: center; }
+.study-del-btn { background: none; border: none; color: var(--faint); cursor: pointer; font-size: 0.8rem; padding: 0 4px; transition: color 0.2s; }
+.study-del-btn:hover { color: var(--clay); }
+.study-del-btn.class-del:hover { color: var(--clay); }
+
+/* ══ WORD BANK cell ══ */
+.vocab-add-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.vocab-input, .vocab-search-wrap input, .vocab-lookup-input {
+  flex: 1; min-width: 0; background: var(--paper); border: 1px solid var(--line);
+  color: var(--ink); font-family: var(--sans); font-size: 0.9rem; padding: 0.5rem 0.65rem; outline: none;
+  transition: border-color 0.2s;
+}
+.vocab-input:focus, .vocab-search-wrap input:focus, .vocab-lookup-input:focus { border-color: var(--border-hover); }
+.vocab-input::placeholder, .vocab-search-wrap input::placeholder, .vocab-lookup-input::placeholder { color: var(--faint); }
+.vocab-add-btn, .vocab-lookup-btn {
+  font-family: var(--sans); font-size: 0.58rem; letter-spacing: 0.01em; text-transform: none;
+  color: var(--accent-deep); background: none; border: 1px solid var(--accent-soft);
+  padding: 0.5rem 0.75rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.vocab-add-btn:hover, .vocab-lookup-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.vocab-search-wrap { width: 100%; }
+.vocab-viewall-btn {
+  font-family: var(--sans); font-size: 0.58rem; letter-spacing: 0.01em; text-transform: none;
+  color: var(--ink-soft); background: var(--paper); border: 1px solid var(--line);
+  padding: 0.5rem 0.85rem; cursor: pointer; transition: all 0.2s;
+}
+.vocab-viewall-btn:hover { border-color: var(--border-hover); color: var(--accent-deep); }
+.vocab-lookup-wrap { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+.vocab-lookup-row { display: flex; gap: 0.4rem; }
+.vocab-lookup-spinner { font-family: var(--sans); font-size: 0.6rem; letter-spacing: 0.08em; color: var(--accent); margin-top: 0.7rem; display: none; }
+.vocab-lookup-spinner.visible { display: block; }
+.vocab-lookup-error { font-family: var(--sans); font-size: 0.6rem; color: var(--clay); margin-top: 0.7rem; display: none; }
+.vocab-lookup-error.visible { display: block; }
+.vocab-lookup-result { position: relative; margin-top: 1rem; padding: 1.1rem 1.2rem; background: var(--paper-3); border: 1px solid var(--line); display: none; }
+.vocab-lookup-result.visible { display: block; }
+.vocab-lookup-save-btn {
+  position: absolute; top: 0.9rem; right: 0.9rem;
+  font-family: var(--sans); font-size: 0.5rem; letter-spacing: 0.01em; text-transform: none;
+  color: var(--accent-deep); background: none; border: 1px solid var(--accent-soft);
+  padding: 0.28rem 0.6rem; cursor: pointer; border-radius: 2px; transition: background 0.2s;
+}
+.vocab-lookup-save-btn:hover { background: var(--accent-soft); }
+.vocab-lookup-word { font-family: var(--serif); font-size: 1.7rem; font-weight: 400; font-style: normal; color: var(--accent-deep); }
+.vocab-lookup-simple { font-family: var(--serif); font-size: 1.05rem; color: var(--ink-soft); margin-top: 0.2rem; line-height: 1.4; }
+.vocab-lookup-section { margin-top: 0.9rem; }
+.vocab-lookup-section-label { font-family: var(--sans); font-size: 0.5rem; letter-spacing: 0.01em; text-transform: none; color: var(--muted); margin-bottom: 0.3rem; }
+.vocab-lookup-section-body { font-family: var(--sans); font-size: 0.88rem; color: var(--ink-soft); line-height: 1.55; }
+.vocab-lookup-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.vocab-lookup-tags span { font-family: var(--sans); font-size: 0.62rem; color: var(--accent-deep); border: 1px solid var(--accent-soft); padding: 0.2rem 0.5rem; }
+
+/* ══ LINKS ══ */
+.links-group { margin-bottom: 1.4rem; }
+.links-group:last-child { margin-bottom: 0; }
+.links-group-label { margin-bottom: 0.6rem; display: block; }
+.links-list { display: flex; flex-direction: column; }
+.link-item {
+  display: flex; align-items: center; gap: 0.7rem; text-decoration: none;
+  padding: 0.6rem 0; border-bottom: 1px solid var(--line); transition: padding 0.2s;
+}
+.link-item:last-child { border-bottom: none; }
+.link-item:hover { padding-left: 0.4rem; }
+.link-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--faint); flex-shrink: 0; transition: background 0.2s; }
+.link-item:hover .link-dot { background: var(--accent); }
+.link-body { flex: 1; display: flex; flex-direction: column; }
+.link-title { font-family: var(--sans); font-size: 0.85rem; font-weight: 500; color: var(--ink); line-height: 1.3; }
+.link-sub { font-family: var(--sans); font-size: 0.54rem; letter-spacing: 0.06em; color: var(--muted); text-transform: none; margin-top: 0.1rem; }
+.link-arrow { font-family: var(--sans); color: var(--faint); font-size: 0.85rem; transition: color 0.2s, transform 0.2s; }
+.link-item:hover .link-arrow { color: var(--accent); transform: translateX(3px); }
+
+/* ══ MOCK TRACKER ══ */
+.mock-input-area { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.mock-input { flex: 1; min-width: 0; background: var(--paper); border: 1px solid var(--line); color: var(--ink); font-family: var(--sans); font-size: 0.88rem; padding: 0.5rem 0.65rem; outline: none; transition: border-color 0.2s; }
+.mock-input.short { flex: 0 0 5rem; }
+.mock-input:focus { border-color: var(--border-hover); }
+.mock-input::placeholder { color: var(--faint); }
+.mock-add-btn { font-family: var(--sans); font-size: 0.58rem; letter-spacing: 0.01em; text-transform: none; color: var(--accent-deep); background: none; border: 1px solid var(--accent-soft); padding: 0.5rem 0.8rem; cursor: pointer; transition: all 0.2s; }
+.mock-add-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.mock-entries-list { display: flex; flex-direction: column; max-height: 210px; overflow-y: auto; }
+.mock-entry-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.5rem 0.2rem; border-bottom: 1px solid var(--line); cursor: grab; transition: background 0.15s; }
+.mock-entry-row:hover { background: var(--surface); }
+.mock-entry-row.dragging { opacity: 0.4; }
+.mock-entry-row.drag-over { border-top: 2px solid var(--accent); }
+.drag-handle { font-family: var(--sans); color: var(--faint); font-size: 0.85rem; cursor: grab; user-select: none; transition: color 0.2s; }
+.mock-entry-row:hover .drag-handle { color: var(--accent); }
+.mock-entry-name { font-family: var(--sans); font-size: 0.85rem; color: var(--ink); flex: 1; }
+.mock-entry-pct { font-family: var(--serif); font-size: 1.15rem; color: var(--accent-deep); font-variant-numeric: tabular-nums; }
+.mock-del-btn { background: none; border: none; color: var(--faint); cursor: pointer; font-size: 0.8rem; padding: 0 4px; transition: color 0.2s; }
+.mock-del-btn:hover { color: var(--clay); }
+
+/* ══ WORD BANK OVERLAY ══ */
+#wordBankOverlay { background: var(--paper) !important; }
+.wb-letter-block { margin-bottom: 1.8rem; }
+.wb-letter-head { font-family: var(--serif); font-size: 2.4rem; font-weight: 400; color: var(--faint); line-height: 1; margin-bottom: 0.5rem; letter-spacing: 0.02em; }
+.wb-entry { display: flex; align-items: baseline; gap: 0.8rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line); }
+.wb-word { font-family: var(--serif); font-size: 1.25rem; font-style: normal; color: var(--accent-deep); min-width: 9rem; }
+.wb-def { font-family: var(--sans); font-size: 0.9rem; color: var(--ink-soft); flex: 1; line-height: 1.5; }
+.wb-del { background: none; border: none; color: var(--faint); cursor: pointer; font-size: 0.85rem; transition: color 0.2s; }
+.wb-del:hover { color: var(--clay); }
+.wb-empty { font-family: var(--serif); font-style: normal; font-size: 1.1rem; color: var(--muted); padding: 2rem 0; text-align: center; }
+
+/* ══ QUOTE ══ */
+.quote-band { padding: clamp(3rem,7vw,5.5rem) 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; margin: 1rem 0; }
+.pull-quote { font-family: var(--serif); font-weight: 400; font-style: normal; font-size: clamp(1.4rem,3.6vw,2.3rem); line-height: 1.4; color: var(--ink); max-width: 44rem; margin: 0 auto; letter-spacing: 0.01em; }
+.pull-cite { font-family: var(--sans); font-size: 0.62rem; letter-spacing: 0.01em; text-transform: none; color: var(--muted); margin-top: 1.4rem; }
+
+/* ══ GROUND ══ */
+.ground-trigger {
+  position: fixed; right: 1.6rem; bottom: 1.6rem; z-index: 700;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--paper-2); border: 1px solid var(--line-strong);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--muted); transition: all 0.25s var(--ease);
+}
+.ground-trigger::before { content: '·'; font-size: 1.8rem; line-height: 0; margin-top: -2px; }
+.ground-trigger:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.06); }
+.ground-overlay {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(234,232,227,0.86); backdrop-filter: blur(7px);
+  overflow-y: auto; padding: clamp(1.5rem,5vw,3rem) 1rem;
+}
+.ground-overlay.open { display: block; animation: groundFade 0.32s var(--ease); }
+@keyframes groundFade { from { opacity: 0; } to { opacity: 1; } }
+.ground-panel { max-width: 40rem; margin: 0 auto; background: var(--paper-2); border: 1px solid var(--line); padding: clamp(2rem,5vw,3.4rem) clamp(1.6rem,4vw,3rem) clamp(2.6rem,6vw,4rem); position: relative; }
+.ground-close { position: absolute; top: 1.2rem; right: 1.2rem; width: 34px; height: 34px; background: none; border: 1px solid var(--line); color: var(--muted); cursor: pointer; font-size: 1.1rem; transition: all 0.2s; }
+.ground-close:hover { color: var(--clay); border-color: var(--clay-soft); }
+.ground-eyebrow { font-family: var(--sans); font-size: 0.58rem; letter-spacing: 0.01em; text-transform: none; color: var(--accent); margin-bottom: 0.8rem; }
+.ground-title { font-family: var(--serif); font-weight: 400; font-size: clamp(1.9rem,5vw,2.8rem); line-height: 1.05; color: var(--ink); }
+.ground-title em { font-style: normal; color: var(--accent-deep); }
+.ground-sub { font-family: var(--serif); font-size: 1.1rem; font-style: normal; color: var(--ink-soft); margin-top: 1rem; line-height: 1.5; }
+.ground-purpose { margin-top: 1.8rem; padding: 1.3rem 1.4rem; background: var(--accent-soft); border-left: 2px solid var(--accent); }
+.ground-purpose-line { font-family: var(--serif); font-size: 1.1rem; color: var(--ink-soft); margin-bottom: 0.5rem; line-height: 1.45; }
+.ground-purpose-line:last-child { margin-bottom: 0; }
+.ground-purpose-line strong { color: var(--accent-deep); font-weight: 500; }
+.ground-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.ground-section:first-of-type { border-top: none; }
+.ground-section-label { font-family: var(--sans); font-size: 0.56rem; letter-spacing: 0.01em; text-transform: none; color: var(--accent-deep); margin-bottom: 1rem; }
+.ground-anchor { font-family: var(--serif); font-size: 1.3rem; font-weight: 400; color: var(--ink); margin-bottom: 0.6rem; line-height: 1.3; }
+.ground-anchor em { color: var(--accent-deep); font-style: normal; }
+.ground-body { font-family: var(--sans); font-size: 0.92rem; color: var(--ink-soft); line-height: 1.7; margin-bottom: 0.8rem; }
+.ground-body strong { color: var(--ink); font-weight: 600; }
+.ground-quote { font-family: var(--serif); font-style: normal; font-size: 1.05rem; color: var(--muted); line-height: 1.5; padding: 1rem 0 0 1.2rem; border-left: 2px solid var(--line-strong); margin-top: 1rem; }
+.ground-quote-attr { display: block; font-family: var(--sans); font-style: normal; font-size: 0.56rem; letter-spacing: 0.01em; text-transform: none; color: var(--faint); margin-top: 0.7rem; }
+.ground-qa { border: 1px solid var(--line); margin-bottom: 0.6rem; background: var(--paper); }
+.ground-qa summary { list-style: none; cursor: pointer; padding: 0.85rem 1.1rem; font-family: var(--serif); font-size: 1.05rem; color: var(--ink); position: relative; padding-right: 2.6rem; transition: color 0.2s; }
+.ground-qa summary::-webkit-details-marker { display: none; }
+.ground-qa summary::after { content: '+'; position: absolute; right: 1.1rem; top: 50%; transform: translateY(-50%); font-family: var(--sans); color: var(--accent); font-size: 1.1rem; transition: transform 0.25s; }
+.ground-qa[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+.ground-qa summary:hover { color: var(--accent-deep); }
+.ground-qa-body { padding: 0 1.1rem 1.1rem; font-family: var(--sans); font-size: 0.9rem; color: var(--ink-soft); line-height: 1.65; }
+.ground-qa-body strong { color: var(--ink); font-weight: 600; }
+.ground-qa-body em { color: var(--accent-deep); font-style: normal; }
+
+/* ══ FOOTER ══ */
+.site-footer { padding: 3rem 0 4rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+.footer-mark { font-family: var(--sans); font-size: 0.58rem; letter-spacing: 0.01em; text-transform: none; color: var(--muted); }
+
+/* ══ TOAST ══ */
+#labToast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(16px);
+  background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 0.66rem;
+  letter-spacing: 0.06em; padding: 0.7rem 1.2rem; opacity: 0; pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s; z-index: 999; max-width: 90vw; text-align: center;
+}
+#labToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#labToast.err { background: var(--clay); }
+
+/* scrollbars — quiet */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* focus visibility */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 620px){
+  body { padding: 0 1.1rem; }
+  .countdown-strip { flex-direction: column; align-items: flex-start; gap: 1.6rem; }
+  .lab-nav::after { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- ═══ LAB NAV ═══ -->
+<div class="lab-nav">
+  <span class="lab-nav-brand"><em>Lex</em> Apparatus</span>
+</div>
+
+<!-- ═══ COUNTDOWN ═══ -->
+<div class="countdown-strip reveal">
+  <div class="countdown-left">
+    <p class="section-label">Time Remaining</p>
+    <h2 class="section-heading"><em>CLAT</em> Countdown</h2>
+    <p class="countdown-sub">6 Dec 2026 &middot; 09:00 IST</p>
+  </div>
+  <div class="countdown-units" id="clatCountdown" aria-live="polite">
+    <div class="c-unit"><span class="c-num" id="cDays">--</span><span class="c-lbl">Days</span></div>
+    <span class="c-sep" aria-hidden="true">:</span>
+    <div class="c-unit"><span class="c-num" id="cHours">--</span><span class="c-lbl">Hours</span></div>
+    <span class="c-sep" aria-hidden="true">:</span>
+    <div class="c-unit"><span class="c-num" id="cMins">--</span><span class="c-lbl">Minutes</span></div>
+    <span class="c-sep" aria-hidden="true">:</span>
+    <div class="c-unit"><span class="c-num" id="cSecs">--</span><span class="c-lbl">Seconds</span></div>
+  </div>
+</div>
+
+<!-- ═══ SEARCH ═══ -->
+<div class="search-section reveal">
+  <form id="searchForm" style="width:100%;max-width:560px;display:flex;">
+    <div class="search-wrap" style="width:100%;">
+      <input type="text" id="searchInput" placeholder="Search Google&hellip;" autocomplete="off" />
+      <button type="submit" class="search-btn">Search</button>
+    </div>
+  </form>
+</div>
+
+<!-- ═══ MAIN GRID ═══ -->
+<div class="main-grid">
+
+  <!-- TIMER -->
+  <div class="grid-cell reveal">
+    <p class="section-label">Study Timer</p>
+    <p class="section-heading" style="margin-bottom:0;">Track the Hours</p>
+    <p class="timer-status" id="timerStatus">Ready to begin</p>
+    <div class="timer-display" id="timerDisplay">00:00:00</div>
+    <div class="timer-btns">
+      <button class="tbtn" id="startBtn" onclick="startTimer()">&#9654; Start</button>
+      <button class="tbtn" id="pauseBtn" onclick="pauseTimer()">&#9646;&#9646; Pause</button>
+      <button class="tbtn save-btn" onclick="saveTimer()">&#10003; Save Session</button>
+    </div>
+    <p class="save-feedback" id="saveFeedback"></p>
+
+    <!-- Forgot to track? — collapsible dropdown wrapping both manual study and class hours -->
+    <details class="ftt-details">
+      <summary class="ftt-summary">
+        <span>Forgot to Track?</span>
+        <span class="ftt-chevron">&#9656;</span>
+      </summary>
+      <div class="ftt-body">
+        <!-- Manual hours entry: log self-study time you couldn't record live -->
+        <div class="manual-hours-wrap">
+          <p class="manual-hours-label">Add or remove self-study hours</p>
+          <div class="manual-hours-row">
+            <input type="number" id="manualHoursInput" class="manual-hours-input" placeholder="Hours (e.g. 2.5)" step="0.25" min="0" max="24" />
+            <input type="date" id="manualHoursDate" class="manual-hours-date" />
+            <button class="manual-hours-btn" onclick="addManualHours(1)">+ Add</button>
+            <button class="manual-hours-btn manual-hours-sub" onclick="addManualHours(-1)" title="Subtract hours (useful if you over-logged)">&#8722; Subtract</button>
+          </div>
+          <p class="manual-hours-feedback" id="manualHoursFeedback"></p>
+        </div>
+
+        <!-- Classes attended tracker -->
+        <div class="manual-hours-wrap">
+          <p class="manual-hours-label" style="color:#b08968;">Attended a class? Log it here</p>
+          <div class="manual-hours-row">
+            <input type="number" id="classHoursInput" class="manual-hours-input" placeholder="Class hours (e.g. 2)" step="0.25" min="0" max="24" />
+            <input type="date" id="classHoursDate" class="manual-hours-date" />
+            <button class="manual-hours-btn manual-hours-class" onclick="addClassHours(1)">+ Add</button>
+            <button class="manual-hours-btn manual-hours-sub-class" onclick="addClassHours(-1)" title="Remove class hours">&#8722; Subtract</button>
+          </div>
+          <p class="manual-hours-feedback" id="classHoursFeedback" style="color:#b08968;"></p>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- STUDY GRAPH -->
+  <div class="grid-cell reveal">
+    <p class="section-label">Study Log</p>
+    <p class="section-heading">Daily Hours</p>
+    <div class="chart-legend">
+      <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#7a8471;"></span>Self-study</span>
+      <span class="chart-legend-item"><span class="chart-legend-dot" style="background:#b08968;"></span>Classes</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="studyChart" role="img" aria-label="Daily self-study and class hours chart">No data yet.</canvas>
+    </div>
+    <div class="study-scroll-list" id="studyScrollList"></div>
+  </div>
+
+  <!-- WORD BANK -->
+  <div class="grid-cell wordbank-cell reveal">
+    <p class="section-label">Vocabulary</p>
+    <p class="section-heading" style="margin-bottom:0.9rem;">Word Bank</p>
+
+    <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:0.7rem;">Add New Word</p>
+    <div class="vocab-add-row">
+      <input class="vocab-input" type="text" id="vocabWord" placeholder="Word&hellip;" style="max-width:130px;" />
+      <input class="vocab-input" type="text" id="vocabDef" placeholder="Meaning / definition&hellip;" />
+      <button class="vocab-add-btn" onclick="addVocab()">+ Save</button>
+    </div>
+
+    <div class="vocab-search-wrap" style="margin-top:0.9rem;">
+      <input type="text" id="vocabSearch" placeholder="Search saved words&hellip;" oninput="renderWordBank()" />
+    </div>
+
+    <div style="margin-top:1rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;">
+      <button class="vocab-viewall-btn" onclick="openWordBank()">
+        <span style="font-size:0.9rem;margin-right:0.4rem;">&#9783;</span> View Word Bank
+      </button>
+      <span id="vocabCountBadge" style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);"></span>
+    </div>
+
+    <!-- Vocab Dictionary Lookup -->
+    <div class="vocab-lookup-wrap">
+      <p class="section-label" style="margin-bottom:0.5rem;">Dictionary Lookup</p>
+      <p style="font-family:var(--serif);font-size:1rem;font-weight:400;color:var(--muted);margin-bottom:0.8rem;">Full word breakdown — AI-powered</p>
+      <div class="vocab-lookup-row">
+        <input class="vocab-lookup-input" type="text" id="vocabLookupInput" placeholder="Enter any word&hellip;" />
+        <button class="vocab-lookup-btn" id="vocabLookupBtn" onclick="lookupVocab()">Look Up</button>
+      </div>
+      <div class="vocab-lookup-spinner" id="vocabLookupSpinner">Consulting the lexicon&hellip;</div>
+      <div class="vocab-lookup-error" id="vocabLookupError"></div>
+      <div class="vocab-lookup-result" id="vocabLookupResult">
+        <button class="vocab-lookup-save-btn" onclick="saveFromLookup()">+ Save to Bank</button>
+        <div class="vocab-lookup-word" id="vlWord"></div>
+        <div class="vocab-lookup-simple" id="vlSimple"></div>
+        <div class="vocab-lookup-section">
+          <div class="vocab-lookup-section-label">Definition</div>
+          <div class="vocab-lookup-section-body" id="vlDef"></div>
+        </div>
+        <div class="vocab-lookup-section">
+          <div class="vocab-lookup-section-label">Word Root &amp; Origin</div>
+          <div class="vocab-lookup-section-body" id="vlRoot"></div>
+        </div>
+        <div class="vocab-lookup-section">
+          <div class="vocab-lookup-section-label">Synonyms</div>
+          <div class="vocab-lookup-tags" id="vlSyn"></div>
+        </div>
+        <div class="vocab-lookup-section">
+          <div class="vocab-lookup-section-label">Antonyms</div>
+          <div class="vocab-lookup-tags" id="vlAnt"></div>
+        </div>
+        <div class="vocab-lookup-section">
+          <div class="vocab-lookup-section-label">Examples</div>
+          <div class="vocab-lookup-section-body" id="vlEx"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="grid-cell reveal">
+    <p class="section-label">Arsenal</p>
+    <p class="section-heading" style="margin-bottom:1.1rem;">Resource Links</p>
+
+    <!-- GK & CA -->
+    <div class="links-group">
+      <p class="links-group-label">GK &amp; CA</p>
+      <div class="links-list">
+        <a class="link-item" href="https://indianexpress.com/" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">Indian Express</span>
+            <span class="link-sub">News &amp; Explained Articles</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://drive.google.com/drive/folders/1KK3fvdnz-uWXtMJdsPoB9G1P0FN2qbIv" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">Past Mocks GK Compilation</span>
+            <span class="link-sub">GK Fiesta &amp; Mocks &middot; Drive</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://drive.google.com/drive/folders/1PajBJf4WczRAhlW2WHwJR356Z8jnMcAZ" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">GK MCQ Sheets</span>
+            <span class="link-sub">CLAT GK 2027 &middot; Drive</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://drive.google.com/drive/folders/190qwpQ6uzhkN2sBmg2IjMiiDYfVHS619" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">Past Year Papers</span>
+            <span class="link-sub">CLAT PYQs &middot; Drive</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://www.toprankers.com/clat-posts-by-legaledge" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">CLAT Posts &mdash; GK Compendium</span>
+            <span class="link-sub">Monthly Digest &middot; LegalEdge</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Legal & Practice -->
+    <div class="links-group">
+      <p class="links-group-label">Legal &amp; Practice</p>
+      <div class="links-list">
+        <a class="link-item" href="https://drive.google.com/drive/folders/1kciOIctYVP7zmWcBFU7VrA_LdIMwrVlc" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">Legal Section Drive</span>
+            <span class="link-sub">Shubham Sir's Drive</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://docs.google.com/spreadsheets/d/1XqdMTnOij6V7FkuxdAWFComEz4KztRui8SK7JSciGn0/edit?gid=0#gid=0" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">CLAT 200 Days QT AR Workbook</span>
+            <span class="link-sub">QT &amp; AR Practice &middot; Google Sheets</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+      </div>
+    </div>
+
+
+    <!-- Mocks & Classes -->
+    <div class="links-group">
+      <p class="links-group-label">Mocks &amp; Classes</p>
+      <div class="links-list">
+        <a class="link-item" href="https://www.toprankers.com/student-analytics" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">Student Analytics</span>
+            <span class="link-sub">Mock Scores &middot; TopRankers</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://www.toprankers.com/warriors-retakers-clat-2027-offline-weekdays-batch-03-by-legaledge-delhi-south-ext-center#videos" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">LegalEdge Class Videos</span>
+            <span class="link-sub">Warriors Retakers Batch</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+        <a class="link-item" href="https://web.telegram.org/a/" target="_blank" rel="noopener">
+          <span class="link-dot"></span>
+          <span class="link-body">
+            <span class="link-title">Telegram</span>
+            <span class="link-sub">CLAT Channel &middot; Web App</span>
+          </span>
+          <span class="link-arrow">&#8594;</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /main-grid -->
+
+  <!-- MOCK TRACKER (full width — re-uses main-grid wrapper so the full-col class spans correctly) -->
+  <div class="main-grid">
+  <div class="grid-cell full-col reveal">
+    <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:2.5rem;align-items:start;">
+      <div>
+        <p class="section-label">Performance Index</p>
+        <p class="section-heading" style="margin-bottom:1rem;">Mock Tracker</p>
+        <div class="mock-input-area">
+          <input class="mock-input" type="text" id="mockName" placeholder="Mock name (e.g. CLAT Mock 01)" />
+          <input class="mock-input short" type="number" id="mockPct" placeholder="%ile" min="0" max="100" step="0.1" />
+          <button class="mock-add-btn" onclick="addMock()">+ Add</button>
+        </div>
+        <div class="mock-entries-list" id="mockEntriesList"></div>
+        <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:0.8rem;" id="mockCount">No entries yet</p>
+        <p style="font-family:var(--mono);font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(138,128,112,0.4);margin-top:0.3rem;">Drag entries to reorder</p>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.4rem;">
+          <p style="font-family:var(--mono);font-size:0.52rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-dim);">Percentile Curve</p>
+          <p style="font-family:var(--mono);font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);" id="mockBest">&mdash;</p>
+        </div>
+        <div class="chart-wrap" style="height:200px;">
+          <canvas id="mockChart" role="img" aria-label="Mock percentile line chart">No data yet.</canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /main-grid (Mock Tracker section) -->
+
+<!-- ═══ WORD BANK OVERLAY ═══ -->
+<div id="wordBankOverlay" style="display:none;position:fixed;inset:0;background:var(--paper);z-index:800;overflow-y:auto;">
+  <div style="max-width:760px;margin:0 auto;padding:3rem 2rem;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2.5rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+      <div>
+        <p style="font-family:var(--mono);font-size:0.54rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--accent-dim);margin-bottom:0.3rem;">Vocabulary</p>
+        <h2 style="font-family:var(--serif);font-size:2.4rem;font-weight:600;font-style:normal;color:var(--parchment);line-height:1;">Word Bank</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="vocab-search-wrap" style="margin:0;width:200px;">
+          <input type="text" id="wbSearch" placeholder="Filter words&hellip;" oninput="renderWordBank()" />
+        </div>
+        <button onclick="closeWordBank()" style="font-family:var(--mono);font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);background:none;border:1px solid var(--border);padding:0.5rem 1rem;cursor:pointer;border-radius:2px;transition:color 0.3s,border-color 0.3s;" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">&#10005; Close</button>
+      </div>
+    </div>
+    <div id="wbAlphaList"></div>
+  </div>
+</div>
+
+<!-- ═══ QUOTE ═══ -->
+<div class="quote-band reveal">
+  <p class="pull-quote">The Constitution is not a mere lawyers&rsquo; document; it is a vehicle of life, and its spirit is always the spirit of the age.</p>
+  <p class="pull-cite">&mdash; Dr. B.R. Ambedkar</p>
+</div>
+
+<!-- ═══ GROUND (rumination reassurance) ═══ -->
+<button class="ground-trigger" id="groundTrigger" onclick="openGround()" aria-label="Open grounding panel" title="Ground"></button>
+<div class="ground-overlay" id="groundOverlay" role="dialog" aria-label="Ground" onclick="if(event.target.id==='groundOverlay') closeGround()">
+  <div class="ground-panel">
+    <button class="ground-close" onclick="closeGround()" aria-label="Close">&times;</button>
+    <p class="ground-eyebrow">Ground</p>
+    <h2 class="ground-title">Close the <em>loop</em>.</h2>
+    <p class="ground-sub">You came here looking for permission to keep questioning. You won't find that here. You'll find what you already know, written down where you can see it.</p>
+
+    <div class="ground-purpose">
+      <p class="ground-purpose-line">Your purpose is <strong>not</strong> to feel passionate about law.</p>
+      <p class="ground-purpose-line">Your purpose is to <strong>clear CLAT 2027</strong>.</p>
+      <p class="ground-purpose-line">You have no other path you're being pulled toward. You've checked. Repeatedly.</p>
+      <p class="ground-purpose-line">There is nothing left to decide. Only work left to do.</p>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">The pattern, named</p>
+      <p class="ground-anchor">This is <em>reassurance-seeking</em>, not inquiry.</p>
+      <p class="ground-body">When a thought feels threatening and you engage with it, you reward the thought. Your brain learns: "Good — this topic gets attention. Generate more." Every time you answer a doubt, you train the doubt to come back stronger. Every time you let it pass without engagement, you starve it. The fear that ignoring it lets it secretly entrench is exactly backwards. <strong>Engagement strengthens. Ignoring weakens.</strong> This is a known mechanism — see Adrian Wells' work on metacognitive therapy, and the rumination research of Susan Nolen-Hoeksema. The loop does not contain truth. It contains itself.</p>
+      <p class="ground-quote">"Rumination is not problem-solving. It is the illusion of problem-solving. The repeated mental review of the same question, without action, produces lower mood, reduced concentration, and reduced motivation — not insight."
+        <span class="ground-quote-attr">— Nolen-Hoeksema, Response Styles Theory</span>
+      </p>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">The questions, answered</p>
+
+      <details class="ground-qa">
+        <summary>But what if law isn't right for me?</summary>
+        <div class="ground-qa-body">You have spent <strong>months</strong> running this question through every possible angle. You have considered science, commerce, media, journalism, history. None of them pull you. None of them produce excitement when you imagine choosing them. Law produces the same neutrality everything else does, because <em>neutrality is your default state right now</em>, not a verdict on law. The question has been asked and answered many times. There is no new information that will arrive by asking it a 47th time. The only new information comes from <strong>doing the work and seeing the data</strong>.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But I don't feel passionate. Others seem to.</summary>
+        <div class="ground-qa-body">Passion almost never precedes competence. It follows it. This is well established in motivation research — Cal Newport's <em>So Good They Can't Ignore You</em> synthesises decades of work showing that the "passion hypothesis" (find what you love, then pursue it) is empirically backwards. The people who appear passionate became good first, then their brains rewrote the story as love. <strong>You haven't reached the competence stage yet</strong>. Expecting passion before competence is like expecting a tree before a seed. As for your peers — what you're comparing is their <em>visible enthusiasm</em> with your <em>internal emotional state</em>. That comparison is rigged.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>What if I'm wasting time on the wrong path?</summary>
+        <div class="ground-qa-body">At 17, no decision is irreversible. If you prepare seriously for CLAT and later pivot, you gain: reading speed, analytical reasoning, current affairs depth, focus discipline. These transfer to <strong>policy, civil services, journalism, management, consulting, academia</strong>. The skills are not the trap. <em>Indecision is the trap</em>. A capable student who stays in evaluation mode for two years loses far more than one who commits to a "merely fine" path and builds. The asymmetry strongly favours commitment.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But my interest fluctuates. Doesn't that mean something?</summary>
+        <div class="ground-qa-body">No. Interest <strong>always</strong> fluctuates. Hedonic adaptation is a fundamental neurological process — the brain habituates to any stimulus, including ones you genuinely care about. The honeymoon dies, the work begins. That's the same for medicine, engineering, music, sport, every serious pursuit. Treating daily interest fluctuation as a career signal is statistically equivalent to checking the weather to decide where to live. <em>Mild boredom is the texture of serious work</em>, not a warning sign.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>What if a new argument comes to me that I haven't considered?</summary>
+        <div class="ground-qa-body">It will. Your brain is a hypothesis factory. Given a topic, it generates infinite variations — the science-to-law MUN guy, the late-bloomer success story, the "what if I discover my true passion at 19" scenario. There is no final argument. There is only the next one. The fear that an unanswered argument silently entrenches is false: <strong>thoughts strengthen through engagement, not through passive presence</strong>. When the next argument comes, label it ("alternative scenario generation"), return to the task, and watch how quickly it loses weight. That's cognitive defusion — see Steven Hayes' ACT framework. It works.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>But what if the AI advice is wrong?</summary>
+        <div class="ground-qa-body">It could be. So could your teachers, your parents, your toppers, your seniors, your 17-year-old intuition. There is no oracle. The point was never to believe an advisor — it was to <strong>run the experiment</strong>. Six months of structured CLAT prep will give you real data: score trajectory, work tolerance, ability to improve with effort. That data is the only thing that resolves uncertainty. Refusing to run the experiment because the hypothesis <em>might</em> be wrong is not skepticism — it's avoidance dressed up as rigour.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>Some guy I know loves studying for CLAT. I don't. What does that mean?</summary>
+        <div class="ground-qa-body">It means he has a different nervous system, and possibly a different relationship with the word "love". Most people who say they love their prep mean: <em>I like being good at it. I like the structure. I like the identity it gives me.</em> They do not mean they wake up thrilled by editorials. You are comparing a public slogan to your private mental mess. That comparison was unfair the moment it started. <strong>Quiet commitment outlasts loud enthusiasm</strong> in every competitive exam ever measured.</div>
+      </details>
+
+      <details class="ground-qa">
+        <summary>I'm scared I'll commit and turn out to be ordinary.</summary>
+        <div class="ground-qa-body">This is the real fear under all the others. As long as you stay "still figuring it out", failure means "I wasn't trying" and success would mean "I was special". Committing exposes you to the possibility of trying hard and still being normal. <strong>That's the actual transition from gifted student to adult competitor</strong>, and almost every capable person resists it for as long as possible. The way through is not to argue with the fear. It is to act anyway, and let competence quietly redefine what "ordinary" means. You will not be ordinary. But the only path that proves it is the one where you stop negotiating with the doubt and start accumulating evidence.</div>
+      </details>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">The principles, anchored</p>
+
+      <p class="ground-anchor">1. Action quiets philosophy, not the other way around.</p>
+      <p class="ground-body">William James, the father of American psychology, observed that emotion follows action more reliably than action follows emotion. You will not think your way into commitment. You will <strong>act your way into clarity</strong>. The sequence is Commit → Effort → Evidence → Confidence, never the reverse.</p>
+
+      <p class="ground-anchor">2. Cognitive load destroys CLAT performance.</p>
+      <p class="ground-body">Working memory is finite. Every minute spent ruminating on "is this right?" is a minute stolen from the same system that has to process 120 questions in 120 minutes on exam day. <strong>Rumination is not free</strong>. It costs marks. Every uncertainty hour is a competitor's compounding hour you didn't take.</p>
+
+      <p class="ground-anchor">3. Decision postponement reduces anxiety.</p>
+      <p class="ground-body">CBT's "scheduled worry" technique: you assign career thinking to a fixed 30-minute slot once a week. Outside that window, when the doubt comes, the answer is <em>"Sunday. Not now."</em> Studies (Borkovec et al.) show this reduces intrusive thoughts, improves focus, and lowers baseline anxiety — without suppressing the thought, just <strong>containing it</strong>.</p>
+
+      <p class="ground-anchor">4. The exam is arithmetic, not destiny.</p>
+      <p class="ground-body">Top NLU aspirants accumulate 600–900 hours of serious preparation. That's it. Not passion, not lineage, not innate brilliance. Hours. Focused hours. Repeated. CLAT does not care about your relationship with your purpose. It measures <strong>accumulated skill under time pressure</strong>, and the only thing that produces accumulated skill is showing up.</p>
+    </div>
+
+    <div class="ground-section">
+      <p class="ground-section-label">Now, today</p>
+      <p class="ground-body" style="font-size:1.05rem;color:var(--parchment);">You don't have to feel sure. You don't have to feel passionate. You don't have to resolve the question of whether law is your forever. You only have to do <strong>today's work</strong>. The newspaper. The passages. The mocks. The vocabulary. Quietly, without inner commentary, without auditing yourself every paragraph. That's it. That's the whole job. Close this panel. Open the timer. Begin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer">
+  <p class="footer-mark">CLAT 2027 &middot; Lex Apparatus &middot; Preparation Dashboard</p>
+  <p class="footer-mark" id="footerDate">&mdash;</p>
+</footer>
+
+</div><!-- /wrap -->
+<script>
+/* ══ UTILITIES ══ */
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayKey(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function safeGet(k,fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
+function safeSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+
+/* ══ DATE ══ */
+function updateDate(){
+  var d=new Date();
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var s=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  var ld=document.getElementById('liveDate'); if(ld) ld.textContent=s;
+  document.getElementById('footerDate').textContent=s;
+}
+updateDate();
+
+/* ══ COUNTDOWN ══ */
+var targetUTC=Date.UTC(2026,11,6,3,30,0);
+function tickCD(){
+  var diff=targetUTC-Date.now();
+  if(diff<=0){['cDays','cHours','cMins','cSecs'].forEach(function(id){document.getElementById(id).textContent='00';});return;}
+  document.getElementById('cDays').textContent=String(Math.floor(diff/86400000));
+  document.getElementById('cHours').textContent=pad(Math.floor((diff%86400000)/3600000));
+  document.getElementById('cMins').textContent=pad(Math.floor((diff%3600000)/60000));
+  document.getElementById('cSecs').textContent=pad(Math.floor((diff%60000)/1000));
+}
+tickCD(); setInterval(tickCD,1000);
+
+/* ══ SEARCH ══ */
+document.getElementById('searchForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var q=document.getElementById('searchInput').value.trim();
+  if(q) window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
+});
+
+/* ══ TIMER ══ */
+/* ══ TIMER — wall-clock based, survives sleep / tab-switch / crash ══ */
+/* State model:
+   - timerAccumulatedMs: total ms accrued in previous start→pause cycles of this session
+   - timerStartedAt: timestamp (ms) when current run began, or null if paused
+   - Current elapsed = timerAccumulatedMs + (timerStartedAt ? Date.now() - timerStartedAt : 0)
+   State is persisted under 'clatTimerState' so reloads, crashes, or sleep don't lose progress. */
+var timerAccumulatedMs = 0;
+var timerStartedAt = null;
+var timerDisplayInterval = null;
+
+function timerStateLoad(){
+  var st = safeGet('clatTimerState', null);
+  if(st && typeof st === 'object'){
+    timerAccumulatedMs = st.accumulated || 0;
+    timerStartedAt = st.startedAt || null;
+  }
+}
+function timerStateSave(){
+  safeSet('clatTimerState', { accumulated: timerAccumulatedMs, startedAt: timerStartedAt });
+}
+function timerElapsedMs(){
+  return timerAccumulatedMs + (timerStartedAt ? (Date.now() - timerStartedAt) : 0);
+}
+function updateTimerDisplay(){
+  var total = Math.floor(timerElapsedMs() / 1000);
+  var h = Math.floor(total/3600), m = Math.floor((total%3600)/60), s = total%60;
+  var el = document.getElementById('timerDisplay');
+  if(el) el.textContent = pad(h)+':'+pad(m)+':'+pad(s);
+}
+function startTimer(){
+  if(timerStartedAt) return; /* already running */
+  timerStartedAt = Date.now();
+  timerStateSave();
+  document.getElementById('startBtn').classList.add('active');
+  document.getElementById('pauseBtn').classList.remove('active');
+  document.getElementById('timerDisplay').classList.add('running');
+  document.getElementById('timerStatus').textContent = 'Session in progress...';
+  if(timerDisplayInterval) clearInterval(timerDisplayInterval);
+  timerDisplayInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
+}
+function pauseTimer(){
+  if(!timerStartedAt) return;
+  timerAccumulatedMs += Date.now() - timerStartedAt;
+  timerStartedAt = null;
+  timerStateSave();
+  if(timerDisplayInterval){ clearInterval(timerDisplayInterval); timerDisplayInterval = null; }
+  document.getElementById('startBtn').classList.remove('active');
+  document.getElementById('pauseBtn').classList.add('active');
+  document.getElementById('timerDisplay').classList.remove('running');
+  document.getElementById('timerStatus').textContent = 'Paused';
+  updateTimerDisplay();
+}
+function saveTimer(){
+  if(timerStartedAt) pauseTimer();
+  var totalMs = timerAccumulatedMs;
+  if(totalMs < 1000) return;
+  var hrs = totalMs / 3600000;
+  var key = todayKey();
+  var data = safeGet('clatStudyData', {});
+  data[key] = (data[key] || 0) + hrs;
+  safeSet('clatStudyData', data);
+  timerAccumulatedMs = 0;
+  timerStartedAt = null;
+  timerStateSave();
+  updateTimerDisplay();
+  document.getElementById('startBtn').classList.remove('active');
+  document.getElementById('pauseBtn').classList.remove('active');
+  document.getElementById('timerDisplay').classList.remove('running');
+  document.getElementById('timerStatus').textContent = 'Ready to begin';
+  var fb = document.getElementById('saveFeedback');
+  fb.textContent = '✓ ' + hrs.toFixed(2) + 'h logged for today';
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* MANUAL HOURS — log/remove self-study time. sign=+1 add, sign=-1 subtract */
+function addManualHours(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var inp = document.getElementById('manualHoursInput');
+  var dateInp = document.getElementById('manualHoursDate');
+  var val = parseFloat(inp.value);
+  if(!val || val <= 0 || val > 24){
+    alert('Enter a valid number of hours (between 0 and 24).');
+    return;
+  }
+  var key = (dateInp.value || todayKey());
+  var data = safeGet('clatStudyData', {});
+  var current = data[key] || 0;
+  var next = current + (sign * val);
+  if(next < 0){
+    if(!confirm('That would put ' + key + ' below zero. Clear the day instead?')){ return; }
+    delete data[key];
+  } else if(next < 0.01){
+    delete data[key];
+  } else {
+    data[key] = Math.round(next * 100) / 100;
+  }
+  safeSet('clatStudyData', data);
+  inp.value = '';
+  var fb = document.getElementById('manualHoursFeedback');
+  fb.textContent = (sign > 0 ? '✓ Added ' : '✓ Removed ') + val.toFixed(2) + 'h ' + (sign > 0 ? 'to ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* CLASS HOURS — tracked separately, in red */
+function addClassHours(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var inp = document.getElementById('classHoursInput');
+  var dateInp = document.getElementById('classHoursDate');
+  var val = parseFloat(inp.value);
+  if(!val || val <= 0 || val > 24){
+    alert('Enter a valid number of class hours (between 0 and 24).');
+    return;
+  }
+  var key = (dateInp.value || todayKey());
+  var data = safeGet('clatClassData', {});
+  var current = data[key] || 0;
+  var next = current + (sign * val);
+  if(next < 0){
+    if(!confirm('That would put class hours for ' + key + ' below zero. Clear the day instead?')){ return; }
+    delete data[key];
+  } else if(next < 0.01){
+    delete data[key];
+  } else {
+    data[key] = Math.round(next * 100) / 100;
+  }
+  safeSet('clatClassData', data);
+  inp.value = '';
+  var fb = document.getElementById('classHoursFeedback');
+  fb.textContent = (sign > 0 ? '✓ Logged ' : '✓ Removed ') + val.toFixed(2) + 'h of class ' + (sign > 0 ? 'for ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3500);
+  renderStudyChart();
+}
+
+/* Restore timer on page load */
+timerStateLoad();
+if(timerStartedAt){
+  document.getElementById('startBtn').classList.add('active');
+  document.getElementById('pauseBtn').classList.remove('active');
+  document.getElementById('timerDisplay').classList.add('running');
+  document.getElementById('timerStatus').textContent = 'Session in progress...';
+  if(timerDisplayInterval) clearInterval(timerDisplayInterval);
+  timerDisplayInterval = setInterval(updateTimerDisplay, 1000);
+} else if(timerAccumulatedMs > 0){
+  document.getElementById('pauseBtn').classList.add('active');
+  document.getElementById('timerStatus').textContent = 'Paused';
+}
+updateTimerDisplay();
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden) updateTimerDisplay();
+});
+/* Default the date inputs to today */
+(function(){
+  var today = todayKey();
+  var d1 = document.getElementById('manualHoursDate');
+  if(d1) d1.value = today;
+  var d2 = document.getElementById('classHoursDate');
+  if(d2) d2.value = today;
+})();
+
+/* ══ STUDY CHART ══ */
+var studyChartInst=null;
+function renderStudyChart(){
+  var studyData = safeGet('clatStudyData', {});
+  var classData = safeGet('clatClassData', {});
+
+  /* Union of keys from both datasets, last 21 days */
+  var allKeysSet = {};
+  Object.keys(studyData).forEach(function(k){ allKeysSet[k] = 1; });
+  Object.keys(classData).forEach(function(k){ allKeysSet[k] = 1; });
+  var keys = Object.keys(allKeysSet).sort().slice(-21);
+  var labels = keys.map(function(k){ var p = k.split('-'); return p[2]+'/'+p[1]; });
+  var studyVals = keys.map(function(k){ return parseFloat((studyData[k] || 0).toFixed(2)); });
+  var classVals = keys.map(function(k){ return parseFloat((classData[k] || 0).toFixed(2)); });
+  /* For visual stacking: plot the classes line at (study + class) so it sits on top of study line.
+     The red area fills only the slice between the two lines. */
+  var stackedTopVals = keys.map(function(k, i){
+    return parseFloat(((studyData[k] || 0) + (classData[k] || 0)).toFixed(2));
+  });
+
+  /* Scroll list — recent days shown individually; days older than the current
+     week are collapsed into weekly AVERAGES so the list doesn't grow forever. */
+  var sl = document.getElementById('studyScrollList'); sl.innerHTML = '';
+  (function(){
+    /* Gather every dated entry across both datasets */
+    var allDates = {};
+    Object.keys(studyData).forEach(function(k){ allDates[k]=1; });
+    Object.keys(classData).forEach(function(k){ allDates[k]=1; });
+    var dates = Object.keys(allDates).sort(); /* ascending */
+    if(!dates.length) return;
+
+    /* "This week" = the last 7 calendar days from today. Anything on/after the
+       cutoff stays a daily row; older entries are bucketed by ISO week. */
+    var cutoff = new Date(); cutoff.setHours(0,0,0,0); cutoff.setDate(cutoff.getDate()-6);
+    function parseD(k){ var p=k.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+    function weekKey(d){
+      /* ISO-ish: year + week number, Monday-start */
+      var dt=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      var day=(dt.getDay()+6)%7; /* Mon=0 */
+      dt.setDate(dt.getDate()-day); /* Monday of that week */
+      return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    }
+
+    var recent=[], weekBuckets={};
+    dates.forEach(function(k){
+      var d=parseD(k);
+      if(d >= cutoff){ recent.push(k); }
+      else {
+        var wk=weekKey(d);
+        if(!weekBuckets[wk]) weekBuckets[wk]={ sSum:0, cSum:0, days:0, sDays:0, cDays:0 };
+        var b=weekBuckets[wk];
+        var s=studyData[k]||0, c=classData[k]||0;
+        b.sSum+=s; b.cSum+=c; b.days++;
+        if(s>0) b.sDays++; if(c>0) b.cDays++;
+      }
+    });
+
+    /* Render recent days first (newest at top) */
+    recent.slice().reverse().forEach(function(k){
+      var s = studyData[k] || 0, c = classData[k] || 0;
+      var row = document.createElement('div'); row.className = 'study-entry-row';
+      var vals = '<span class="study-entry-vals">';
+      if(s > 0) vals += '<span style="color:var(--accent);">'+s.toFixed(2)+'h study</span>'
+        + '<button class="study-del-btn" onclick="deleteStudyDay(\''+k+'\')" title="Remove study hours">&#10005;</button>';
+      if(c > 0) vals += '<span style="color:#bc8a5f;margin-left:0.5rem;">'+c.toFixed(2)+'h class</span>'
+        + '<button class="study-del-btn class-del" onclick="deleteClassDay(\''+k+'\')" title="Remove class hours">&#10005;</button>';
+      vals += '</span>';
+      row.innerHTML = '<span>'+k+'</span>'+vals;
+      sl.appendChild(row);
+    });
+
+    /* Then weekly averages (most recent week first) */
+    var weekKeys=Object.keys(weekBuckets).sort().reverse();
+    if(weekKeys.length){
+      var hdr=document.createElement('div');
+      hdr.className='study-week-header';
+      hdr.textContent='Earlier weeks · daily average';
+      sl.appendChild(hdr);
+    }
+    weekKeys.forEach(function(wk){
+      var b=weekBuckets[wk];
+      var avgS=b.sDays? (b.sSum/b.sDays):0; /* average over days that had entries */
+      var avgC=b.cDays? (b.cSum/b.cDays):0;
+      var wkDate=parseD(wk);
+      var wkEnd=new Date(wkDate); wkEnd.setDate(wkEnd.getDate()+6);
+      var lbl='Wk of '+(wkDate.getDate())+'/'+(wkDate.getMonth()+1);
+      var row=document.createElement('div'); row.className='study-entry-row study-week-row';
+      var vals='<span class="study-entry-vals">';
+      if(avgS>0) vals+='<span style="color:var(--accent);">'+avgS.toFixed(1)+'h/d study</span>';
+      if(avgC>0) vals+='<span style="color:#bc8a5f;margin-left:0.5rem;">'+avgC.toFixed(1)+'h/d class</span>';
+      vals+='</span>';
+      row.innerHTML='<span title="Average per active day, week of '+wk+'">'+lbl+'</span>'+vals;
+      sl.appendChild(row);
+    });
+  })();
+
+  var ctx = document.getElementById('studyChart').getContext('2d');
+  if(studyChartInst) studyChartInst.destroy();
+  if(keys.length === 0) return;
+
+  /* Y-axis cap: default 10, grow if stack exceeds */
+  var maxStack = 10;
+  keys.forEach(function(k, i){
+    var t = studyVals[i] + classVals[i];
+    if(t > maxStack) maxStack = Math.ceil(t + 1);
+  });
+
+  studyChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Self-study',
+          data: studyVals,
+          borderColor: '#7a8471',
+          backgroundColor: 'rgba(122,132,113,0.12)',
+          pointBackgroundColor: '#7a8471',
+          pointBorderColor: '#f4f1ea',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: 'origin',
+          tension: 0.4,
+          borderWidth: 1.5
+        },
+        {
+          label: 'Classes',
+          data: stackedTopVals,
+          borderColor: '#bc8a5f',
+          backgroundColor: 'rgba(188,138,95,0.16)',
+          pointBackgroundColor: '#bc8a5f',
+          pointBorderColor: '#f4f1ea',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: '-1',
+          tension: 0.4,
+          borderWidth: 1.5,
+          rawClass: classVals
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#ffffff',
+          borderColor: 'rgba(122,132,113,0.4)',
+          borderWidth: 1,
+          titleColor: '#7a8471',
+          bodyColor: '#3a3530',
+          titleFont: { family: 'Inter', size: 10 },
+          bodyFont: { family: 'Pretendard', size: 13 },
+          callbacks: {
+            label: function(ctx){
+              if(ctx.dataset.label === 'Classes' && ctx.dataset.rawClass){
+                return 'Classes: ' + ctx.dataset.rawClass[ctx.dataIndex].toFixed(2) + 'h';
+              }
+              return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + 'h';
+            },
+            footer: function(items){
+              var s = 0, c = 0;
+              items.forEach(function(it){
+                if(it.dataset.label === 'Self-study') s = it.parsed.y;
+                else if(it.dataset.rawClass) c = it.dataset.rawClass[it.dataIndex];
+              });
+              return 'Total: ' + (s + c).toFixed(2) + 'h';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#a39c8f', font: { family: 'Inter', size: 9 }, maxRotation: 45 },
+          grid: { color: 'rgba(120,110,90,0.08)' }
+        },
+        y: {
+          min: 0, max: maxStack,
+          ticks: { color: '#a39c8f', font: { family: 'Inter', size: 9 }, callback: function(v){ return v + 'h'; } },
+          grid: { color: 'rgba(120,110,90,0.08)' }
+        }
+      }
+    }
+  });
+}
+
+function deleteStudyDay(key){
+  var data=safeGet('clatStudyData',{});
+  delete data[key]; safeSet('clatStudyData',data); renderStudyChart();
+}
+function deleteClassDay(key){
+  var data=safeGet('clatClassData',{});
+  delete data[key]; safeSet('clatClassData',data); renderStudyChart();
+}
+renderStudyChart();
+
+/* ══ CHECKLIST ══ */
+var TASKS_BASE=[
+  {id:'newspaper',label:'Newspaper + Vocabulary',tag:'daily'},
+  {id:'gkf1',label:'GK Fiesta Topic 1',tag:'daily'},
+  {id:'gkf2',label:'GK Fiesta Topic 2',tag:'daily'},
+  {id:'ailet',label:'AILET Topics for GK Fiesta',tag:'daily'},
+  {id:'rotate',label:'Legal / CR / English — pick one, no repeat',tag:'daily'},
+  {id:'qt',label:'QT',tag:'daily'},
+];
+var TASK_SAT={id:'gkftest',label:'GK Fiesta Test',tag:'sat'};
+var TASK_SUN={id:'mockanalysis',label:'Mock Analysis',tag:'sun'};
+var DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function chkKey(){ return 'clatChklist_'+todayKey(); }
+function customKey(){ return 'clatChkCustom'; }
+function hiddenKey(){ return 'clatChkHidden_'+todayKey(); }
+
+function renderChecklist(){
+  var dayEl=document.getElementById('checklistDay');
+  if(!dayEl) return; /* checklist removed from this build */
+  var day=new Date().getDay();
+  dayEl.textContent=DAY_NAMES[day];
+  var tasks=TASKS_BASE.slice();
+  if(day===6) tasks.push(TASK_SAT);
+  if(day===0) tasks.push(TASK_SUN);
+  var customs=safeGet(customKey(),[]);
+  customs.forEach(function(c){ tasks.push({id:'custom_'+c.id,label:c.label,tag:'custom',cid:c.id}); });
+  /* Hide tasks the user removed for today (per-day map) */
+  var hidden = safeGet(hiddenKey(), {});
+  tasks = tasks.filter(function(t){ return !hidden[t.id]; });
+  var saved=safeGet(chkKey(),{});
+  var list=document.getElementById('chkList'); list.innerHTML='';
+  tasks.forEach(function(t){
+    var done=!!saved[t.id];
+    var row=document.createElement('div');
+    row.className='chk-row'+(done?' done':'');
+    row.setAttribute('role','button'); row.setAttribute('tabindex','0');
+    var tagCls=t.tag==='sat'?'tag-sat':t.tag==='sun'?'tag-sun':t.tag==='custom'?'tag-custom':'tag-daily';
+    var tagLbl=t.tag==='sat'?'Sat':t.tag==='sun'?'Sun':t.tag==='custom'?'Custom':'Daily';
+    var delAction = t.tag==='custom'
+      ? 'deleteCustomTask(\''+t.cid+'\')'
+      : 'hidePresetTaskToday(\''+t.id+'\')';
+    var delBtn = '<button class="chk-del-btn" title="Remove from today\'s list" onclick="event.stopPropagation();'+delAction+'">&#10005;</button>';
+    row.innerHTML='<div class="chk-box'+(done?' done':'')+'" aria-hidden="true"></div>'
+      +'<span class="chk-label">'+t.label+'</span>'
+      +'<span class="chk-tag '+tagCls+'">'+tagLbl+'</span>'
+      +delBtn;
+    row.addEventListener('click',function(){toggleTask(t.id);});
+    row.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleTask(t.id);}});
+    list.appendChild(row);
+  });
+  if(tasks.length === 0){
+    var hint = document.createElement('div');
+    hint.className = 'chk-empty-hint';
+    hint.innerHTML = 'All tasks removed for today. <button class="chk-restore-link" onclick="restoreTodaysTasks()">Restore presets</button>';
+    list.appendChild(hint);
+  }
+}
+
+function toggleTask(id){
+  var saved=safeGet(chkKey(),{}); saved[id]=!saved[id];
+  safeSet(chkKey(),saved); renderChecklist();
+}
+
+function addCustomTask(){
+  var inp=document.getElementById('chkNewTask');
+  var label=inp.value.trim(); if(!label) return;
+  var customs=safeGet(customKey(),[]);
+  customs.push({id:Date.now(),label:label});
+  safeSet(customKey(),customs); inp.value=''; renderChecklist();
+}
+
+function deleteCustomTask(cid){
+  var customs=safeGet(customKey(),[]);
+  customs=customs.filter(function(c){return c.id!=cid;});
+  safeSet(customKey(),customs); renderChecklist();
+}
+
+/* Hide a preset task for today only */
+function hidePresetTaskToday(id){
+  var hidden = safeGet(hiddenKey(), {});
+  hidden[id] = true;
+  safeSet(hiddenKey(), hidden);
+  renderChecklist();
+}
+function restoreTodaysTasks(){
+  safeSet(hiddenKey(), {});
+  renderChecklist();
+}
+
+function resetChecklist(){ safeSet(chkKey(),{}); safeSet(hiddenKey(),{}); renderChecklist(); }
+
+var _chkNew=document.getElementById('chkNewTask');
+if(_chkNew) _chkNew.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();addCustomTask();}
+});
+renderChecklist();
+
+/* ══ MOCK TRACKER ══ */
+var mockChartInst=null;
+var mockData=safeGet('clatMockData',[]);
+var dragSrcIdx=null;
+
+function addMock(){
+  var name=document.getElementById('mockName').value.trim();
+  var pct=parseFloat(document.getElementById('mockPct').value);
+  if(!name||isNaN(pct)||pct<0||pct>100)return;
+  mockData.push({name:name,pct:pct});
+  safeSet('clatMockData',mockData);
+  document.getElementById('mockName').value='';
+  document.getElementById('mockPct').value='';
+  renderMock();
+}
+
+function delMock(i){ mockData.splice(i,1); safeSet('clatMockData',mockData); renderMock(); }
+
+function renderMock(){
+  var list=document.getElementById('mockEntriesList'); list.innerHTML='';
+  mockData.forEach(function(m,i){
+    var row=document.createElement('div');
+    row.className='mock-entry-row';
+    row.draggable=true;
+    row.innerHTML='<span class="drag-handle" title="Drag to reorder">&#8597;</span>'
+      +'<span class="mock-entry-name">'+m.name+'</span>'
+      +'<span class="mock-entry-pct">'+m.pct.toFixed(1)+'%ile</span>'
+      +'<button class="mock-del-btn" onclick="delMock('+i+')">&#10005;</button>';
+    row.addEventListener('dragstart',function(){dragSrcIdx=i;row.classList.add('dragging');});
+    row.addEventListener('dragend',function(){row.classList.remove('dragging');document.querySelectorAll('.mock-entry-row').forEach(function(r){r.classList.remove('drag-over');});});
+    row.addEventListener('dragover',function(e){e.preventDefault();row.classList.add('drag-over');});
+    row.addEventListener('dragleave',function(){row.classList.remove('drag-over');});
+    row.addEventListener('drop',function(e){
+      e.preventDefault(); row.classList.remove('drag-over');
+      if(dragSrcIdx===null||dragSrcIdx===i)return;
+      var moved=mockData.splice(dragSrcIdx,1)[0];
+      mockData.splice(i,0,moved);
+      safeSet('clatMockData',mockData); renderMock();
+    });
+    list.appendChild(row);
+  });
+
+  if(mockData.length>0){
+    var best=Math.max.apply(null,mockData.map(function(m){return m.pct;}));
+    var latest=mockData[mockData.length-1].pct;
+    document.getElementById('mockCount').textContent=mockData.length+' mock'+(mockData.length===1?'':'s')+' logged';
+    document.getElementById('mockBest').textContent='Best: '+best.toFixed(1)+'%ile  ·  Latest: '+latest.toFixed(1)+'%ile';
+  } else {
+    document.getElementById('mockCount').textContent='No entries yet';
+    document.getElementById('mockBest').textContent='—';
+  }
+
+  var ctx=document.getElementById('mockChart').getContext('2d');
+  if(mockChartInst) mockChartInst.destroy();
+  if(mockData.length===0)return;
+  var labels=mockData.map(function(m){return m.name;});
+  var vals=mockData.map(function(m){return m.pct;});
+  var minVal=Math.min.apply(null,vals);
+  var yMin=minVal<50?Math.max(0,Math.floor(minVal/10)*10):50;
+
+  mockChartInst=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[{
+      label:'Percentile',data:vals,
+      borderColor:'#7a8471',backgroundColor:'rgba(122,132,113,0.10)',
+      pointBackgroundColor:'#5a9e7a',pointBorderColor:'#f4f1ea',pointBorderWidth:1,
+      pointRadius:5,pointHoverRadius:7,fill:true,tension:0.35,borderWidth:1.5
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#ffffff',borderColor:'rgba(122,132,113,0.4)',borderWidth:1,
+        titleColor:'#7a8471',bodyColor:'#3a3530',
+        titleFont:{family:'Inter',size:10},bodyFont:{family:'Pretendard',size:13},
+        callbacks:{label:function(c){return c.parsed.y.toFixed(1)+'%ile';}}
+      }},
+      scales:{
+        x:{ticks:{color:'#a39c8f',font:{family:'Inter',size:9},maxRotation:40},grid:{color:'rgba(120,110,90,0.08)'}},
+        y:{min:yMin,max:100,ticks:{color:'#a39c8f',font:{family:'Inter',size:9},callback:function(v){return v+'%';}},grid:{color:'rgba(120,110,90,0.08)'}}
+      }
+    }
+  });
+}
+renderMock();
+
+/* ══ PDF VIEWER ══ */
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+var pdfDoc=null, pdfCurPage=1, pdfTotalPages=1, pdfScale=1.5, pdfFsOpen=false;
+var pdfHighlights={}; /* {pageNum: [{text, rects}]} */
+var pdfSearchResults=[], pdfSearchIdx=0;
+var pdfRenderToken=0; /* guards against stale async renders during fast nav */
+
+var _pdfFile=document.getElementById('pdfFileInput');
+if(_pdfFile) _pdfFile.addEventListener('change', function(e){
+  var file=e.target.files[0]; if(!file) return;
+  window.__pdfName=file.name;
+  var fr=new FileReader();
+  fr.onload=function(ev){
+    var data=new Uint8Array(ev.target.result);
+    pdfjsLib.getDocument({data:data}).promise.then(function(pdf){
+      pdfDoc=pdf; pdfTotalPages=pdf.numPages; pdfCurPage=1;
+      pdfSearchResults=[]; pdfSearchIdx=0; syncSearchInputs('');
+      document.getElementById('pdfSearchCount').textContent='';
+      document.getElementById('pdfSearchCountFs').textContent='';
+      document.getElementById('pdfEmpty').style.display='none';
+      document.getElementById('pdfViewerWrap').style.display='block';
+      document.getElementById('pdfPageNav').style.display='flex';
+      updatePageUI();
+      renderPDFPage();
+    }).catch(function(err){ alert('Could not load PDF: '+err.message); });
+  };
+  fr.readAsArrayBuffer(file);
+});
+
+function updatePageUI(){
+  var t='/ '+pdfTotalPages;
+  document.getElementById('pdfPageTotal').textContent=t;
+  document.getElementById('pdfPageTotalFs').textContent=t;
+  document.getElementById('pdfPageInput').value=pdfCurPage;
+  document.getElementById('pdfPageInputFs').value=pdfCurPage;
+  var z=Math.round(pdfScale*100)+'%';
+  document.getElementById('pdfZoomVal').textContent=z;
+  document.getElementById('pdfZoomValFs').textContent=z;
+}
+
+function renderPDFPage(){
+  if(!pdfDoc) return;
+  var token=++pdfRenderToken;
+  pdfDoc.getPage(pdfCurPage).then(function(page){
+    if(token!==pdfRenderToken) return;
+    var vp=page.getViewport({scale:pdfScale});
+    /* normal canvas */
+    var canvas=document.getElementById('pdfCanvas');
+    canvas.width=vp.width; canvas.height=vp.height;
+    page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise.then(function(){
+      if(token!==pdfRenderToken) return;
+      renderTextLayer(page,vp,'pdfTextLayer',false,token);
+    });
+    /* fs canvas if open */
+    if(pdfFsOpen){
+      var cfs=document.getElementById('pdfCanvasFs');
+      cfs.width=vp.width; cfs.height=vp.height;
+      page.render({canvasContext:cfs.getContext('2d'),viewport:vp}).promise.then(function(){
+        if(token!==pdfRenderToken) return;
+        renderTextLayer(page,vp,'pdfTextLayerFs',true,token);
+      });
+    }
+    updatePageUI();
+  });
+}
+
+function renderTextLayer(page, vp, layerId, isFs, token){
+  page.getTextContent().then(function(tc){
+    if(token!==undefined && token!==pdfRenderToken) return;
+    /* keep the whole page's plain text so a captured highlight carries its context */
+    try{ window.__pdfPageText = (tc.items||[]).map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim(); }catch(e){}
+    var layer=document.getElementById(layerId);
+    layer.innerHTML='';
+    layer.style.width=vp.width+'px';
+    layer.style.height=vp.height+'px';
+    /* CRITICAL for pdf.js v3: the text layer positions its spans using this
+       CSS variable. Without it the spans collapse to zero scale — making the
+       text both invisible AND impossible to select. */
+    layer.style.setProperty('--scale-factor', vp.scale);
+    var done=function(){
+      if(token!==undefined && token!==pdfRenderToken) return;
+      redrawHighlights();
+      if(pdfSearchResults.length) highlightSearchInLayer();
+    };
+    try {
+      /* v3.11 renamed the param to textContentSource; keep textContent as fallback */
+      var task=pdfjsLib.renderTextLayer({
+        textContentSource:tc,
+        textContent:tc,
+        container:layer,
+        viewport:vp,
+        textDivs:[]
+      });
+      if(task && task.promise && typeof task.promise.then==='function'){
+        task.promise.then(done).catch(function(){ setTimeout(done,150); });
+      } else {
+        setTimeout(done,150);
+      }
+    } catch(e){ setTimeout(done,150); }
+  });
+}
+
+function changePDFPage(d){
+  var np=pdfCurPage+d;
+  if(np>=1&&np<=pdfTotalPages){ pdfCurPage=np; renderPDFPage(); }
+}
+
+/* page input */
+function setupPageInputs(){
+  ['pdfPageInput','pdfPageInputFs'].forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    el.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){
+        var v=parseInt(this.value);
+        if(v>=1&&v<=pdfTotalPages){ pdfCurPage=v; renderPDFPage(); }
+      }
+    });
+  });
+}
+setupPageInputs();
+
+function zoomPDF(delta){
+  pdfScale=Math.max(0.5,Math.min(4,pdfScale+delta));
+  renderPDFPage();
+}
+
+function zoomFit(){
+  if(!pdfDoc) return;
+  pdfDoc.getPage(pdfCurPage).then(function(page){
+    var vp=page.getViewport({scale:1});
+    var wrap=document.getElementById(pdfFsOpen?'pdfFsViewer':'pdfViewerWrap');
+    pdfScale=(wrap.clientWidth-32)/vp.width;
+    renderPDFPage();
+  });
+}
+
+/* ── HIGHLIGHTS ── */
+/* Stores the GEOMETRY of the actual selection (one rect per visual line),
+   normalised to unscaled page units. Redraw just re-scales those rects.
+   No text re-searching => a highlight only ever covers what you selected. */
+function applyHighlight(){
+  var sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed) return;
+  var selectedText=sel.toString().trim();
+  if(!selectedText) return;
+
+  var range=sel.getRangeAt(0);
+  /* find which text layer the selection lives in */
+  var node=range.commonAncestorContainer;
+  if(node.nodeType===3) node=node.parentNode;
+  var layer=node.closest && node.closest('.pdf-text-layer, .pdf-text-layer-fs');
+  if(!layer) return;
+  var layerBox=layer.getBoundingClientRect();
+
+  /* getClientRects() returns one rect per line fragment of the selection */
+  var clientRects=range.getClientRects();
+  var rects=[];
+  for(var i=0;i<clientRects.length;i++){
+    var r=clientRects[i];
+    if(r.width<1||r.height<1) continue;
+    rects.push({
+      x:(r.left-layerBox.left)/pdfScale,
+      y:(r.top -layerBox.top )/pdfScale,
+      w:r.width /pdfScale,
+      h:r.height/pdfScale
+    });
+  }
+  if(!rects.length) return;
+
+  if(!pdfHighlights[pdfCurPage]) pdfHighlights[pdfCurPage]=[];
+  pdfHighlights[pdfCurPage].push({rects:rects,text:selectedText});
+  safeSet('pdfHL',pdfHighlights);
+  sel.removeAllRanges();
+  redrawHighlights();
+}
+
+function redrawHighlights(){
+  ['pdfTextLayer','pdfTextLayerFs'].forEach(function(layerId){
+    var layer=document.getElementById(layerId); if(!layer) return;
+    layer.querySelectorAll('.highlight-mark').forEach(function(el){el.remove();});
+    var pageHL=pdfHighlights[pdfCurPage]||[];
+    pageHL.forEach(function(h){
+      if(!h.rects||!h.rects.length) return; /* only geometry-anchored highlights */
+      h.rects.forEach(function(rc){
+        var div=document.createElement('div');
+        div.className='highlight-mark';
+        div.style.left=(rc.x*pdfScale)+'px';
+        div.style.top=(rc.y*pdfScale)+'px';
+        div.style.width=(rc.w*pdfScale)+'px';
+        div.style.height=(rc.h*pdfScale)+'px';
+        layer.appendChild(div);
+      });
+    });
+  });
+}
+
+function clearHighlights(){
+  pdfHighlights[pdfCurPage]=[];
+  safeSet('pdfHL',pdfHighlights);
+  redrawHighlights();
+}
+
+/* ── SEARCH ──
+   Results are a flat, ordered list of {page, local} where `local` is the
+   0-based occurrence index WITHIN that page. Counting here uses the same
+   per-item substring scan that the box renderer uses per-span, so the
+   counts and the on-page boxes always line up. */
+function syncSearchInputs(v){
+  document.getElementById('pdfSearchInput').value=v;
+  document.getElementById('pdfSearchInputFs').value=v;
+}
+function getSearchQuery(){
+  var a=document.getElementById('pdfSearchInput').value;
+  var b=document.getElementById('pdfSearchInputFs').value;
+  /* whichever is non-empty (the one the user just typed into) */
+  var v=(document.activeElement && document.activeElement.id==='pdfSearchInputFs')?b:(a||b);
+  return v.trim();
+}
+function pdfSearchRun(){
+  var q=getSearchQuery();
+  syncSearchInputs(q);
+  var ql=q.toLowerCase();
+  if(!pdfDoc||!ql){ pdfSearchResults=[]; pdfSearchIdx=0; clearSearchMarks(); updateSearchCount(); return; }
+  var results=[];
+  var chain=Promise.resolve();
+  for(var p=1;p<=pdfTotalPages;p++){
+    (function(pg){
+      chain=chain.then(function(){
+        return pdfDoc.getPage(pg).then(function(page){
+          return page.getTextContent().then(function(tc){
+            var local=0;
+            tc.items.forEach(function(it){
+              var s=(it.str||'').toLowerCase();
+              var from=0, pos;
+              while((pos=s.indexOf(ql,from))!==-1){
+                results.push({page:pg,local:local++}); from=pos+ql.length;
+              }
+            });
+          });
+        });
+      });
+    })(p);
+  }
+  chain.then(function(){
+    pdfSearchResults=results; pdfSearchIdx=0;
+    updateSearchCount();
+    if(results.length){
+      if(results[0].page!==pdfCurPage){ pdfCurPage=results[0].page; renderPDFPage(); }
+      else { highlightSearchInLayer(); }
+    } else {
+      clearSearchMarks();
+    }
+  });
+}
+
+function pdfSearchNav(d){
+  if(!pdfSearchResults.length) return;
+  pdfSearchIdx=(pdfSearchIdx+d+pdfSearchResults.length)%pdfSearchResults.length;
+  var r=pdfSearchResults[pdfSearchIdx];
+  updateSearchCount();
+  if(r.page!==pdfCurPage){ pdfCurPage=r.page; renderPDFPage(); }
+  else { highlightSearchInLayer(); }
+}
+
+function updateSearchCount(){
+  var txt='';
+  if(pdfSearchResults.length){
+    txt=(pdfSearchIdx+1)+' / '+pdfSearchResults.length;
+  } else if(getSearchQuery()){
+    txt='0 results';
+  }
+  document.getElementById('pdfSearchCount').textContent=txt;
+  document.getElementById('pdfSearchCountFs').textContent=txt;
+}
+
+function highlightSearchInLayer(){
+  var q=getSearchQuery().toLowerCase();
+  /* which page-local occurrence is the active one (if it's on this page) */
+  var cur=pdfSearchResults[pdfSearchIdx];
+  var currentLocal=(cur && cur.page===pdfCurPage)?cur.local:-1;
+  [['pdfTextLayer','pdfViewerWrap'],['pdfTextLayerFs','pdfFsViewer']].forEach(function(pair){
+    var layer=document.getElementById(pair[0]); if(!layer) return;
+    layer.querySelectorAll('.search-mark').forEach(function(el){el.remove();});
+    if(!q) return;
+    var lr=layer.getBoundingClientRect();
+    var local=0;            /* running occurrence index within this page */
+    var currentEl=null;
+    layer.querySelectorAll('span').forEach(function(span){
+      var node=span.firstChild;
+      if(!node||node.nodeType!==3) return;
+      var txt=node.textContent;
+      var lc=txt.toLowerCase();
+      var from=0,pos;
+      while((pos=lc.indexOf(q,from))!==-1){
+        try{
+          var range=document.createRange();
+          range.setStart(node,pos);
+          range.setEnd(node,pos+q.length);
+          var rects=range.getClientRects();
+          var isCurrent=(local===currentLocal);
+          for(var i=0;i<rects.length;i++){
+            var rc=rects[i];
+            if(rc.width<0.5||rc.height<0.5) continue;
+            var div=document.createElement('div');
+            div.className='search-mark'+(isCurrent?' current':'');
+            div.style.left=(rc.left-lr.left)+'px';
+            div.style.top=(rc.top-lr.top)+'px';
+            div.style.width=rc.width+'px';
+            div.style.height=rc.height+'px';
+            layer.appendChild(div);
+            if(isCurrent && !currentEl) currentEl=div;
+          }
+        }catch(e){}
+        local++; from=pos+q.length;
+      }
+    });
+    if(currentEl) scrollMarkIntoView(pair[1], currentEl);
+  });
+}
+
+/* scroll the active match into the middle of its scroll container */
+function scrollMarkIntoView(wrapId, el){
+  var wrap=document.getElementById(wrapId); if(!wrap) return;
+  var top=parseFloat(el.style.top)||0;
+  var h=parseFloat(el.style.height)||0;
+  var target=top-(wrap.clientHeight/2)+(h/2);
+  wrap.scrollTo({top:Math.max(0,target),behavior:'smooth'});
+}
+
+function clearSearchMarks(){
+  ['pdfTextLayer','pdfTextLayerFs'].forEach(function(layerId){
+    var layer=document.getElementById(layerId); if(!layer) return;
+    layer.querySelectorAll('.search-mark').forEach(function(el){el.remove();});
+  });
+}
+
+/* ── FULLSCREEN ── */
+function openPDFFullscreen(){
+  if(!pdfDoc) return;
+  pdfFsOpen=true;
+  document.getElementById('pdfFsOverlay').classList.add('open');
+  setTimeout(renderPDFPage,60);
+}
+function closePDFFullscreen(){
+  pdfFsOpen=false;
+  document.getElementById('pdfFsOverlay').classList.remove('open');
+}
+
+function closePDF(){
+  pdfRenderToken++; /* invalidate any in-flight renders */
+  pdfDoc=null; pdfHighlights={};
+  pdfSearchResults=[]; pdfSearchIdx=0;
+  pdfCurPage=1; pdfTotalPages=1; pdfScale=1.5;
+  closePDFFullscreen();
+  document.getElementById('pdfEmpty').style.display='block';
+  document.getElementById('pdfViewerWrap').style.display='none';
+  document.getElementById('pdfPageNav').style.display='none';
+  document.getElementById('pdfTextLayer').innerHTML='';
+  document.getElementById('pdfTextLayerFs').innerHTML='';
+  ['pdfCanvas','pdfCanvasFs'].forEach(function(id){
+    var c=document.getElementById(id);
+    if(c){ c.getContext('2d').clearRect(0,0,c.width,c.height); c.width=0; c.height=0; }
+  });
+  syncSearchInputs('');
+  document.getElementById('pdfSearchCount').textContent='';
+  document.getElementById('pdfSearchCountFs').textContent='';
+  /* reset the file input so re-uploading the same file fires change again */
+  document.getElementById('pdfFileInput').value='';
+  updatePageUI();
+}
+
+/* load saved highlights — keep ONLY geometry-anchored ones.
+   Old text-only entries are discarded (they were the cause of the
+   page-wide smear: a single common word re-matched dozens of spans). */
+var rawHL=safeGet('pdfHL',{});
+pdfHighlights={};
+Object.keys(rawHL).forEach(function(pg){
+  var arr=rawHL[pg];
+  if(Array.isArray(arr)){
+    var clean=arr.filter(function(h){ return h && Array.isArray(h.rects) && h.rects.length; });
+    if(clean.length) pdfHighlights[pg]=clean;
+  }
+});
+safeSet('pdfHL',pdfHighlights); /* persist cleaned set so corrupt old data is gone for good */
+
+/* keyboard shortcuts */
+document.addEventListener('keydown',function(e){
+  var tag=document.activeElement.tagName;
+  var inInput=tag==='INPUT'||tag==='TEXTAREA';
+  var inArticle=selectionInArticle();
+  if(!inInput&&(e.key==='h'||e.key==='H')&&(pdfDoc||inArticle)){
+    if(inArticle) highlightArticleSelection(); else applyHighlight();
+  }
+  if(!inInput&&(e.key==='g'||e.key==='G')&&!e.ctrlKey&&!e.metaKey&&(pdfDoc||inArticle)){
+    captureSelectionToFlashcards();
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='f'&&pdfDoc){
+    e.preventDefault(); openPDFFullscreen();
+  }
+  if(e.key==='Escape'&&pdfFsOpen){ closePDFFullscreen(); }
+  if(pdfDoc&&!inInput&&!e.ctrlKey&&!e.metaKey){
+    if(e.key==='ArrowRight'||e.key==='PageDown') changePDFPage(1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp') changePDFPage(-1);
+    if(e.key==='+'||e.key==='='){ e.preventDefault(); zoomPDF(0.25); }
+    if(e.key==='-'||e.key==='_'){ e.preventDefault(); zoomPDF(-0.25); }
+    if(e.key==='0'){ e.preventDefault(); zoomFit(); }
+    if(e.key==='c'||e.key==='C') clearHighlights();
+  }
+});
+
+var _pdfSearch=document.getElementById('pdfSearchInput');
+if(_pdfSearch) _pdfSearch.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); pdfSearchRun(); }
+});
+var _pdfSearchFs=document.getElementById('pdfSearchInputFs');
+if(_pdfSearchFs) _pdfSearchFs.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); pdfSearchRun(); }
+});
+
+/* ══ VOCAB ══ */
+function vocabKey(){ return 'clatVocab'; }
+function addVocab(){
+  var w=document.getElementById('vocabWord').value.trim();
+  var d=document.getElementById('vocabDef').value.trim();
+  if(!w) return;
+  var list=safeGet(vocabKey(),[]);
+  list.unshift({id:Date.now(),word:w,def:d});
+  safeSet(vocabKey(),list);
+  document.getElementById('vocabWord').value='';
+  document.getElementById('vocabDef').value='';
+  updateVocabCount();
+}
+document.getElementById('vocabWord').addEventListener('keydown',function(e){ if(e.key==='Enter') document.getElementById('vocabDef').focus(); });
+document.getElementById('vocabDef').addEventListener('keydown',function(e){ if(e.key==='Enter') addVocab(); });
+
+function deleteVocab(id){
+  var list=safeGet(vocabKey(),[]).filter(function(v){return v.id!==id;});
+  safeSet(vocabKey(),list);
+  updateVocabCount();
+  renderWordBank();
+}
+
+function updateVocabCount(){
+  var list=safeGet(vocabKey(),[]);
+  var badge=document.getElementById('vocabCountBadge');
+  if(badge) badge.textContent=list.length+' word'+(list.length!==1?'s':'')+' saved';
+}
+
+function escH(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+updateVocabCount();
+
+/* ══ WORD BANK OVERLAY ══ */
+function openWordBank(){
+  renderWordBank();
+  document.getElementById('wordBankOverlay').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function closeWordBank(){
+  document.getElementById('wordBankOverlay').style.display='none';
+  document.body.style.overflow='';
+}
+
+function renderWordBank(){
+  var q=(document.getElementById('wbSearch')||{}).value||'';
+  q=q.toLowerCase();
+  var list=safeGet(vocabKey(),[]);
+  if(q) list=list.filter(function(v){ return v.word.toLowerCase().includes(q)||v.def.toLowerCase().includes(q); });
+  // sort alphabetically
+  list=list.slice().sort(function(a,b){ return a.word.toLowerCase().localeCompare(b.word.toLowerCase()); });
+  var container=document.getElementById('wbAlphaList');
+  if(!container) return;
+  container.innerHTML='';
+  if(!list.length){
+    container.innerHTML='<p class="wb-empty">'+(q?'No matches.':'No words saved yet.')+'</p>';
+    return;
+  }
+  var grouped={};
+  list.forEach(function(v){
+    var letter=v.word.charAt(0).toUpperCase();
+    if(!/[A-Z]/.test(letter)) letter='#';
+    if(!grouped[letter]) grouped[letter]=[];
+    grouped[letter].push(v);
+  });
+  var letters=Object.keys(grouped).sort();
+  letters.forEach(function(letter){
+    var block=document.createElement('div'); block.className='wb-letter-block';
+    var head=document.createElement('div'); head.className='wb-letter-head'; head.textContent=letter;
+    block.appendChild(head);
+    grouped[letter].forEach(function(v){
+      var row=document.createElement('div'); row.className='wb-entry';
+      row.innerHTML='<span class="wb-word">'+escH(v.word)+'</span>'
+        +'<span class="wb-def">'+(v.def?escH(v.def):'&mdash;')+'</span>'
+        +'<button class="wb-del" onclick="deleteVocab('+v.id+')">&#10005;</button>';
+      block.appendChild(row);
+    });
+    container.appendChild(block);
+  });
+}
+
+/* ══ VOCAB LOOKUP (Anthropic API) ══ */
+var vlCurrentData = null;
+
+async function lookupVocab() {
+  var word = document.getElementById('vocabLookupInput').value.trim();
+  if (!word) return;
+  var btn = document.getElementById('vocabLookupBtn');
+  var spinner = document.getElementById('vocabLookupSpinner');
+  var err = document.getElementById('vocabLookupError');
+  var result = document.getElementById('vocabLookupResult');
+  btn.disabled = true;
+  spinner.classList.add('visible');
+  err.classList.remove('visible');
+  result.classList.remove('visible');
+  vlCurrentData = null;
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: 'Give me a complete vocabulary breakdown for the word: "' + word + '". Respond ONLY with a valid JSON object, no markdown, no backticks, no preamble. Schema: { "word": string, "simple_meaning": string (one plain sentence a child could understand), "definition": string (formal definition), "word_root": string (prefix/suffix/etymology/origin), "synonyms": string[] (5-7 words), "antonyms": string[] (4-6 words), "examples": string[] (exactly 3 example sentences using the word naturally) }'
+        }]
+      })
+    });
+    var data = await res.json();
+    var raw = data.content && data.content[0] && data.content[0].text;
+    if (!raw) throw new Error('No response');
+    var clean = raw.replace(/```json|```/g, '').trim();
+    var parsed = JSON.parse(clean);
+    vlCurrentData = parsed;
+    document.getElementById('vlWord').textContent = parsed.word || word;
+    document.getElementById('vlSimple').textContent = parsed.simple_meaning || '';
+    document.getElementById('vlDef').textContent = parsed.definition || '';
+    document.getElementById('vlRoot').textContent = parsed.word_root || '';
+    var synEl = document.getElementById('vlSyn'); synEl.innerHTML = '';
+    (parsed.synonyms || []).forEach(function(s) {
+      var t = document.createElement('span'); t.className = 'vocab-lookup-tag'; t.textContent = s;
+      synEl.appendChild(t);
+    });
+    var antEl = document.getElementById('vlAnt'); antEl.innerHTML = '';
+    (parsed.antonyms || []).forEach(function(a) {
+      var t = document.createElement('span'); t.className = 'vocab-lookup-tag'; t.textContent = a;
+      antEl.appendChild(t);
+    });
+    var exEl = document.getElementById('vlEx'); exEl.innerHTML = '';
+    (parsed.examples || []).forEach(function(e, i) {
+      var p = document.createElement('p');
+      p.style.cssText = 'margin-bottom:0.4rem;';
+      p.innerHTML = '<em>' + (i+1) + '.</em> ' + escH(e);
+      exEl.appendChild(p);
+    });
+    result.classList.add('visible');
+  } catch(e) {
+    err.textContent = 'Could not look up word. Check your connection.';
+    err.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    spinner.classList.remove('visible');
+  }
+}
+
+function saveFromLookup() {
+  if (!vlCurrentData) return;
+  var word = vlCurrentData.word || document.getElementById('vocabLookupInput').value.trim();
+  var def = vlCurrentData.simple_meaning || vlCurrentData.definition || '';
+  var list = safeGet(vocabKey(), []);
+  list.unshift({ id: Date.now(), word: word, def: def });
+  safeSet(vocabKey(), list);
+  updateVocabCount();
+  var btn = document.querySelector('.vocab-lookup-save-btn');
+  btn.textContent = '✓ Saved'; btn.style.color = 'var(--green)';
+  setTimeout(function() { btn.textContent = '+ Save to Bank'; btn.style.color = ''; }, 2000);
+}
+
+document.getElementById('vocabLookupInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') lookupVocab();
+});
+
+/* ══ READING FEED ══ */
+var FEED_SOURCES_KEY = 'clatFeedSources';
+var DEFAULT_FEED_SOURCES = [
+  { id: 1, label: 'Aeon', rss: 'https://aeon.co/feed.rss' },
+  { id: 2, label: 'The Economist', rss: 'https://www.economist.com/international/rss.xml' },
+  { id: 3, label: 'Bar & Bench', rss: 'https://barandbench.com/feed' },
+  { id: 4, label: 'Indian Express', rss: 'https://indianexpress.com/feed/' },
+  { id: 5, label: 'LiveLaw', rss: 'https://www.livelaw.in/rss-feed' },
+  { id: 6, label: 'The Hindu', rss: 'https://www.thehindu.com/feeder/default.rss' }
+];
+
+function getFeedSources(){
+  var stored = safeGet(FEED_SOURCES_KEY, null);
+  if(!stored){ safeSet(FEED_SOURCES_KEY, DEFAULT_FEED_SOURCES); return DEFAULT_FEED_SOURCES; }
+  return stored;
+}
+
+function addFeedSource(){
+  var url = (document.getElementById('feedNewUrl').value||'').trim();
+  var label = (document.getElementById('feedNewLabel').value||'').trim();
+  if(!url) return;
+  if(!label) label = url.replace(/https?:\/\/(www\.)?/,'').split('/')[0];
+  /* guess RSS URL */
+  var rss = url.replace(/\/$/, '') + '/feed';
+  var sources = getFeedSources();
+  sources.push({ id: Date.now(), label: label, rss: rss });
+  safeSet(FEED_SOURCES_KEY, sources);
+  document.getElementById('feedNewUrl').value='';
+  document.getElementById('feedNewLabel').value='';
+  renderFeedSourceList();
+}
+
+function deleteFeedSource(id){
+  var sources = getFeedSources().filter(function(s){ return s.id !== id; });
+  safeSet(FEED_SOURCES_KEY, sources);
+  renderFeedSourceList();
+}
+
+function renderFeedSourceList(){
+  var el = document.getElementById('feedSourceList'); if(!el) return;
+  var sources = getFeedSources();
+  el.innerHTML = '';
+  sources.forEach(function(s){
+    var row = document.createElement('div'); row.className = 'feed-source-row';
+    row.innerHTML = '<span style="color:var(--accent-dim);min-width:110px;">'+escH(s.label)+'</span>'
+      +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escH(s.rss||s.url||'')+'</span>'
+      +'<button class="feed-src-del" onclick="deleteFeedSource('+s.id+')">&#10005;</button>';
+    el.appendChild(row);
+  });
+}
+
+function openFeedManager(){
+  var el = document.getElementById('feedManager');
+  var open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  if(!open) renderFeedSourceList();
+}
+
+function parseRSSXml(xmlText){
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(xmlText, 'text/xml');
+  var items = Array.from(doc.querySelectorAll('item')).slice(0,3);
+  if(!items.length) items = Array.from(doc.querySelectorAll('entry')).slice(0,3);
+  return items.map(function(item){
+    var title = (item.querySelector('title')||{}).textContent||'';
+    var link = (item.querySelector('link')||{}).textContent
+      || (item.querySelector('link')||{}).getAttribute('href') || '#';
+    var desc = (item.querySelector('description')||item.querySelector('summary')||{}).textContent||'';
+    desc = desc.replace(/<[^>]+>/g,'').trim().slice(0,130);
+    return { title: title.trim(), url: link.trim(), desc: desc };
+  });
+}
+
+var feedArticles = [];
+var feedLoading = false;
+
+async function fetchFeedSource(s){
+  var rssUrl = s.rss || s.url;
+  var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(rssUrl);
+  var resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(9000) });
+  var json = await resp.json();
+  var items = parseRSSXml(json.contents || '');
+  return items.map(function(item){ return Object.assign({source: s.label}, item); });
+}
+
+async function refreshFeed(){
+  if(feedLoading) return;
+  if(!navigator.onLine){
+    document.getElementById('feedOffline').style.display='block';
+    document.getElementById('feedGrid').style.display='none';
+    document.getElementById('feedEmpty').style.display='none';
+    document.getElementById('feedStatus').textContent='Offline';
+    return;
+  }
+  document.getElementById('feedOffline').style.display='none';
+  document.getElementById('feedEmpty').style.display='none';
+  document.getElementById('feedGrid').style.display='grid';
+  feedLoading=true;
+  var btn=document.getElementById('feedRefreshBtn');
+  btn.textContent='Loading\u2026'; btn.disabled=true;
+  document.getElementById('feedStatus').textContent='Fetching articles\u2026';
+
+  var sources = getFeedSources();
+  feedArticles = [];
+
+  var results = await Promise.allSettled(sources.map(fetchFeedSource));
+  results.forEach(function(r){
+    if(r.status==='fulfilled' && r.value) feedArticles=feedArticles.concat(r.value);
+  });
+
+  feedLoading=false;
+  btn.innerHTML='&#8635; Refresh'; btn.disabled=false;
+  renderFeedGrid();
+}
+
+function renderFeedGrid(){
+  var grid = document.getElementById('feedGrid');
+  var empty = document.getElementById('feedEmpty');
+  grid.innerHTML='';
+  if(!feedArticles.length){
+    grid.style.display='none';
+    empty.style.display='block';
+    document.getElementById('feedStatus').textContent='Could not load articles — check connection';
+    return;
+  }
+  grid.style.display='grid';
+  empty.style.display='none';
+  document.getElementById('feedStatus').textContent=feedArticles.length+' article'+(feedArticles.length!==1?'s':'');
+  feedArticles.forEach(function(a){
+    var card=document.createElement('div'); card.className='feed-card';
+    card.innerHTML='<span class="feed-card-source">'+escH(a.source)+'</span>'
+      +'<a class="feed-card-title" href="'+escH(a.url)+'" target="_blank" rel="noopener">'+escH(a.title)+'</a>'
+      +(a.desc?'<span class="feed-card-desc">'+escH(a.desc)+'&hellip;</span>':'');
+    grid.appendChild(card);
+  });
+}
+
+window.addEventListener('load', function(){
+  /* migrate old feed sources that used 'url' instead of 'rss' */
+  var stored = safeGet(FEED_SOURCES_KEY, null);
+  if(stored && stored.length && stored[0].url && !stored[0].rss){
+    safeSet(FEED_SOURCES_KEY, null); /* force reset to defaults */
+  }
+  if(navigator.onLine){ refreshFeed(); }
+  else {
+    document.getElementById('feedOffline').style.display='block';
+    document.getElementById('feedGrid').style.display='none';
+    document.getElementById('feedStatus').textContent='Offline';
+  }
+});
+window.addEventListener('online', function(){ refreshFeed(); });
+
+/* ─── Flashcards bridge: capture selected PDF text into the shared queue ─── */
+function flashToast(msg, isErr){
+  var t=document.getElementById('labToast');
+  if(!t){ t=document.createElement('div'); t.id='labToast'; document.body.appendChild(t); }
+  t.textContent=msg; t.className=isErr?'err show':'show';
+  clearTimeout(window.__toastT);
+  window.__toastT=setTimeout(function(){ t.className=t.className.replace('show','').trim(); }, 2600);
+}
+function captureSelectionToFlashcards(){
+  var sel=window.getSelection();
+  var text=sel?sel.toString().trim():'';
+  if(!text){ flashToast('Select some text first', true); return; }
+  var inArticle=selectionInArticle();
+  /* grab the surrounding text so the AI understands what the highlight is about */
+  var context='';
+  try{
+    if(inArticle){
+      var body=document.getElementById('articleBody');
+      context = body ? body.textContent.replace(/\s+/g,' ').trim() : '';
+    } else {
+      context = window.__pdfPageText || '';
+    }
+  }catch(e){}
+  if(context.length>2800) context=context.slice(0,2800);
+  var topicEl=document.getElementById('activeTopic');
+  var topic=topicEl?topicEl.value.trim():'';
+  var q=safeGet('clatCardQueue', []);
+  q.push({
+    id:'cap_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    text:text,
+    context:context,
+    topic:topic,
+    page:(inArticle? null : (typeof pdfCurPage!=='undefined'?pdfCurPage:null)),
+    source:(inArticle ? (window.__artTitle||'Article') : (window.__pdfName||'PDF')),
+    ts:Date.now(),
+    status:'raw'
+  });
+  safeSet('clatCardQueue', q);
+  try{ if(inArticle) highlightArticleSelection(); else applyHighlight(); }catch(e){}
+  renderCaptureBox();
+  flashToast('Captured with context (' + q.length + ' waiting) \u00b7 turn into flashcards on the Recall page');
+}
+
+/* capture box (lives with the PDF viewer) */
+function escHtmlSafe(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderCaptureBox(){
+  var q=safeGet('clatCardQueue', []);
+  var cnt=document.getElementById('captureCount'); if(cnt) cnt.textContent=q.length;
+  var list=document.getElementById('captureList'); if(!list) return;
+  if(!q.length){ list.innerHTML='<div class="capture-empty">Highlight text in the PDF or article above, press <strong style="color:var(--accent);">G</strong>, and it collects here.</div>'; return; }
+  list.innerHTML='';
+  q.slice().reverse().forEach(function(it){
+    var row=document.createElement('div'); row.className='capture-item';
+    var meta=escHtmlSafe(it.source||'Capture')+(it.page?' &middot; p.'+it.page:'')+(it.topic?' &middot; '+escHtmlSafe(it.topic):'');
+    row.innerHTML='<span class="cx">'+meta+'</span><span class="ctext">'+escHtmlSafe(it.text)+'</span><button onclick="removeCapture(\''+it.id+'\')">Remove</button>';
+    list.appendChild(row);
+  });
+}
+function removeCapture(id){
+  var q=safeGet('clatCardQueue', []).filter(function(x){ return x.id!==id; });
+  safeSet('clatCardQueue', q); renderCaptureBox();
+}
+
+/* article reader */
+function selectionInArticle(){
+  var sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed) return false;
+  var node=sel.anchorNode; if(node&&node.nodeType===3) node=node.parentNode;
+  return !!(node&&node.closest&&node.closest('#articleBody'));
+}
+function renderArticle(){
+  var raw=document.getElementById('artInput').value.trim();
+  if(!raw){ flashToast('Paste the article text first', true); return; }
+  var title=document.getElementById('artTitle').value.trim();
+  window.__artTitle = title || 'Article';
+  var paras=raw.split(/\n{2,}|\n/).map(function(p){ return p.trim(); }).filter(Boolean);
+  var html=(title? '<h3>'+escHtmlSafe(title)+'</h3>' : '') + paras.map(function(p){ return '<p>'+escHtmlSafe(p)+'</p>'; }).join('');
+  var body=document.getElementById('articleBody');
+  body.innerHTML=html; body.classList.add('on');
+  flashToast('Ready \u00b7 select text, then H to highlight or G to capture');
+}
+function highlightArticleSelection(){
+  var sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed) return;
+  var range=sel.getRangeAt(0);
+  try{
+    var mark=document.createElement('mark');
+    mark.appendChild(range.extractContents());
+    range.insertNode(mark);
+    sel.removeAllRanges();
+  }catch(e){}
+}
+function clearArticleMarks(){
+  var body=document.getElementById('articleBody');
+  body.querySelectorAll('mark').forEach(function(m){
+    var t=document.createTextNode(m.textContent); m.parentNode.replaceChild(t, m);
+  });
+  body.normalize();
+}
+async function fetchArticle(){
+  var url=document.getElementById('artUrl').value.trim();
+  if(!url){ flashToast('Paste a link first', true); return; }
+  if(!/^https?:\/\//.test(url)){ flashToast('Link must start with http', true); return; }
+  var status=document.getElementById('artFetchStatus');
+  status.textContent='Fetching\u2026';
+  try{
+    var proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    var resp=await fetch(proxy, { signal: AbortSignal.timeout(12000) });
+    var json=await resp.json();
+    var htmlText=json.contents||'';
+    var doc=new DOMParser().parseFromString(htmlText, 'text/html');
+    var t=doc.querySelector('h1');
+    if(t && !document.getElementById('artTitle').value.trim()) document.getElementById('artTitle').value=t.textContent.trim();
+    var ps=Array.prototype.slice.call(doc.querySelectorAll('p'))
+      .map(function(p){ return p.textContent.replace(/\s+/g,' ').trim(); })
+      .filter(function(s){ return s.length>40; });
+    if(!ps.length){ status.textContent='Could not read that link, paste the text instead'; return; }
+    document.getElementById('artInput').value=ps.join('\n\n');
+    status.textContent='Fetched '+ps.length+' paragraphs, press Read';
+    renderArticle();
+  }catch(e){
+    status.textContent='Link blocked by the site, copy and paste the text instead';
+  }
+}
+
+function saveActiveTopic(){ try{ localStorage.setItem('clatActiveTopic', document.getElementById('activeTopic').value); }catch(e){} }
+(function(){ try{ var v=localStorage.getItem('clatActiveTopic'); if(v!=null){ var el=document.getElementById('activeTopic'); if(el) el.value=v; } }catch(e){} })();
+renderCaptureBox();
+window.addEventListener('storage', function(e){ if(e.key==='clatCardQueue') renderCaptureBox(); });
+
+/* ══ READING STREAK ══ */
+var readingChartInst = null;
+
+function getReadingData(){ return safeGet('clatReadingData', {}); }
+function setReadingData(d){ safeSet('clatReadingData', d); }
+function getReadingBook(){ return safeGet('clatReadingBook', ''); }
+function setReadingBook(b){ safeSet('clatReadingBook', b); }
+
+function ymd(d){
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function computeReadingStreak(){
+  var data = getReadingData();
+  if(!data || !Object.keys(data).length) return 0;
+  var streak = 0;
+  var d = new Date();
+  var todayK = ymd(d);
+  /* If today not logged yet, count from yesterday so streak doesn't preemptively drop */
+  if(!hasReadingEntry(data, todayK)){
+    d.setDate(d.getDate() - 1);
+  }
+  while(true){
+    var k = ymd(d);
+    if(hasReadingEntry(data, k)){
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
+function hasReadingEntry(data, key){
+  var e = data[key];
+  if(!e) return false;
+  var pgs = (typeof e === 'object') ? (e.pages || 0) : e;
+  return pgs > 0;
+}
+
+function updateReadingStreakBadge(){
+  var s = computeReadingStreak();
+  var badge = document.getElementById('rsStreakBadge');
+  if(badge){
+    badge.textContent = s;
+    badge.classList.remove('cold', 'fire');
+    if(s === 0) badge.classList.add('cold');
+    else if(s >= 7) badge.classList.add('fire');
+  }
+  var num = document.getElementById('readingStreakNum');
+  if(num) num.textContent = s;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+function refreshReadingBookCurrent(){
+  var book = getReadingBook();
+  var el = document.getElementById('readingBookCurrent');
+  if(!el) return;
+  el.innerHTML = book ? 'Currently reading: <strong>' + escapeHtml(book) + '</strong>' : '';
+}
+
+function openReading(){
+  document.getElementById('readingOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('readingBookInput').value = getReadingBook();
+  refreshReadingBookCurrent();
+  document.getElementById('readingPagesDate').value = todayKey();
+  document.getElementById('readingPagesInput').value = '';
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+function closeReading(){
+  document.getElementById('readingOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function saveReadingBook(){
+  var inp = document.getElementById('readingBookInput');
+  var v = (inp.value || '').trim();
+  setReadingBook(v);
+  refreshReadingBookCurrent();
+  var fb = document.getElementById('readingFeedback');
+  fb.textContent = v ? '✓ Book saved' : '✓ Book cleared';
+  setTimeout(function(){ fb.textContent = ''; }, 2500);
+}
+
+function addReadingEntry(sign){
+  sign = (sign < 0) ? -1 : 1;
+  var pgInp = document.getElementById('readingPagesInput');
+  var dInp = document.getElementById('readingPagesDate');
+  var pages = parseInt(pgInp.value, 10);
+  if(!pages || pages <= 0 || pages > 2000){
+    alert('Enter a valid page count (1–2000).');
+    return;
+  }
+  var key = (dInp.value || todayKey());
+  var data = getReadingData();
+  var existing = data[key];
+  var current = (typeof existing === 'object' && existing) ? (existing.pages || 0) : (existing || 0);
+  var next = current + sign * pages;
+  if(next < 0){
+    if(!confirm('That would put ' + key + ' below zero. Clear the entry?')){ return; }
+    delete data[key];
+  } else if(next === 0){
+    delete data[key];
+  } else {
+    var book = getReadingBook();
+    data[key] = { pages: next, book: book || (typeof existing === 'object' ? existing.book : '') };
+  }
+  setReadingData(data);
+  pgInp.value = '';
+  var fb = document.getElementById('readingFeedback');
+  fb.textContent = (sign > 0 ? '✓ Logged ' : '✓ Removed ') + pages + ' page' + (pages === 1 ? '' : 's') + ' ' + (sign > 0 ? 'on ' : 'from ') + key;
+  setTimeout(function(){ fb.textContent = ''; }, 3000);
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+function deleteReadingDay(key){
+  var data = getReadingData();
+  delete data[key];
+  setReadingData(data);
+  updateReadingStreakBadge();
+  renderReadingChart();
+}
+
+function renderReadingChart(){
+  var data = getReadingData();
+  var keys = Object.keys(data).sort().slice(-21);
+  var labels = keys.map(function(k){ var p = k.split('-'); return p[2]+'/'+p[1]; });
+  var vals = keys.map(function(k){
+    var e = data[k];
+    return (typeof e === 'object') ? (e.pages || 0) : (e || 0);
+  });
+
+  var list = document.getElementById('readingEntriesList');
+  if(list){
+    list.innerHTML = '';
+    if(!keys.length){
+      var hint = document.createElement('div');
+      hint.className = 'reading-empty-hint';
+      hint.textContent = 'No entries yet. Log your first session above.';
+      list.appendChild(hint);
+    } else {
+      keys.slice().reverse().forEach(function(k){
+        var e = data[k];
+        var pgs = (typeof e === 'object') ? (e.pages || 0) : (e || 0);
+        var bk = (typeof e === 'object' && e.book) ? e.book : '';
+        var row = document.createElement('div'); row.className = 'reading-entry-row';
+        row.innerHTML = '<span>'+k+'</span>'
+          + '<span class="reading-entry-book" title="'+escapeHtml(bk)+'">'+escapeHtml(bk || '—')+'</span>'
+          + '<span class="reading-entry-pages">'+pgs+' pg</span>'
+          + '<button class="reading-entry-del" onclick="deleteReadingDay(\''+k+'\')" title="Remove this entry">&#10005;</button>';
+        list.appendChild(row);
+      });
+    }
+  }
+
+  var canvas = document.getElementById('readingChart');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if(readingChartInst) readingChartInst.destroy();
+  if(!keys.length) return;
+
+  var maxV = 10;
+  vals.forEach(function(v){ if(v > maxV) maxV = v; });
+  maxV = Math.ceil(maxV * 1.15);
+
+  readingChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Pages',
+        data: vals,
+        borderColor: 'rgba(140,190,255,1)',
+        backgroundColor: 'rgba(80,150,255,0.12)',
+        pointBackgroundColor: 'rgba(140,190,255,1)',
+        pointBorderColor: '#f4f1ea',
+        pointBorderWidth: 1,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: 'origin',
+        tension: 0.4,
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#ffffff',
+          borderColor: 'rgba(80,150,255,0.4)',
+          borderWidth: 1,
+          titleColor: 'rgba(140,190,255,1)',
+          bodyColor: '#3a3530',
+          titleFont: { family: 'Inter', size: 10 },
+          bodyFont: { family: 'Pretendard', size: 13 },
+          callbacks: {
+            label: function(ctx){
+              var k = keys[ctx.dataIndex];
+              var entry = data[k];
+              var book = (typeof entry === 'object' && entry.book) ? entry.book : '';
+              var line = ctx.parsed.y + ' page' + (ctx.parsed.y === 1 ? '' : 's');
+              if(book) line += '  ·  ' + book;
+              return line;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#a39c8f', font: { family: 'Inter', size: 9 }, maxRotation: 45 },
+          grid: { color: 'rgba(120,110,90,0.08)' }
+        },
+        y: {
+          min: 0, max: maxV,
+          ticks: { color: '#6a6050', font: { family: 'Inter', size: 9 } },
+          grid: { color: 'rgba(120,110,90,0.08)' }
+        }
+      }
+    }
+  });
+}
+
+updateReadingStreakBadge();
+setInterval(updateReadingStreakBadge, 60 * 60 * 1000);
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('readingOverlay').classList.contains('open')){
+    var tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    closeReading();
+  }
+});
+(function(){
+  var pi = document.getElementById('readingPagesInput');
+  if(pi) pi.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); addReadingEntry(1); }
+  });
+  var bi = document.getElementById('readingBookInput');
+  if(bi) bi.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); saveReadingBook(); }
+  });
+})();
+
+/* ══ GROUND (rumination reassurance panel) ══ */
+function openGround(){
+  document.getElementById('groundOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeGround(){
+  document.getElementById('groundOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.querySelectorAll('#groundOverlay .ground-qa[open]').forEach(function(d){ d.removeAttribute('open'); });
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('groundOverlay').classList.contains('open')){
+    var tag = document.activeElement && document.activeElement.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    closeGround();
+  }
+});
+
+
+</script>
+<div id="labToast"></div>
+</body>
+</html>
