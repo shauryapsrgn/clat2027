@@ -4949,7 +4949,10 @@ function frPayload(){
     hoursToday: Math.round(((study[today] || 0) + (cls[today] || 0)) * 100) / 100,
     hours7: Math.round(hours7 * 100) / 100,
     hoursTotal: Math.round(hoursTotal * 100) / 100,
-    mocks: mockData.slice(-15).map(function(m){ return { name: m.name, pct: m.pct }; }),
+    /* every mock, not a trailing window — the comparison chart plots the
+       whole history. (200 is a sanity ceiling for the Firestore doc size,
+       not a display limit you will ever reach.) */
+    mocks: mockData.slice(-200).map(function(m){ return { name: m.name, pct: m.pct }; }),
     mockCount: mockData.length,
     bestPct: pcts.length ? Math.max.apply(null, pcts) : 0,
     latestPct: pcts.length ? pcts[pcts.length - 1] : 0,
@@ -5062,8 +5065,15 @@ function frCompare(mode){
     };
   } else if (frCmpMode === 'mocks'){
     var maxN = Math.max.apply(null, frPeers.map(function(p){ return (p.mocks || []).length; }));
+    /* label from whoever has taken the most, so the axis carries real names */
+    var longest = frPeers.slice().sort(function(a, b){
+      return ((b.mocks || []).length) - ((a.mocks || []).length);
+    })[0];
     var lbl = [];
-    for (var n = 1; n <= Math.max(maxN, 1); n++) lbl.push('Mock ' + n);
+    for (var n = 1; n <= Math.max(maxN, 1); n++){
+      var nm = longest && longest.mocks && longest.mocks[n - 1] && longest.mocks[n - 1].name;
+      lbl.push(nm || ('Mock ' + n));
+    }
     cfg = {
       type: 'line',
       data: { labels: lbl, datasets: frPeers.map(function(p, i){
@@ -5076,7 +5086,10 @@ function frCompare(mode){
         };
       }) },
       options: { responsive: true, maintainAspectRatio: false,
-        scales: { y: { title: { display: true, text: 'percentile' }, suggestedMin: 40, suggestedMax: 100 } },
+        scales: {
+          y: { title: { display: true, text: 'percentile' }, suggestedMin: 40, suggestedMax: 100 },
+          x: { ticks: { autoSkip: true, maxRotation: 45, minRotation: 0 } }
+        },
         plugins: { legend: { position: 'bottom' } } }
     };
   } else {
