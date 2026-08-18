@@ -890,6 +890,49 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
 .fr-compare-wrap { margin-top: 1.4rem; }
 .fr-status { font-family: var(--sans); font-size: 0.8rem; color: var(--muted); margin-top: 0.7rem; min-height: 1em; }
 
+
+/* ═══ FOUNDRY — compact, in-column ═══ */
+.gk-periods { display: flex; gap: 0.35rem; margin-top: 0.9rem; flex-wrap: wrap; }
+.gk-period {
+  font-family: var(--sans); font-size: 0.76rem; padding: 0.35rem 0.7rem; cursor: pointer;
+  background: none; border: 1px solid var(--line); color: var(--muted); border-radius: var(--radius-sm);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.gk-period:hover { color: var(--accent-deep); border-color: var(--border-hover); }
+.gk-period.active { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--accent-deep); }
+.gk-group { border-bottom: 1px solid var(--line); }
+.gk-group:last-child { border-bottom: none; }
+.gk-group-head {
+  width: 100%; display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 0;
+  background: none; border: none; cursor: pointer; text-align: left; color: var(--ink);
+  font-family: var(--sans); font-size: 0.88rem;
+}
+.gk-group-head:hover { color: var(--accent-deep); }
+.gk-chev { display: inline-block; font-size: 0.7rem; color: var(--faint); transition: transform 0.2s var(--ease); }
+.gk-group.open .gk-chev { transform: rotate(90deg); }
+.gk-group-name { flex: 1; }
+.gk-group-count { font-size: 0.76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.gk-group-due { font-size: 0.74rem; color: var(--clay); }
+.gk-group-body { display: none; padding-bottom: 0.5rem; }
+.gk-group.open .gk-group-body { display: block; animation: fadeUp 0.25s var(--ease) both; }
+.gk-item { padding: 0.5rem 0 0.5rem 1.3rem; border-top: 1px solid var(--line); }
+.gk-item-q {
+  display: flex; gap: 0.5rem; align-items: flex-start; cursor: pointer;
+  font-family: var(--sans); font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5;
+}
+.gk-item-q:hover { color: var(--accent-deep); }
+.gk-item-a {
+  display: none; font-family: var(--sans); font-size: 0.84rem; color: var(--muted);
+  line-height: 1.6; margin-top: 0.4rem; padding-left: 0.2rem; border-left: 2px solid var(--accent-soft);
+  padding-left: 0.7rem;
+}
+.gk-item.open .gk-item-a { display: block; }
+.gk-item-foot { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.45rem; }
+.gk-item-topic { font-family: var(--sans); font-size: 0.72rem; color: var(--faint); flex: 1; }
+.gk-list-more { font-family: var(--sans); font-size: 0.78rem; color: var(--muted); padding: 0.7rem 0; }
+#gkList { margin-top: 0.6rem; border-top: 1px solid var(--line); max-height: 30rem; overflow-y: auto; overscroll-behavior: contain; }
+.gk-grades { gap: 0.35rem; }
+.gk-grade { min-width: 3.6rem; font-size: 0.78rem; padding: 0.55rem 0.3rem; }
 /* ═══════════════════════════════════════════════════════════════
    DESKTOP SCALE — everything a step larger on a real monitor
    ═══════════════════════════════════════════════════════════════ */
@@ -1022,6 +1065,27 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
     </div>
     <div class="study-scroll-list" id="studyScrollList"></div>
   </div>
+
+  <!-- TASK DIARY -->
+  <div class="grid-cell reveal">
+    <p class="section-label">Daily Record</p>
+    <p class="section-heading" style="margin-bottom:0.7rem;">Task Diary</p>
+    <div class="diary-nav" style="margin-bottom:0.9rem;">
+      <button class="pill-btn" onclick="diaryStep(-1)" title="Previous day">&larr;</button>
+      <input type="date" id="diaryDate" onchange="renderDiary()" />
+      <button class="pill-btn" onclick="diaryStep(1)" title="Next day">&rarr;</button>
+      <button class="pill-btn" onclick="diaryToday()">Today</button>
+    </div>
+    <div class="diary-add">
+      <input type="text" id="diaryTaskInput" placeholder="Add a task&hellip;" />
+      <button class="pill-btn primary" onclick="addDiaryTask()">+</button>
+    </div>
+    <div class="diary-list" id="diaryList"></div>
+    <p class="diary-streak" id="diaryStreak"></p>
+    <p class="wb-mini-label" style="margin-top:1.1rem;">Notes for the day</p>
+    <textarea class="diary-note" id="diaryNote" placeholder="What went well, what didn't, what carries over&hellip;"></textarea>
+    <p class="diary-saved" id="diarySaved"></p>
+  </div>
  </div><!-- /grid-col left -->
 
  <div class="grid-col grid-col--vocab">
@@ -1044,6 +1108,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
 
     <div class="wb-actions">
       <button class="vocab-viewall-btn" onclick="openWordBank()">&#9783;&nbsp; Word bank</button>
+      <button class="vocab-viewall-btn" onclick="openCards('due')">&#9673;&nbsp; Due cards</button>
       <button class="vocab-viewall-btn" onclick="openCards('today')">&#9635;&nbsp; Today's cards</button>
       <button class="vocab-viewall-btn" onclick="openCards('random')">&#8635;&nbsp; Random cards</button>
     </div>
@@ -1066,6 +1131,12 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
           <button class="vocab-lookup-btn" onclick="saveGroqKey()">Save</button>
         </div>
         <p class="key-status" id="groqKeyStatus"></p>
+        <p class="wb-mini-label" style="margin-top:0.7rem;">Model</p>
+        <div class="groq-key-row">
+          <select id="groqModelSelect" class="pill-btn" style="flex:1;" onchange="saveGroqModel()"></select>
+          <button class="pill-btn" onclick="refreshGroqModels(true)">Refresh</button>
+        </div>
+        <p class="key-status" id="groqModelStatus"></p>
       </div>
 
       <div class="vocab-lookup-row">
@@ -1104,6 +1175,59 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- CARD FOUNDRY -->
+  <div class="grid-cell reveal">
+    <div class="panel-head" style="margin-bottom:0.8rem;">
+      <div>
+        <p class="section-label">General Knowledge</p>
+        <p class="section-heading">Card Foundry</p>
+      </div>
+      <button class="key-pencil" onclick="toggleFoundryImport()" title="Import a sheet" aria-label="Import a sheet">&#8853;</button>
+    </div>
+    <p class="field-note" style="margin-bottom:0.9rem;">Feed it a NotebookLM export. It writes the cards, sorts them into genres, and brings back whatever you graded low.</p>
+
+    <div class="gk-import" id="gkImport" style="display:none;">
+      <div class="gk-drop">
+        <label class="gk-file-label" for="gkFile">Choose .xlsx or .csv&hellip;</label>
+        <input type="file" id="gkFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="gkFilePicked(event)" />
+        <span class="field-note" id="gkFileName">No file chosen</span>
+      </div>
+      <div class="gk-drop" style="margin-top:0.6rem;">
+        <select id="gkColumn" class="pill-btn" style="display:none;"></select>
+        <button class="pill-btn primary" id="gkBuildBtn" onclick="gkBuild()" style="display:none;">Build cards</button>
+      </div>
+      <div class="gk-bar" id="gkBar"><div class="gk-bar-fill" id="gkBarFill"></div></div>
+      <p class="gk-progress" id="gkProgress"></p>
+    </div>
+
+    <div class="stat-row" style="gap:1.1rem;">
+      <div class="stat-box"><div class="stat-num" id="gkTotal">0</div><div class="stat-lbl">cards</div></div>
+      <div class="stat-box"><div class="stat-num" id="gkDue">0</div><div class="stat-lbl">due</div></div>
+      <div class="stat-box"><div class="stat-num" id="gkMastered">0</div><div class="stat-lbl">at 5</div></div>
+      <div class="stat-box"><div class="stat-num" id="gkWeak">0</div><div class="stat-lbl">at 1&ndash;2</div></div>
+      <div class="stat-box"><div class="stat-num" id="gkGenreCount">0</div><div class="stat-lbl">genres</div></div>
+    </div>
+
+    <div class="wb-actions" style="margin-top:1rem;">
+      <button class="pill-btn primary" id="gkStudyBtn" onclick="openGk()">Study due</button>
+      <button class="pill-btn" onclick="gkExport()">Export</button>
+    </div>
+
+    <div class="vocab-search-wrap" style="margin-top:1rem;">
+      <input type="text" id="gkSearch" placeholder="Search topic, genre or question&hellip;" oninput="renderGk()" />
+    </div>
+
+    <div class="gk-periods" id="gkPeriods">
+      <button class="gk-period" data-p="day"   onclick="gkSetPeriod('day')">Today</button>
+      <button class="gk-period" data-p="week"  onclick="gkSetPeriod('week')">Week</button>
+      <button class="gk-period" data-p="month" onclick="gkSetPeriod('month')">Month</button>
+      <button class="gk-period active" data-p="all" onclick="gkSetPeriod('all')">All</button>
+    </div>
+
+    <div class="gk-genres" id="gkGenres"></div>
+    <div id="gkList"></div>
   </div>
  </div><!-- /grid-col vocab -->
 
@@ -1250,80 +1374,6 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
   </div>
   </div><!-- /main-grid (Mock Tracker section) -->
 
-
-  <!-- ═══ TASK DIARY ═══ -->
-  <div class="main-grid" style="padding-top:0;">
-  <div class="grid-cell full-col reveal">
-    <div class="panel-head">
-      <div>
-        <p class="section-label">Daily Record</p>
-        <p class="section-heading">Task Diary</p>
-      </div>
-      <div class="diary-nav">
-        <button class="pill-btn" onclick="diaryStep(-1)" title="Previous day">&larr;</button>
-        <input type="date" id="diaryDate" onchange="renderDiary()" />
-        <button class="pill-btn" onclick="diaryStep(1)" title="Next day">&rarr;</button>
-        <button class="pill-btn" onclick="diaryToday()">Today</button>
-      </div>
-    </div>
-    <div class="two-col">
-      <div>
-        <div class="diary-add">
-          <input type="text" id="diaryTaskInput" placeholder="Add a task for this day&hellip;" />
-          <button class="pill-btn primary" onclick="addDiaryTask()">+ Add</button>
-        </div>
-        <div class="diary-list" id="diaryList"></div>
-        <p class="diary-streak" id="diaryStreak"></p>
-      </div>
-      <div>
-        <p class="wb-mini-label">Notes for the day</p>
-        <textarea class="diary-note" id="diaryNote" placeholder="What went well, what didn't, what carries over to tomorrow&hellip;"></textarea>
-        <p class="diary-saved" id="diarySaved"></p>
-      </div>
-    </div>
-  </div>
-  </div>
-
-  <!-- ═══ GK FLASHCARD MAKER ═══ -->
-  <div class="main-grid" style="padding-top:0;">
-  <div class="grid-cell full-col reveal">
-    <div class="panel-head">
-      <div>
-        <p class="section-label">General Knowledge</p>
-        <p class="section-heading">Card Foundry</p>
-        <p class="field-note" style="margin-top:0.4rem;max-width:38rem;">Drop in the spreadsheet you export from NotebookLM. Each row becomes a set of cards, sorted into genres, and graded 1 to 5 &mdash; the lower the grade, the sooner it comes back.</p>
-      </div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-        <button class="pill-btn primary" id="gkStudyBtn" onclick="openGk()">Study due</button>
-        <button class="pill-btn" onclick="gkExport()">Export</button>
-      </div>
-    </div>
-
-    <div class="gk-import">
-      <div class="gk-drop">
-        <label class="gk-file-label" for="gkFile">Choose .xlsx or .csv&hellip;</label>
-        <input type="file" id="gkFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="gkFilePicked(event)" />
-        <span class="field-note" id="gkFileName">No file chosen</span>
-        <select id="gkColumn" class="pill-btn" style="display:none;"></select>
-        <button class="pill-btn primary" id="gkBuildBtn" onclick="gkBuild()" style="display:none;">Build cards with AI</button>
-      </div>
-      <div class="gk-bar" id="gkBar"><div class="gk-bar-fill" id="gkBarFill"></div></div>
-      <p class="gk-progress" id="gkProgress"></p>
-    </div>
-
-    <div class="stat-row" style="margin-top:1.3rem;">
-      <div class="stat-box"><div class="stat-num" id="gkTotal">0</div><div class="stat-lbl">cards</div></div>
-      <div class="stat-box"><div class="stat-num" id="gkDue">0</div><div class="stat-lbl">due now</div></div>
-      <div class="stat-box"><div class="stat-num" id="gkMastered">0</div><div class="stat-lbl">at 5</div></div>
-      <div class="stat-box"><div class="stat-num" id="gkWeak">0</div><div class="stat-lbl">at 1 or 2</div></div>
-      <div class="stat-box"><div class="stat-num" id="gkGenreCount">0</div><div class="stat-lbl">genres</div></div>
-    </div>
-
-    <p class="wb-mini-label" style="margin-top:1.4rem;">Genres</p>
-    <div class="gk-genres" id="gkGenres"></div>
-    <div class="gk-list" id="gkList"></div>
-  </div>
-  </div>
 
   <!-- ═══ FRIENDS ═══ -->
   <div class="main-grid" style="padding-top:0;">
@@ -1483,6 +1533,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
   <div class="fc-shell">
     <div class="fc-topbar">
       <div class="fc-modes">
+        <button class="fc-mode" id="fcModeDue" onclick="setCardMode('due')">Due</button>
         <button class="fc-mode" id="fcModeToday" onclick="setCardMode('today')">Today</button>
         <button class="fc-mode" id="fcModeRandom" onclick="setCardMode('random')">Random</button>
         <button class="fc-shuffle" onclick="shuffleCards()" title="Shuffle the deck">&#8635; Shuffle</button>
@@ -1518,10 +1569,20 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
         </div>
       </div>
 
-      <div class="fc-buttons">
+      <div class="fc-buttons" id="fcButtons">
         <button class="fc-btn" id="fcHintBtn" onclick="showHint()">Hint</button>
         <button class="fc-btn fc-btn-primary" id="fcRevealBtn" onclick="revealCard()">Show meaning</button>
         <button class="fc-btn fc-btn-quiet" id="fcEnrichBtn" onclick="enrichCurrentCard()">Fill in with AI</button>
+      </div>
+      <div id="fcGradeWrap" style="display:none;margin-top:1.5rem;">
+        <p class="gk-grade-label">How well did you know it?</p>
+        <div class="gk-grades">
+          <button class="gk-grade g1" onclick="vocabGrade(1)"><b>1</b>No idea</button>
+          <button class="gk-grade g2" onclick="vocabGrade(2)"><b>2</b>Barely</button>
+          <button class="gk-grade g3" onclick="vocabGrade(3)"><b>3</b>Shaky</button>
+          <button class="gk-grade g4" onclick="vocabGrade(4)"><b>4</b>Solid</button>
+          <button class="gk-grade g5" onclick="vocabGrade(5)"><b>5</b>By heart</button>
+        </div>
       </div>
       <p class="fc-note" id="fcNote"></p>
     </div>
@@ -2800,8 +2861,9 @@ function deleteVocab(id){
 function updateVocabCount(){
   var list = vocabList(), t = todayKey();
   var today = list.filter(function(v){ return (v.day || dayFromId(v.id)) === t; }).length;
+  var due = list.filter(vocabIsDue).length;
   var badge = document.getElementById('vocabCountBadge');
-  if (badge) badge.textContent = list.length + ' word' + (list.length !== 1 ? 's' : '') + ' saved · ' + today + ' added today';
+  if (badge) badge.textContent = list.length + ' word' + (list.length !== 1 ? 's' : '') + ' saved · ' + today + ' added today · ' + due + ' due';
 }
 
 function escH(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -2881,7 +2943,7 @@ function saveGroqKey(){
   var v = document.getElementById('groqKeyInput').value.trim();
   try { if (v) localStorage.setItem('clatGroqKey', v); else localStorage.removeItem('clatGroqKey'); } catch(e){}
   refreshGroqKeyStatus();
-  if (v) { document.getElementById('keyPanel').classList.remove('open'); flashToast('Key saved'); }
+  if (v) { flashToast('Key saved'); refreshGroqModels(false); }
 }
 function refreshGroqKeyStatus(){
   var has = !!getGroqKey();
@@ -2894,6 +2956,9 @@ function refreshGroqKeyStatus(){
   if (st) st.textContent = has ? 'Key connected.' : 'Lookups need a key.';
   var inp = document.getElementById('groqKeyInput');
   if (inp && has) inp.value = getGroqKey();
+  renderGroqModels();
+  var ms = document.getElementById('groqModelStatus');
+  if (ms && has && getGroqModel()) ms.textContent = 'Using ' + getGroqModel() + '.';
 }
 
 /* ══ DICTIONARY LOOKUP ═════════════════════════════════════════
@@ -2919,16 +2984,93 @@ function vocabPrompt(word){
     + ' "hint": string (one sentence that points at the meaning for someone trying to recall the word, WITHOUT using the word, any form of it, its root, or a direct synonym) }';
 }
 
-async function groqJSON(userPrompt){
+/* Groq retires models every few months and the old id then 400s. So the
+   model is never hardcoded: the list is fetched with your key, the best
+   available one is picked, and a retirement mid-use triggers one refresh
+   and retry rather than an error you have to decode. */
+var GROQ_MODEL_KEY = 'clatGroqModel';
+var GROQ_MODELS_CACHE_KEY = 'clatGroqModels';
+var GROQ_PREFERENCE = [
+  'openai/gpt-oss-120b',
+  'qwen/qwen3.6-27b',
+  'moonshotai/kimi-k2-instruct-0905',
+  'openai/gpt-oss-20b'
+];
+/* anything that is not a chat model, or is no use for JSON work */
+function groqIsChatModel(id){
+  return !/whisper|tts|guard|orpheus|embed|vision-preview|safeguard/i.test(id);
+}
+function getGroqModel(){
+  try { return localStorage.getItem(GROQ_MODEL_KEY) || ''; } catch(e){ return ''; }
+}
+function setGroqModel(id){
+  try { if (id) localStorage.setItem(GROQ_MODEL_KEY, id); } catch(e){}
+}
+function cachedGroqModels(){
+  var l = safeGet(GROQ_MODELS_CACHE_KEY, []);
+  return Array.isArray(l) ? l : [];
+}
+function pickGroqModel(ids){
+  for (var i = 0; i < GROQ_PREFERENCE.length; i++){
+    if (ids.indexOf(GROQ_PREFERENCE[i]) > -1) return GROQ_PREFERENCE[i];
+  }
+  var chat = ids.filter(groqIsChatModel);
+  return chat[0] || ids[0] || '';
+}
+async function refreshGroqModels(loud){
+  var st = document.getElementById('groqModelStatus');
   var key = getGroqKey();
-  if (!key) throw new Error('Add a Groq key first — the pencil beside "Dictionary lookup".');
+  if (!key){ if (st) st.textContent = 'Save a key first.'; return []; }
+  if (st) st.textContent = 'Checking which models your key can reach…';
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/models', {
+      headers: { 'Authorization': 'Bearer ' + key }
+    });
+    if (!res.ok) throw new Error('Model list refused (' + res.status + ')');
+    var data = await res.json();
+    var ids = (data.data || []).map(function(m){ return m.id; }).filter(groqIsChatModel).sort();
+    safeSet(GROQ_MODELS_CACHE_KEY, ids);
+    if (!getGroqModel() || ids.indexOf(getGroqModel()) === -1) setGroqModel(pickGroqModel(ids));
+    renderGroqModels();
+    if (st) st.textContent = ids.length + ' models available. Using ' + getGroqModel() + '.';
+    if (loud) flashToast('Model list refreshed');
+    return ids;
+  } catch(e){
+    if (st) st.textContent = 'Could not fetch the model list: ' + (e.message || 'unknown error');
+    return [];
+  }
+}
+function renderGroqModels(){
+  var sel = document.getElementById('groqModelSelect');
+  if (!sel) return;
+  var ids = cachedGroqModels();
+  var cur = getGroqModel();
+  if (!ids.length){
+    sel.innerHTML = '<option value="">Press Refresh to load models</option>';
+    return;
+  }
+  sel.innerHTML = ids.map(function(id){
+    return '<option value="' + escH(id) + '"' + (id === cur ? ' selected' : '') + '>' + escH(id) + '</option>';
+  }).join('');
+}
+function saveGroqModel(){
+  var sel = document.getElementById('groqModelSelect');
+  if (!sel || !sel.value) return;
+  setGroqModel(sel.value);
+  var st = document.getElementById('groqModelStatus');
+  if (st) st.textContent = 'Using ' + sel.value + '.';
+  flashToast('Model set to ' + sel.value);
+}
+
+async function groqCall(userPrompt, model){
+  var key = getGroqKey();
   var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: model,
       temperature: 0.3,
-      max_tokens: 1200,
+      max_tokens: 2000,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: VOCAB_SYSTEM },
@@ -2936,12 +3078,42 @@ async function groqJSON(userPrompt){
       ]
     })
   });
+  return res;
+}
+
+async function groqJSON(userPrompt){
+  var key = getGroqKey();
+  if (!key) throw new Error('Add a Groq key first — the pencil beside "Dictionary lookup".');
+
+  var model = getGroqModel();
+  if (!model){
+    var ids = await refreshGroqModels(false);
+    model = getGroqModel() || pickGroqModel(ids);
+    if (!model) throw new Error('No usable model found for this key. Open the pencil panel and press Refresh.');
+  }
+
+  var res = await groqCall(userPrompt, model);
+
+  /* model retired since we last looked — refresh the list and try once more */
+  if (!res.ok && (res.status === 400 || res.status === 404)){
+    var peek = '';
+    try { peek = JSON.stringify(await res.clone().json()); } catch(e){}
+    if (/decommission|does not exist|not found|deprecat/i.test(peek)){
+      var fresh = await refreshGroqModels(false);
+      var next = getGroqModel() || pickGroqModel(fresh);
+      if (next && next !== model){
+        flashToast('Switched to ' + next);
+        res = await groqCall(userPrompt, next);
+      }
+    }
+  }
+
   if (!res.ok){
     var errText = '';
     try { var ej = await res.json(); errText = (ej.error && ej.error.message) || ''; } catch(e){}
     if (res.status === 401) throw new Error('That key was rejected. Check it and save again.');
     if (res.status === 429) throw new Error('Rate limit reached. Wait a moment and try again.');
-    throw new Error(errText || ('Lookup failed (' + res.status + ').'));
+    throw new Error(errText || ('Request failed (' + res.status + ').'));
   }
   var data = await res.json();
   var raw = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
@@ -3046,13 +3218,38 @@ function shuffleArr(a){
   }
   return a;
 }
+function vocabIsDue(v){ return !v.vdue || v.vdue <= todayKey(); }
 function deckFor(mode){
   var list = vocabList();
   if (mode === 'today'){
     var t = todayKey();
     list = list.filter(function(v){ return (v.day || dayFromId(v.id)) === t; });
+  } else if (mode === 'due'){
+    list = list.filter(vocabIsDue);
   }
   return list.slice();
+}
+/* grade a word 1-5; the grade sets when it comes back, exactly as in the foundry */
+function vocabGrade(g){
+  var v = currentCard();
+  if (!v) return;
+  var list = vocabList();
+  for (var i = 0; i < list.length; i++){
+    if (list[i].id === v.id){
+      list[i].vlevel = g;
+      list[i].vreps = (list[i].vreps || 0) + 1;
+      list[i].vdue = gkAddDays(GK_INTERVALS[g] != null ? GK_INTERVALS[g] : 1);
+      v = list[i];
+      break;
+    }
+  }
+  vocabStore(list);
+  updateVocabCount();
+  if (g <= 2){
+    var at = Math.min(fcDeck.length, fcIdx + 4);
+    fcDeck.splice(at, 0, v);
+  }
+  stepCard(1);
 }
 function openCards(mode){
   setCardMode(mode || 'random');
@@ -3064,7 +3261,8 @@ function closeCards(){
   document.body.style.overflow = '';
 }
 function setCardMode(mode){
-  fcMode = (mode === 'today') ? 'today' : 'random';
+  fcMode = (mode === 'today' || mode === 'due') ? mode : 'random';
+  document.getElementById('fcModeDue').classList.toggle('active', fcMode === 'due');
   document.getElementById('fcModeToday').classList.toggle('active', fcMode === 'today');
   document.getElementById('fcModeRandom').classList.toggle('active', fcMode === 'random');
   fcDeck = deckFor(fcMode);
@@ -3121,13 +3319,18 @@ function renderCard(){
       + '</span>';
     document.getElementById('fcProgress').textContent = '';
     hintBtn.disabled = true; revealBtn.disabled = true; enrichBtn.style.display = 'none';
+    document.getElementById('fcGradeWrap').style.display = 'none';
+    document.getElementById('fcButtons').style.display = '';
     return;
   }
   hintBtn.disabled = false; revealBtn.disabled = false;
   document.getElementById('fcWord').textContent = v.word;
   var day = v.day || dayFromId(v.id);
-  document.getElementById('fcAdded').textContent = (day === todayKey() ? 'Added today' : 'Added ' + prettyDay(day));
+  var lvl = v.vlevel ? ' · level ' + v.vlevel : '';
+  document.getElementById('fcAdded').textContent = (day === todayKey() ? 'Added today' : 'Added ' + prettyDay(day)) + lvl;
   document.getElementById('fcProgress').textContent = (fcIdx + 1) + ' of ' + fcDeck.length;
+  document.getElementById('fcGradeWrap').style.display = 'none';
+  document.getElementById('fcButtons').style.display = '';
 
   var thin = !v.example || !(v.long || v.def);
   enrichBtn.style.display = (thin && getGroqKey()) ? '' : 'none';
@@ -3166,6 +3369,8 @@ function revealCard(){
   } else synBlock.style.display = 'none';
 
   document.getElementById('fcReveal').classList.add('visible');
+  document.getElementById('fcGradeWrap').style.display = '';
+  document.getElementById('fcButtons').style.display = 'none';
 }
 
 /* pull a proper definition, example and hint for a word saved by hand */
@@ -3205,6 +3410,9 @@ document.addEventListener('keydown', function(e){
   else if (e.key === 'h' || e.key === 'H'){ showHint(); }
   else if (e.key === 'ArrowRight'){ stepCard(1); }
   else if (e.key === 'ArrowLeft'){ stepCard(-1); }
+  else if (e.key >= '1' && e.key <= '5' && document.getElementById('fcGradeWrap').style.display !== 'none'){
+    vocabGrade(parseInt(e.key, 10));
+  }
 });
 
 /* ══ VOCAB INIT ══ */
@@ -4158,6 +4366,7 @@ document.addEventListener('keydown', function(e){
 var GK_KEY = 'clatGkCards';
 var GK_INTERVALS = { 1: 0, 2: 1, 3: 3, 4: 7, 5: 21 };  /* grade → days until it returns */
 var gkRows = [], gkActiveGenre = null, gkQueue = [], gkPos = 0, gkStudiedCount = 0;
+var gkPeriod = 'all', gkOpenGroups = {};
 
 function gkAll(){ var l = safeGet(GK_KEY, []); return Array.isArray(l) ? l : []; }
 function gkStore(l){ safeSet(GK_KEY, l); }
@@ -4317,9 +4526,49 @@ function gkSelectGenre(g){
   gkActiveGenre = (gkActiveGenre === g) ? null : g;
   renderGk();
 }
+function toggleFoundryImport(){
+  var el = document.getElementById('gkImport');
+  el.style.display = (el.style.display === 'none') ? '' : 'none';
+}
+function gkSetPeriod(p){
+  gkPeriod = p;
+  document.querySelectorAll('.gk-period').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-p') === p);
+  });
+  renderGk();
+}
+function gkPeriodCutoff(){
+  if (gkPeriod === 'all') return 0;
+  var days = (gkPeriod === 'day') ? 1 : (gkPeriod === 'week' ? 7 : 30);
+  var d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - (days - 1));
+  return d.getTime();
+}
+function gkToggleGroup(g){
+  gkOpenGroups[g] = !gkOpenGroups[g];
+  renderGk();
+}
+function gkToggleItem(id){
+  var el = document.getElementById('gkitem-' + id);
+  if (el) el.classList.toggle('open');
+}
+/* genre filter + period filter + free-text search, all at once */
 function gkFiltered(){
   var list = gkAll();
+  var cut = gkPeriodCutoff();
+  if (cut) list = list.filter(function(c){ return (c.created || 0) >= cut; });
   if (gkActiveGenre) list = list.filter(function(c){ return (c.genre || 'Unsorted') === gkActiveGenre; });
+  var el = document.getElementById('gkSearch');
+  var q = el ? el.value.trim().toLowerCase() : '';
+  if (q){
+    list = list.filter(function(c){
+      return (c.q || '').toLowerCase().indexOf(q) > -1
+          || (c.a || '').toLowerCase().indexOf(q) > -1
+          || (c.topic || '').toLowerCase().indexOf(q) > -1
+          || (c.genre || '').toLowerCase().indexOf(q) > -1;
+    });
+  }
   return list;
 }
 function renderGk(){
@@ -4343,20 +4592,49 @@ function renderGk(){
       }).join('')
     : '<span class="field-note">No genres yet — build some cards and they will sort themselves.</span>';
 
-  var shown = gkFiltered().slice().sort(function(a, b){
-    return (a.level - b.level) || String(a.genre).localeCompare(String(b.genre));
-  });
+  /* the list itself: grouped by genre, collapsed until you open one */
+  var shown = gkFiltered();
   var listEl = document.getElementById('gkList');
+  var searching = (document.getElementById('gkSearch') || {}).value;
   if (!shown.length){
-    listEl.innerHTML = '<p class="gk-empty">No cards yet. Export a sheet out of NotebookLM, choose it above, and the foundry will write the cards.</p>';
+    listEl.innerHTML = '<p class="gk-empty">'
+      + (searching ? 'Nothing matches that.'
+         : (gkPeriod !== 'all' ? 'No cards made in this period.'
+            : 'No cards yet. Export a sheet out of NotebookLM, open the ⊕ above, and the foundry will write them.'))
+      + '</p>';
   } else {
-    listEl.innerHTML = shown.slice(0, 200).map(function(c){
-      var lvl = c.level ? ('Level ' + c.level) : 'New';
-      var cls = c.level === 5 ? 'l5' : (c.level && c.level <= 2 ? 'l1' : '');
-      return '<div class="gk-row"><div style="flex:1;"><div class="gk-row-q">' + escH(c.q) + '</div>'
-        + '<div class="gk-row-a">' + escH(c.a) + '</div></div>'
-        + '<div class="gk-row-meta"><span class="gk-level ' + cls + '">' + lvl + '</span>'
-        + '<button class="diary-del" onclick="gkDelete(' + c.id + ')" aria-label="Delete">&#10005;</button></div></div>';
+    var byGenre = {};
+    shown.forEach(function(c){
+      var g = c.genre || 'Unsorted';
+      (byGenre[g] = byGenre[g] || []).push(c);
+    });
+    /* a search should show its results, not make you open every group */
+    var autoOpen = !!(searching && searching.trim());
+    listEl.innerHTML = Object.keys(byGenre).sort().map(function(g){
+      var items = byGenre[g].slice().sort(function(a, b){ return (a.level || 0) - (b.level || 0); });
+      var dueN = items.filter(gkIsDue).length;
+      var open = autoOpen || gkOpenGroups[g];
+      return '<div class="gk-group' + (open ? ' open' : '') + '">'
+        + '<button class="gk-group-head" onclick="gkToggleGroup(' + JSON.stringify(g).replace(/"/g, '&quot;') + ')">'
+        + '<span class="gk-chev">&#9656;</span>'
+        + '<span class="gk-group-name">' + escH(g) + '</span>'
+        + (dueN ? '<span class="gk-group-due">' + dueN + ' due</span>' : '')
+        + '<span class="gk-group-count">' + items.length + '</span></button>'
+        + '<div class="gk-group-body">'
+        + items.slice(0, 60).map(function(c){
+            var lvl = c.level ? ('Level ' + c.level) : 'New';
+            var cls = c.level === 5 ? 'l5' : (c.level && c.level <= 2 ? 'l1' : '');
+            return '<div class="gk-item" id="gkitem-' + c.id + '">'
+              + '<div class="gk-item-q" onclick="gkToggleItem(' + c.id + ')">'
+              + '<span class="gk-chev">&#9656;</span><span>' + escH(c.q) + '</span></div>'
+              + '<div class="gk-item-a">' + escH(c.a)
+              + '<div class="gk-item-foot"><span class="gk-item-topic">' + escH(c.topic || '') + '</span>'
+              + '<span class="gk-level ' + cls + '">' + lvl + '</span>'
+              + '<button class="diary-del" onclick="gkDelete(' + c.id + ')" aria-label="Delete">&#10005;</button></div>'
+              + '</div></div>';
+          }).join('')
+        + (items.length > 60 ? '<p class="gk-list-more">' + (items.length - 60) + ' more in this genre — narrow it with the search box.</p>' : '')
+        + '</div></div>';
     }).join('');
   }
   var sb = document.getElementById('gkStudyBtn');
