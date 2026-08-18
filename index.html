@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- ═══ INSTALLABLE APP ═══ -->
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#efece6" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#1b1a18" media="(prefers-color-scheme: dark)" />
+<link rel="icon" href="favicon-64.png" sizes="64x64" type="image/png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Lex Apparatus" />
+<meta name="mobile-web-app-capable" content="yes" />
 <title>CLAT 2027 — Lex Apparatus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -945,6 +955,89 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
 .gk-card-genre { text-align: center; }
 #gkRevealWrap { display: flex; gap: 0.5rem; justify-content: center; }
 @media (max-height: 620px){ .gk-overlay.open { align-items: flex-start; } }
+
+/* ═══ CALENDAR ═══ */
+.cal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.cal-nav { display: flex; gap: 0.35rem; }
+.cal-nav .pill-btn { padding: 0.4rem 0.7rem; font-size: 0.78rem; }
+.cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+.cal-dow span { text-align: center; font-family: var(--sans); font-size: 0.68rem; color: var(--muted); padding: 0.2rem 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-cell {
+  position: relative; aspect-ratio: 1 / 1; min-height: 34px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent; border-radius: var(--radius-sm);
+  font-family: var(--sans); font-size: 0.82rem; color: var(--ink-soft); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.cal-cell:hover { background: var(--paper-3); border-color: var(--line); }
+.cal-cell.other { color: var(--faint); }
+.cal-cell.today { border-color: var(--clay); color: var(--clay); font-weight: 600; }
+.cal-cell.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+body.dark .cal-cell.selected { color: #1b1a18; }
+.cal-cell.selected.today { border-color: var(--accent); }
+.cal-dots { display: flex; gap: 2px; margin-top: 2px; height: 4px; }
+.cal-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.cal-dot.open { background: var(--clay); }
+.cal-cell.selected .cal-dot { background: #fff; }
+body.dark .cal-cell.selected .cal-dot { background: #1b1a18; }
+.cal-day { margin-top: 1.2rem; padding-top: 1.1rem; border-top: 1px solid var(--line); }
+.cal-day-label { font-family: var(--serif); font-size: 1.05rem; color: var(--ink); margin-bottom: 0.7rem; }
+
+/* ═══ MOCK ANALYSIS — per-section error boxes ═══ */
+.an-secnote { margin-bottom: 0.8rem; }
+.an-secnote-label { font-family: var(--sans); font-size: 0.78rem; color: var(--accent-deep); margin-bottom: 0.3rem; }
+.an-secnote textarea { min-height: 4.2rem; margin-top: 0; }
+
+/* ═══ INSTALL ═══ */
+.install-btn {
+  position: fixed; right: 1.4rem; bottom: 1.4rem; z-index: 855;
+  font-family: var(--sans); font-size: 0.82rem; padding: 0.7rem 1.15rem;
+  background: var(--paper-2); color: var(--ink-soft);
+  border: 1px solid var(--line-strong); border-radius: 30px;
+  box-shadow: var(--shadow-soft); cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.install-btn:hover { color: var(--accent-deep); border-color: var(--accent); }
+@media (max-width: 820px){ .install-btn { right: 1rem; bottom: 4.6rem; } }
+/* standalone: keep content clear of the notch and the home indicator */
+@media (display-mode: standalone){
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  .install-btn { display: none !important; }
+}
+
+/* ═══ MOBILE QUICK PANEL ═══ */
+.quick-fab {
+  display: none; position: fixed; left: 50%; transform: translateX(-50%); bottom: 1.1rem; z-index: 850;
+  font-family: var(--sans); font-size: 0.86rem; padding: 0.75rem 1.5rem;
+  background: var(--accent); color: #fff; border: none; border-radius: 30px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18); cursor: pointer;
+}
+body.dark .quick-fab { color: #1b1a18; }
+.quick-sheet {
+  display: none; position: fixed; inset: 0; z-index: 860;
+  background: var(--paper); overflow-y: auto; padding: 0 0 3rem;
+}
+body.quick-open .quick-sheet { display: block; }
+body.quick-open { overflow: hidden; }
+.quick-bar {
+  position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 0.9rem 1rem; background: var(--paper); border-bottom: 1px solid var(--line);
+}
+.quick-title { font-family: var(--display); font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+.quick-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+.quick-body .grid-cell { box-shadow: none; }
+.quick-foot { text-align: center; font-family: var(--sans); font-size: 0.74rem; color: var(--faint); padding: 0 1rem; }
+/* concise: the extras stay behind on the full site */
+.quick-body .wb-actions,
+.quick-body .wb-quick-list,
+.quick-body .vocab-search-wrap,
+.quick-body #vocabCountBadge,
+.quick-body #vlUseSec,
+.quick-body #vlRootSec,
+.quick-body .lookup-sub { display: none !important; }
+@media (max-width: 820px){ .quick-fab { display: block; } }
+@media (min-width: 821px){ body.quick-open .quick-sheet { display: none; } }
 /* ═══════════════════════════════════════════════════════════════
    DESKTOP SCALE — everything a step larger on a real monitor
    ═══════════════════════════════════════════════════════════════ */
@@ -1018,7 +1111,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
 
  <div class="grid-col grid-col--left">
   <!-- TIMER -->
-  <div class="grid-cell reveal">
+  <div class="grid-cell reveal" id="timerCell">
     <p class="section-label">Study Timer</p>
     <p class="section-heading" style="margin-bottom:0;">Track the Hours</p>
     <p class="timer-status" id="timerStatus">Ready to begin</p>
@@ -1078,31 +1171,44 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
     <div class="study-scroll-list" id="studyScrollList"></div>
   </div>
 
-  <!-- TASK DIARY -->
+  <!-- CALENDAR + DAY TASKS -->
   <div class="grid-cell reveal">
-    <p class="section-label">Daily Record</p>
-    <p class="section-heading" style="margin-bottom:0.7rem;">Task Diary</p>
-    <div class="diary-nav" style="margin-bottom:0.9rem;">
-      <button class="pill-btn" onclick="diaryStep(-1)" title="Previous day">&larr;</button>
-      <input type="date" id="diaryDate" onchange="renderDiary()" />
-      <button class="pill-btn" onclick="diaryStep(1)" title="Next day">&rarr;</button>
-      <button class="pill-btn" onclick="diaryToday()">Today</button>
+    <div class="cal-head">
+      <div>
+        <p class="section-label">Daily Record</p>
+        <p class="section-heading" id="calMonthLabel">&mdash;</p>
+      </div>
+      <div class="cal-nav">
+        <button class="pill-btn" onclick="calStep(-1)" title="Previous month">&larr;</button>
+        <button class="pill-btn" onclick="calToday()">Today</button>
+        <button class="pill-btn" onclick="calStep(1)" title="Next month">&rarr;</button>
+      </div>
     </div>
-    <div class="diary-add">
-      <input type="text" id="diaryTaskInput" placeholder="Add a task&hellip;" />
-      <button class="pill-btn primary" onclick="addDiaryTask()">+</button>
+
+    <div class="cal-dow">
+      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
     </div>
-    <div class="diary-list" id="diaryList"></div>
-    <p class="diary-streak" id="diaryStreak"></p>
-    <p class="wb-mini-label" style="margin-top:1.1rem;">Notes for the day</p>
-    <textarea class="diary-note" id="diaryNote" placeholder="What went well, what didn't, what carries over&hellip;"></textarea>
-    <p class="diary-saved" id="diarySaved"></p>
+    <div class="cal-grid" id="calGrid"></div>
+
+    <div class="cal-day">
+      <p class="cal-day-label" id="calDayLabel">&mdash;</p>
+      <div class="diary-add">
+        <input type="text" id="diaryTaskInput" placeholder="Add to this day&hellip;" />
+        <button class="pill-btn primary" onclick="addDiaryTask()">+</button>
+      </div>
+      <div class="diary-list" id="diaryList"></div>
+      <p class="diary-streak" id="diaryStreak"></p>
+      <p class="wb-mini-label" style="margin-top:1rem;">Notes</p>
+      <textarea class="diary-note" id="diaryNote" placeholder="What went well, what didn't, what carries over&hellip;"></textarea>
+      <p class="diary-saved" id="diarySaved"></p>
+    </div>
+    <input type="hidden" id="diaryDate" />
   </div>
  </div><!-- /grid-col left -->
 
  <div class="grid-col grid-col--vocab">
   <!-- WORD BANK -->
-  <div class="grid-cell wordbank-cell reveal">
+  <div class="grid-cell wordbank-cell reveal" id="wordbankCell">
     <p class="section-label">Vocabulary</p>
     <p class="section-heading" style="margin-bottom:0.9rem;">Word Bank</p>
 
@@ -1165,11 +1271,11 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
           <div class="vocab-lookup-section-label">Definition</div>
           <div class="vocab-lookup-section-body" id="vlDef"></div>
         </div>
-        <div class="vocab-lookup-section">
+        <div class="vocab-lookup-section" id="vlUseSec">
           <div class="vocab-lookup-section-label">Where it turns up</div>
           <div class="vocab-lookup-section-body" id="vlUse"></div>
         </div>
-        <div class="vocab-lookup-section">
+        <div class="vocab-lookup-section" id="vlRootSec">
           <div class="vocab-lookup-section-label">Root &amp; origin</div>
           <div class="vocab-lookup-section-body" id="vlRoot"></div>
         </div>
@@ -1201,8 +1307,9 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
     <p class="field-note" style="margin-bottom:0.9rem;">Your questions, imported exactly as written. Nothing is rewritten.</p>
 
     <div class="gk-import" id="gkImport" style="display:none;">
-      <p class="wb-mini-label">Topic name</p>
-      <input type="text" id="gkTopicName" class="gk-topic-input" placeholder="e.g. August Current Affairs" />
+      <p class="wb-mini-label">Title for this batch</p>
+      <input type="text" id="gkTopicName" class="gk-topic-input" placeholder="Named from the file, edit if you like" />
+      <p class="field-note" style="margin-top:0.35rem;">Every row in the file goes into this one title. No new categories are made and nothing is mixed with an existing batch.</p>
 
       <p class="wb-mini-label" style="margin-top:0.9rem;">Sheet</p>
       <div class="gk-drop">
@@ -1407,7 +1514,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="frButtons">
         <button class="pill-btn" id="frSetupBtn" onclick="toggleFrSetup()">Setup</button>
         <button class="pill-btn primary" id="frSignInBtn" onclick="frSignIn()">Sign in with Google</button>
-        <button class="pill-btn" id="frSyncBtn" onclick="frSync(true)" style="display:none;">Sync now</button>
+        <button class="pill-btn" id="frSyncBtn" onclick="frSync(true); syncPush();" style="display:none;">Sync now</button>
         <button class="pill-btn" id="frSignOutBtn" onclick="frSignOut()" style="display:none;">Sign out</button>
       </div>
     </div>
@@ -1444,7 +1551,6 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
             <button class="pill-btn" onclick="frCompare('hours')" id="frCmpHours">Study hours</button>
             <button class="pill-btn" onclick="frCompare('mocks')" id="frCmpMocks">Mock percentiles</button>
-            <button class="pill-btn" onclick="frCompare('gk')" id="frCmpGk">GK mastery</button>
           </div>
         </div>
         <div class="chart-wrap" style="height:260px;margin-top:0.7rem;">
@@ -1453,6 +1559,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
       </div>
     </div>
     <p class="fr-status" id="frStatus"></p>
+    <p class="fr-status" id="syncStatus"></p>
   </div>
   </div>
 
@@ -1535,8 +1642,8 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
     </div>
 
     <div class="an-section">
-      <p class="wb-mini-label">What actually went wrong</p>
-      <textarea class="an-textarea" id="anNotes" placeholder="Which passage ate the clock, what you'd do differently in the first ten minutes, which trap option keeps catching you&hellip;"></textarea>
+      <p class="wb-mini-label">What went wrong, section by section</p>
+      <div id="anSectionNotes"></div>
     </div>
 
     <div class="an-section">
@@ -1744,7 +1851,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
 function pad(n){ return String(n).padStart(2,'0'); }
 function todayKey(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function safeGet(k,fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
-function safeSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function safeSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} if(typeof syncTouch==='function') syncTouch(k); }
 
 /* ══ DATE ══ */
 function updateDate(){
@@ -3349,7 +3456,9 @@ function renderCard(){
   var lvl = v.vlevel ? ' · level ' + v.vlevel : '';
   document.getElementById('fcAdded').textContent = (day === todayKey() ? 'Added today' : 'Added ' + prettyDay(day)) + lvl;
   document.getElementById('fcProgress').textContent = (fcIdx + 1) + ' of ' + fcDeck.length;
-  document.getElementById('fcGradeWrap').style.display = 'none';
+  /* grading is always available — you should not have to reveal an
+     answer you already knew before you can say you knew it */
+  document.getElementById('fcGradeWrap').style.display = '';
   document.getElementById('fcButtons').style.display = '';
 
   var thin = !v.example || !(v.long || v.def);
@@ -3390,7 +3499,6 @@ function revealCard(){
 
   document.getElementById('fcReveal').classList.add('visible');
   document.getElementById('fcGradeWrap').style.display = '';
-  document.getElementById('fcButtons').style.display = 'none';
 }
 
 /* pull a proper definition, example and hint for a word saved by hand */
@@ -3430,8 +3538,11 @@ document.addEventListener('keydown', function(e){
   else if (e.key === 'h' || e.key === 'H'){ showHint(); }
   else if (e.key === 'ArrowRight'){ stepCard(1); }
   else if (e.key === 'ArrowLeft'){ stepCard(-1); }
-  else if (e.key >= '1' && e.key <= '5' && document.getElementById('fcGradeWrap').style.display !== 'none'){
-    vocabGrade(parseInt(e.key, 10));
+  else {
+    /* 1-5 grade and advance at any point, numpad included */
+    var n = /^[1-5]$/.test(e.key) ? parseInt(e.key, 10)
+          : (/^Numpad[1-5]$/.test(e.code) ? parseInt(e.code.slice(6), 10) : 0);
+    if (n && currentCard()){ e.preventDefault(); vocabGrade(n); }
   }
 });
 
@@ -4050,11 +4161,85 @@ function diaryShift(dayKey, n){
 function diaryStep(n){
   var el = document.getElementById('diaryDate');
   el.value = diaryShift(diaryDay(), n);
+  calShowMonthOf(el.value);
   renderDiary();
 }
 function diaryToday(){
   document.getElementById('diaryDate').value = todayKey();
+  calShowMonthOf(todayKey());
   renderDiary();
+}
+
+/* ── calendar ──────────────────────────────────────────────────
+   The month grid and the day list are the same record: clicking a
+   date opens that day's tasks and notes underneath.
+   ─────────────────────────────────────────────────────────────── */
+var calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+var CAL_MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function calShowMonthOf(key){
+  var p = String(key || '').split('-');
+  if (p.length === 3){ calYear = +p[0]; calMonth = +p[1] - 1; }
+}
+function calStep(n){
+  calMonth += n;
+  while (calMonth < 0){ calMonth += 12; calYear--; }
+  while (calMonth > 11){ calMonth -= 12; calYear++; }
+  renderCalendar();
+}
+function calToday(){
+  var t = new Date();
+  calYear = t.getFullYear(); calMonth = t.getMonth();
+  document.getElementById('diaryDate').value = todayKey();
+  renderCalendar();
+  renderDiary();
+}
+function calPick(key){
+  document.getElementById('diaryDate').value = key;
+  calShowMonthOf(key);
+  renderCalendar();
+  renderDiary();
+}
+function renderCalendar(){
+  var grid = document.getElementById('calGrid');
+  if (!grid) return;
+  document.getElementById('calMonthLabel').textContent = CAL_MONTHS[calMonth] + ' ' + calYear;
+
+  var all = diaryAll();
+  var first = new Date(calYear, calMonth, 1);
+  var startDow = first.getDay();
+  var daysIn = new Date(calYear, calMonth + 1, 0).getDate();
+  var prevDays = new Date(calYear, calMonth, 0).getDate();
+  var sel = diaryDay(), today = todayKey();
+  var cells = [];
+
+  for (var i = 0; i < 42; i++){
+    var dayNum, y = calYear, m = calMonth, other = false;
+    if (i < startDow){ dayNum = prevDays - startDow + 1 + i; m = calMonth - 1; other = true; }
+    else if (i >= startDow + daysIn){ dayNum = i - startDow - daysIn + 1; m = calMonth + 1; other = true; }
+    else { dayNum = i - startDow + 1; }
+    if (m < 0){ m = 11; y--; }
+    if (m > 11){ m = 0; y++; }
+    var key = y + '-' + pad(m + 1) + '-' + pad(dayNum);
+    var rec = all[key];
+    var tasks = (rec && rec.tasks) || [];
+    var open = tasks.filter(function(t){ return !t.done; }).length;
+    var doneN = tasks.length - open;
+    var hasNote = !!(rec && String(rec.note || '').trim());
+
+    var dots = '';
+    if (open) dots += '<span class="cal-dot open"></span>';
+    if (doneN) dots += '<span class="cal-dot"></span>';
+    if (!tasks.length && hasNote) dots += '<span class="cal-dot"></span>';
+
+    cells.push('<button class="cal-cell' + (other ? ' other' : '')
+      + (key === today ? ' today' : '') + (key === sel ? ' selected' : '')
+      + '" onclick="calPick(\'' + key + '\')" title="' + key + '">'
+      + '<span>' + dayNum + '</span><span class="cal-dots">' + dots + '</span></button>');
+    /* stop after the last row that still holds this month */
+    if (i >= startDow + daysIn - 1 && (i + 1) % 7 === 0) break;
+  }
+  grid.innerHTML = cells.join('');
 }
 function addDiaryTask(){
   var inp = document.getElementById('diaryTaskInput');
@@ -4064,19 +4249,19 @@ function addDiaryTask(){
   d.tasks.push({ id: Date.now() + Math.floor(Math.random() * 1000), text: text, done: false });
   diarySet(k, d);
   inp.value = '';
-  renderDiary();
+  renderDiary(); renderCalendar();
 }
 function toggleDiaryTask(id){
   var k = diaryDay(), d = diaryGet(k);
   d.tasks.forEach(function(t){ if (t.id === id) t.done = !t.done; });
   diarySet(k, d);
-  renderDiary();
+  renderDiary(); renderCalendar();
 }
 function delDiaryTask(id){
   var k = diaryDay(), d = diaryGet(k);
   d.tasks = d.tasks.filter(function(t){ return t.id !== id; });
   diarySet(k, d);
-  renderDiary();
+  renderDiary(); renderCalendar();
 }
 function saveDiaryNote(){
   var k = diaryDay(), d = diaryGet(k);
@@ -4096,7 +4281,7 @@ function carryOverTasks(){
     d.tasks.push({ id: Date.now() + Math.floor(Math.random() * 10000), text: t.text, done: false });
   });
   diarySet(k, d);
-  renderDiary();
+  renderDiary(); renderCalendar();
   flashToast(open.length + ' task' + (open.length === 1 ? '' : 's') + ' carried over');
 }
 function diaryStreakCount(){
@@ -4113,6 +4298,13 @@ function renderDiary(){
   var list = document.getElementById('diaryList');
   if (!list) return;
   document.getElementById('diaryNote').value = d.note || '';
+  var lbl = document.getElementById('calDayLabel');
+  if (lbl){
+    var p = k.split('-');
+    var dn = new Date(+p[0], +p[1] - 1, +p[2]);
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    lbl.textContent = (k === todayKey() ? 'Today — ' : '') + days[dn.getDay()] + ', ' + (+p[2]) + ' ' + CAL_MONTHS[+p[1] - 1];
+  }
 
   if (!d.tasks.length){
     list.innerHTML = '<p class="diary-empty">Nothing written down for this day yet.</p>';
@@ -4185,7 +4377,16 @@ function openAnalysis(id){
   document.getElementById('anTitle').textContent = m.name;
   document.getElementById('anDate').value = a.date || todayKey();
   document.getElementById('anTotalTime').value = a.totalTime || '';
-  document.getElementById('anNotes').value = a.notes || '';
+  var sn = a.sectionNotes || {};
+  document.getElementById('anSectionNotes').innerHTML = CLAT_SECTIONS.map(function(sec){
+    var v = sn[sec.key] || '';
+    /* anything written before this change lived in one box; it is kept
+       and shown against the first section rather than thrown away */
+    if (!v && sec.key === 'eng' && a.notes) v = a.notes;
+    return '<div class="an-secnote"><p class="an-secnote-label">' + sec.name + '</p>'
+      + '<textarea class="an-textarea" data-sec="' + sec.key + '" placeholder="What went wrong here — which question, which trap, where the clock went…">'
+      + escH(v) + '</textarea></div>';
+  }).join('');
   document.getElementById('anCarry').value = a.carry || '';
 
   var body = document.getElementById('anTableBody');
@@ -4313,7 +4514,13 @@ function readAnalysis(){
     totalTime: document.getElementById('anTotalTime').value,
     sections: sec,
     mistakes: collectMistakes(),
-    notes: document.getElementById('anNotes').value,
+    sectionNotes: (function(){
+      var o = {};
+      document.querySelectorAll('#anSectionNotes textarea').forEach(function(t){
+        o[t.getAttribute('data-sec')] = t.value;
+      });
+      return o;
+    })(),
     carry: document.getElementById('anCarry').value,
     savedAt: Date.now()
   };
@@ -4440,14 +4647,23 @@ function gkFilePicked(ev){
       var aGuess = gkGuessColumn(gkHeaders, 'a');
       aSel.value = (aGuess >= 0) ? aGuess : '__ai';
 
+      /* suggest a title from the file name; you can overwrite it */
+      var tEl = document.getElementById('gkTopicName');
+      if (tEl && !tEl.value.trim()) tEl.value = gkTitleFromFile(file.name);
       document.getElementById('gkMapWrap').style.display = '';
       document.getElementById('gkProgress').textContent =
-        gkRows.length + ' row' + (gkRows.length === 1 ? '' : 's') + ' read. Check the two columns, then add.';
+        gkRows.length + ' row' + (gkRows.length === 1 ? '' : 's') + ' read — all of them go into "'
+        + (tEl ? tEl.value : '') + '". Check the two columns, then add.';
     } catch(err){
       document.getElementById('gkProgress').textContent = 'Could not read that file: ' + err.message;
     }
   };
   reader.readAsArrayBuffer(file);
+}
+function gkTitleFromFile(name){
+  var base = String(name || '').replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!base) return 'Untitled';
+  return base.replace(/(^|\s)([a-z])/g, function(m, a, b){ return a + b.toUpperCase(); });
 }
 function gkCell(row, idx){
   var v = row[idx];
@@ -4849,6 +5065,9 @@ function frShowRules(){
     + "      allow read: if request.auth != null;\n"
     + "      allow write: if request.auth != null && request.auth.uid == uid;\n"
     + "    }\n"
+    + "    match /sync/{uid} {\n"
+    + "      allow read, write: if request.auth != null && request.auth.uid == uid;\n"
+    + "    }\n"
     + "  }\n"
     + "}";
 }
@@ -4877,7 +5096,8 @@ async function frInit(){
   firebase.auth().onAuthStateChanged(function(u){
     frUser = u;
     frRenderAuth();
-    if (u){ frSync(false); frSubscribe(); }
+    if (u){ frSync(false); frSubscribe(); syncStart(); }
+    else { syncStop(); }
   });
   return true;
 }
@@ -4911,6 +5131,7 @@ async function frSignIn(){
 async function frSignOut(){
   try {
     if (frUnsub){ frUnsub(); frUnsub = null; }
+    syncStop();
     await firebase.auth().signOut();
     frPeers = [];
     frStatus('Signed out.');
@@ -5021,7 +5242,6 @@ function frRenderCards(){
       + row('Last 7 days', (p.hours7 || 0).toFixed(1), 'hours7', p, 'h')
       + row('Best percentile', (p.bestPct || 0).toFixed(1), 'bestPct', p)
       + row('Mocks logged', p.mockCount || 0, 'mockCount', p)
-      + row('GK at level 5', p.gkMastered || 0, 'gkMastered', p)
       + row('Words saved', p.words || 0, 'words', p)
       + row('Diary streak', p.diaryStreak || 0, 'diaryStreak', p, 'd')
       + '<p class="fr-seen">Updated ' + frAgo(p.updatedAt) + '</p>'
@@ -5029,8 +5249,8 @@ function frRenderCards(){
   }).join('');
 }
 function frCompare(mode){
-  frCmpMode = mode || 'hours';
-  ['Hours', 'Mocks', 'Gk'].forEach(function(m){
+  frCmpMode = (mode === 'mocks') ? 'mocks' : 'hours';
+  ['Hours', 'Mocks'].forEach(function(m){
     var b = document.getElementById('frCmp' + m);
     if (b) b.classList.toggle('primary', frCmpMode === m.toLowerCase());
   });
@@ -5092,22 +5312,214 @@ function frCompare(mode){
         },
         plugins: { legend: { position: 'bottom' } } }
     };
-  } else {
-    cfg = {
-      type: 'bar',
-      data: {
-        labels: frPeers.map(function(p){ return p.name || 'Anonymous'; }),
-        datasets: [
-          { label: 'At level 5', data: frPeers.map(function(p){ return p.gkMastered || 0; }), backgroundColor: '#8a9478' },
-          { label: 'Total cards', data: frPeers.map(function(p){ return p.gkTotal || 0; }), backgroundColor: 'rgba(192,148,107,0.55)' }
-        ]
-      },
-      options: { responsive: true, maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } }
-    };
   }
+
   frChartInst = new Chart(ctx, cfg);
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CROSS-DEVICE SYNC
+   Signing in with Google on a second device pulls everything from the
+   first. After that both devices read and write freely: each domain
+   carries a modified-at stamp, records are merged by id (or by date
+   key), and where the same record was changed in two places the newer
+   stamp wins. Local storage stays the working copy — Firestore is the
+   post box, not the master.
+   ═══════════════════════════════════════════════════════════════ */
+var SYNC_KEYS = ['clatVocab', 'clatGkCards', 'clatMockData', 'clatDiary', 'clatStudyData', 'clatClassData'];
+var SYNC_META_KEY = 'clatSyncMeta';
+var syncApplying = false, syncTimer = null, syncOn = false, syncUnsub = null, syncLastPush = '';
+
+function syncMeta(){ var m = safeGet(SYNC_META_KEY, {}); return (m && typeof m === 'object') ? m : {}; }
+function syncMetaSet(m){ try { localStorage.setItem(SYNC_META_KEY, JSON.stringify(m)); } catch(e){} }
+function syncTouch(key){
+  /* safeSet runs during page setup, before this block has been evaluated */
+  if (typeof SYNC_KEYS === 'undefined' || !SYNC_KEYS || SYNC_KEYS.indexOf(key) === -1) return;
+  var m = syncMeta();
+  m[key] = Date.now();
+  syncMetaSet(m);
+  if (syncOn && !syncApplying) syncSchedulePush();
+}
+function syncSchedulePush(){
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncPush, 2000);
+}
+function syncStatus(msg){
+  var el = document.getElementById('syncStatus');
+  if (el) el.textContent = msg || '';
+}
+
+/* union two arrays of records by id; ties broken by whichever side is newer */
+function syncMergeArray(local, remote, localNewer){
+  var out = [], seen = {};
+  var first = localNewer ? local : remote;
+  var second = localNewer ? remote : local;
+  (first || []).forEach(function(r){
+    if (!r || r.id == null) return;
+    seen[r.id] = 1; out.push(r);
+  });
+  (second || []).forEach(function(r){
+    if (!r || r.id == null || seen[r.id]) return;
+    seen[r.id] = 1; out.push(r);
+  });
+  return out;
+}
+/* union two date-keyed maps; a key present in both takes the newer side */
+function syncMergeMap(local, remote, localNewer){
+  var out = {}, src1 = localNewer ? remote : local, src2 = localNewer ? local : remote;
+  Object.keys(src1 || {}).forEach(function(k){ out[k] = src1[k]; });
+  Object.keys(src2 || {}).forEach(function(k){ out[k] = src2[k]; });
+  return out;
+}
+function syncIsArrayDomain(key){
+  return key === 'clatVocab' || key === 'clatGkCards' || key === 'clatMockData';
+}
+function syncLocalPayload(){
+  var data = {}, meta = syncMeta();
+  SYNC_KEYS.forEach(function(k){
+    data[k] = safeGet(k, syncIsArrayDomain(k) ? [] : {});
+  });
+  return { data: data, m: meta };
+}
+function syncLocalIsEmpty(){
+  return SYNC_KEYS.every(function(k){
+    var v = safeGet(k, null);
+    if (!v) return true;
+    return Array.isArray(v) ? !v.length : !Object.keys(v).length;
+  });
+}
+
+async function syncPush(){
+  if (!frUser || !syncOn) return;
+  try {
+    var payload = syncLocalPayload();
+    var stamp = JSON.stringify(payload.m);
+    payload.device = (navigator.userAgent.indexOf('Mobi') > -1) ? 'phone' : 'computer';
+    payload.updatedAt = Date.now();
+    await firebase.firestore().collection('sync').doc(frUser.uid).set(payload);
+    syncLastPush = stamp;
+    syncStatus('Synced ' + new Date().toLocaleTimeString());
+  } catch(e){
+    syncStatus('Sync failed: ' + frFriendlyError(e));
+  }
+}
+
+/* apply a remote snapshot on top of what is here */
+function syncApply(remote){
+  if (!remote || !remote.data) return false;
+  var localMeta = syncMeta(), remoteMeta = remote.m || {};
+  var changed = false;
+  syncApplying = true;
+  SYNC_KEYS.forEach(function(k){
+    var rv = remote.data[k];
+    if (rv == null) return;
+    var isArr = syncIsArrayDomain(k);
+    var lv = safeGet(k, isArr ? [] : {});
+    var localNewer = (localMeta[k] || 0) >= (remoteMeta[k] || 0);
+    var merged = isArr ? syncMergeArray(lv, rv, localNewer) : syncMergeMap(lv, rv, localNewer);
+    if (JSON.stringify(merged) !== JSON.stringify(lv)){
+      safeSet(k, merged);
+      changed = true;
+    }
+    /* keep the higher stamp so a later push does not look stale */
+    if ((remoteMeta[k] || 0) > (localMeta[k] || 0)) localMeta[k] = remoteMeta[k];
+  });
+  syncMetaSet(localMeta);
+  syncApplying = false;
+  if (changed) syncRepaint();
+  return changed;
+}
+function syncRepaint(){
+  try { normalizeVocab(); updateVocabCount(); quickFilter(); renderWordBank(); } catch(e){}
+  try { renderGk(); } catch(e){}
+  try { mockData = safeGet('clatMockData', []); mockMigrate(); renderMock(); } catch(e){}
+  try { studyData = safeGet('clatStudyData', {}); classData = safeGet('clatClassData', {}); renderStudyChart(); } catch(e){}
+  try { renderCalendar(); renderDiary(); } catch(e){}
+}
+
+async function syncStart(){
+  if (!frUser) return;
+  try {
+    var ref = firebase.firestore().collection('sync').doc(frUser.uid);
+    var snap = await ref.get();
+    if (!snap.exists){
+      /* nothing up there yet — this device is the original, so it wins */
+      syncOn = true;
+      await syncPush();
+      syncStatus('This device published its data. Sign in elsewhere to pull it down.');
+    } else if (syncLocalIsEmpty()){
+      /* a fresh device — take everything as it stands */
+      syncApplying = true;
+      var rd = snap.data();
+      SYNC_KEYS.forEach(function(k){ if (rd.data && rd.data[k] != null) safeSet(k, rd.data[k]); });
+      syncMetaSet(rd.m || {});
+      syncApplying = false;
+      syncRepaint();
+      syncOn = true;
+      syncStatus('Pulled everything from your other device.');
+    } else {
+      syncOn = true;
+      syncApply(snap.data());
+      await syncPush();
+      syncStatus('Merged with your other device.');
+    }
+    /* live from here on */
+    if (syncUnsub) syncUnsub();
+    syncUnsub = ref.onSnapshot(function(doc){
+      if (!doc.exists) return;
+      var d = doc.data();
+      if (JSON.stringify(d.m || {}) === syncLastPush) return;  /* our own write echoing back */
+      if (syncApply(d)) syncStatus('Updated from your ' + (d.device || 'other device') + '.');
+    }, function(err){ syncStatus('Sync listener stopped: ' + frFriendlyError(err)); });
+  } catch(e){
+    syncStatus('Could not start sync: ' + frFriendlyError(e));
+  }
+}
+function syncStop(){
+  if (syncUnsub){ syncUnsub(); syncUnsub = null; }
+  syncOn = false;
+  syncStatus('');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   QUICK PANEL (mobile)
+   The panel does not clone anything — it borrows the real timer and
+   word bank cards and puts them back on close, so there is one set of
+   handlers and one source of truth.
+   ═══════════════════════════════════════════════════════════════ */
+var quickHomes = [];
+function openQuick(){
+  var body = document.getElementById('quickBody');
+  if (!body || document.body.classList.contains('quick-open')) return;
+  quickHomes = [];
+  ['timerCell', 'wordbankCell'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    var mark = document.createElement('div');
+    mark.style.display = 'none';
+    el.parentNode.insertBefore(mark, el);
+    quickHomes.push({ el: el, mark: mark });
+    body.appendChild(el);
+  });
+  document.body.classList.add('quick-open');
+  window.scrollTo(0, 0);
+}
+function closeQuick(){
+  quickHomes.forEach(function(h){
+    if (h.mark.parentNode) h.mark.parentNode.insertBefore(h.el, h.mark);
+    if (h.mark.parentNode) h.mark.parentNode.removeChild(h.mark);
+  });
+  quickHomes = [];
+  document.body.classList.remove('quick-open');
+}
+/* rotating to landscape on a tablet should not strand the panel */
+window.addEventListener('resize', function(){
+  if (document.body.classList.contains('quick-open') && window.innerWidth > 820) closeQuick();
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && document.body.classList.contains('quick-open')) closeQuick();
+});
 
 /* ═══════════════════════════════════════════════════════════════
    INIT for everything added above
@@ -5123,6 +5535,8 @@ function frCompare(mode){
   var dd = document.getElementById('diaryDate');
   if (dd){
     dd.value = todayKey();
+    calShowMonthOf(todayKey());
+    renderCalendar();
     var ti = document.getElementById('diaryTaskInput');
     if (ti) ti.addEventListener('keydown', function(e){ if (e.key === 'Enter') addDiaryTask(); });
     var dn = document.getElementById('diaryNote');
@@ -5144,8 +5558,86 @@ function frCompare(mode){
   else frStatus('Not connected. Press Setup to link a Firebase project once, then everyone signs in with Google.');
 })();
 
+
+/* ═══════════════════════════════════════════════════════════════
+   INSTALLABLE APP
+   Registers the service worker (offline + home-screen launch) and
+   surfaces the browser's own install prompt when it is offered.
+   Everything degrades quietly: no service worker support, no problem.
+   ═══════════════════════════════════════════════════════════════ */
+var deferredInstall = null;
+
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      /* a new version deployed while the app was open */
+      reg.addEventListener('updatefound', function(){
+        var sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', function(){
+          if (sw.state === 'installed' && navigator.serviceWorker.controller){
+            flashToast('Update ready — reopen to apply');
+          }
+        });
+      });
+    }).catch(function(){ /* file:// or no HTTPS — the site still works */ });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredInstall = e;
+  var b = document.getElementById('installBtn');
+  if (b && !isStandalone()) b.style.display = '';
+});
+function isStandalone(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+      || window.navigator.standalone === true;
+}
+async function installApp(){
+  var b = document.getElementById('installBtn');
+  if (deferredInstall){
+    deferredInstall.prompt();
+    try { await deferredInstall.userChoice; } catch(e){}
+    deferredInstall = null;
+    if (b) b.style.display = 'none';
+    return;
+  }
+  /* iOS gives no prompt — it has to be done by hand */
+  var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  flashToast(iOS ? 'Share button → Add to Home Screen' : 'Use your browser menu → Install app');
+}
+window.addEventListener('appinstalled', function(){
+  var b = document.getElementById('installBtn');
+  if (b) b.style.display = 'none';
+  flashToast('Installed');
+});
+
+/* manifest shortcuts land here */
+(function(){
+  var go = new URLSearchParams(location.search).get('go');
+  if (!go) return;
+  setTimeout(function(){
+    if (go === 'cards') openGk();
+    else if (go === 'today'){ calPick(todayKey()); var el = document.getElementById('diaryTaskInput'); if (el) el.focus(); }
+    else if (go === 'timer'){ var t = document.getElementById('timerCell'); if (t) t.scrollIntoView({ behavior: 'smooth' }); }
+  }, 600);
+})();
+
 </script>
 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode"><span id="themeIcon">&#9790;</span></button>
+<button class="install-btn" id="installBtn" onclick="installApp()" style="display:none;">&#8681;&nbsp; Install app</button>
+<button class="quick-fab" id="quickFab" onclick="openQuick()" aria-label="Quick panel">&#9776;&nbsp; Quick</button>
+
+<div class="quick-sheet" id="quickSheet" role="dialog" aria-label="Quick panel">
+  <div class="quick-bar">
+    <span class="quick-title">Quick</span>
+    <button class="pill-btn" onclick="closeQuick()">Back to full site</button>
+  </div>
+  <div class="quick-body" id="quickBody"></div>
+  <p class="quick-foot">Everything here writes to the same place as the full site.</p>
+</div>
+
 <div id="labToast"></div>
 </body>
 </html>
