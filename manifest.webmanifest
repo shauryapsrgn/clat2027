@@ -1,0 +1,22 @@
+{
+  "name": "Lex Apparatus — CLAT 2027",
+  "short_name": "Lex Apparatus",
+  "description": "Study timer, word bank, GK cards, mock analysis and daily calendar for CLAT preparation.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#efece6",
+  "theme_color": "#2b2925",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Start the timer", "url": "./index.html?go=timer" },
+    { "name": "Study due cards", "url": "./index.html?go=cards" },
+    { "name": "Today's tasks", "url": "./index.html?go=today" }
+  ]
+}
