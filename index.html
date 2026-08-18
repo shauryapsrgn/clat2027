@@ -755,18 +755,6 @@ body.dark .diary-box.done { color: #1b1a18; }
 .gk-bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin-top: 0.5rem; display: none; }
 .gk-bar.visible { display: block; }
 .gk-bar-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s var(--ease); }
-.gk-genres { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.3rem; }
-.gk-genre {
-  font-family: var(--sans); font-size: 0.8rem; padding: 0.45rem 0.85rem; cursor: pointer;
-  background: var(--paper-3); border: 1px solid var(--line); color: var(--ink-soft); border-radius: 20px;
-  transition: border-color 0.2s, color 0.2s;
-}
-.gk-genre:hover { border-color: var(--border-hover); color: var(--accent-deep); }
-.gk-genre.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-body.dark .gk-genre.active { color: #1b1a18; }
-.gk-genre-due { font-weight: 600; color: var(--clay); margin-left: 0.35rem; }
-.gk-genre.active .gk-genre-due { color: #fff; }
-body.dark .gk-genre.active .gk-genre-due { color: #1b1a18; }
 .gk-list { max-height: 22rem; overflow-y: auto; overscroll-behavior: contain; margin-top: 1rem; border-top: 1px solid var(--line); }
 .gk-row { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
 .gk-row-q { flex: 1; font-family: var(--sans); font-size: 0.9rem; color: var(--ink-soft); line-height: 1.5; }
@@ -933,6 +921,30 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
 #gkList { margin-top: 0.6rem; border-top: 1px solid var(--line); max-height: 30rem; overflow-y: auto; overscroll-behavior: contain; }
 .gk-grades { gap: 0.35rem; }
 .gk-grade { min-width: 3.6rem; font-size: 0.78rem; padding: 0.55rem 0.3rem; }
+
+/* ═══ FOUNDRY — simplified import ═══ */
+.gk-topic-input {
+  width: 100%; font-family: var(--sans); font-size: 0.92rem; padding: 0.6rem 0.8rem;
+  background: var(--paper-2); border: 1px solid var(--line); color: var(--ink); border-radius: var(--radius-sm);
+}
+.gk-topic-input:focus { outline: none; border-color: var(--border-hover); }
+.gk-map { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 0.9rem; }
+.gk-map select { width: 100%; }
+@media (max-width: 520px){ .gk-map { grid-template-columns: 1fr; } }
+
+.gk-group-tools { padding: 0.2rem 0 0.5rem 1.3rem; }
+
+/* ═══ STUDY CARD — centred in the viewport ═══ */
+.gk-overlay { display: none; }
+.gk-overlay.open { display: flex; align-items: center; justify-content: center; }
+.gk-shell { width: 100%; max-width: 44rem; margin: auto; }
+.gk-card { min-height: 0; text-align: center; align-items: stretch; }
+.gk-card-q { text-align: center; }
+.gk-card-a-body { text-align: center; }
+.gk-card-foot { margin-top: 1.8rem; }
+.gk-card-genre { text-align: center; }
+#gkRevealWrap { display: flex; gap: 0.5rem; justify-content: center; }
+@media (max-height: 620px){ .gk-overlay.open { align-items: flex-start; } }
 /* ═══════════════════════════════════════════════════════════════
    DESKTOP SCALE — everything a step larger on a real monitor
    ═══════════════════════════════════════════════════════════════ */
@@ -1186,18 +1198,27 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
       </div>
       <button class="key-pencil" onclick="toggleFoundryImport()" title="Import a sheet" aria-label="Import a sheet">&#8853;</button>
     </div>
-    <p class="field-note" style="margin-bottom:0.9rem;">Feed it a NotebookLM export. It writes the cards, sorts them into genres, and brings back whatever you graded low.</p>
+    <p class="field-note" style="margin-bottom:0.9rem;">Your questions, imported exactly as written. Nothing is rewritten.</p>
 
     <div class="gk-import" id="gkImport" style="display:none;">
+      <p class="wb-mini-label">Topic name</p>
+      <input type="text" id="gkTopicName" class="gk-topic-input" placeholder="e.g. August Current Affairs" />
+
+      <p class="wb-mini-label" style="margin-top:0.9rem;">Sheet</p>
       <div class="gk-drop">
         <label class="gk-file-label" for="gkFile">Choose .xlsx or .csv&hellip;</label>
         <input type="file" id="gkFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="gkFilePicked(event)" />
         <span class="field-note" id="gkFileName">No file chosen</span>
       </div>
-      <div class="gk-drop" style="margin-top:0.6rem;">
-        <select id="gkColumn" class="pill-btn" style="display:none;"></select>
-        <button class="pill-btn primary" id="gkBuildBtn" onclick="gkBuild()" style="display:none;">Build cards</button>
+
+      <div id="gkMapWrap" style="display:none;">
+        <div class="gk-map">
+          <div><p class="wb-mini-label">Question column</p><select id="gkColQ" class="pill-btn"></select></div>
+          <div><p class="wb-mini-label">Answer column</p><select id="gkColA" class="pill-btn"></select></div>
+        </div>
+        <button class="pill-btn primary" id="gkBuildBtn" onclick="gkBuild()" style="margin-top:0.7rem;">Add cards</button>
       </div>
+
       <div class="gk-bar" id="gkBar"><div class="gk-bar-fill" id="gkBarFill"></div></div>
       <p class="gk-progress" id="gkProgress"></p>
     </div>
@@ -1207,7 +1228,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
       <div class="stat-box"><div class="stat-num" id="gkDue">0</div><div class="stat-lbl">due</div></div>
       <div class="stat-box"><div class="stat-num" id="gkMastered">0</div><div class="stat-lbl">at 5</div></div>
       <div class="stat-box"><div class="stat-num" id="gkWeak">0</div><div class="stat-lbl">at 1&ndash;2</div></div>
-      <div class="stat-box"><div class="stat-num" id="gkGenreCount">0</div><div class="stat-lbl">genres</div></div>
+      <div class="stat-box"><div class="stat-num" id="gkTopicCount">0</div><div class="stat-lbl">topics</div></div>
     </div>
 
     <div class="wb-actions" style="margin-top:1rem;">
@@ -1216,7 +1237,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
     </div>
 
     <div class="vocab-search-wrap" style="margin-top:1rem;">
-      <input type="text" id="gkSearch" placeholder="Search topic, genre or question&hellip;" oninput="renderGk()" />
+      <input type="text" id="gkSearch" placeholder="Search a topic or question&hellip;" oninput="renderGk()" />
     </div>
 
     <div class="gk-periods" id="gkPeriods">
@@ -1226,7 +1247,6 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
       <button class="gk-period active" data-p="all" onclick="gkSetPeriod('all')">All</button>
     </div>
 
-    <div class="gk-genres" id="gkGenres"></div>
     <div id="gkList"></div>
   </div>
  </div><!-- /grid-col vocab -->
@@ -1454,8 +1474,8 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
       <div class="gk-card-a" id="gkCardA">
         <div class="gk-card-a-body" id="gkCardABody"></div>
       </div>
-      <div style="margin-top:auto;">
-        <div id="gkRevealWrap" style="padding-top:1.6rem;">
+      <div class="gk-card-foot">
+        <div id="gkRevealWrap">
           <button class="fc-btn fc-btn-primary" onclick="gkReveal()">Show answer</button>
           <button class="fc-btn fc-btn-quiet" onclick="gkSkip()">Skip</button>
         </div>
@@ -1471,7 +1491,7 @@ body.dark .an-overlay { background: rgba(27,26,24,0.94); }
         </div>
       </div>
     </div>
-    <p class="fc-keys">Space shows the answer &middot; 1&ndash;5 grades &middot; Esc closes</p>
+    <p class="fc-keys">Space shows the answer &middot; 1&ndash;5 grades and moves on &middot; Esc closes</p>
   </div>
 </div>
 
@@ -4359,14 +4379,16 @@ document.addEventListener('keydown', function(e){
 
 /* ═══════════════════════════════════════════════════════════════
    GK CARD FOUNDRY
-   Spreadsheet in → AI writes Q/A cards → cards sorted into genres →
+   Spreadsheet in → cards copied out verbatim under a topic name →
    graded 1-5 on recall, and the grade decides when they come back.
-   clatGkCards = [{ id,q,a,topic,genre,level,due,reps,lastGrade,created }]
+   clatGkCards = [{ id,q,a,topic,level,due,reps,lastGrade,created }]
+   (older cards may still carry a `genre` field; gkCardTopic falls back
+   to it so nothing built before this change is orphaned)
    ═══════════════════════════════════════════════════════════════ */
 var GK_KEY = 'clatGkCards';
 var GK_INTERVALS = { 1: 0, 2: 1, 3: 3, 4: 7, 5: 21 };  /* grade → days until it returns */
 var gkRows = [], gkActiveGenre = null, gkQueue = [], gkPos = 0, gkStudiedCount = 0;
-var gkPeriod = 'all', gkOpenGroups = {};
+var gkPeriod = 'all', gkOpenGroups = {}, gkActiveTopic = null;
 
 function gkAll(){ var l = safeGet(GK_KEY, []); return Array.isArray(l) ? l : []; }
 function gkStore(l){ safeSet(GK_KEY, l); }
@@ -4377,13 +4399,20 @@ function gkAddDays(days){
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 function gkIsDue(c){ return !c.due || c.due <= todayKey(); }
-function gkGenres(){
-  var g = {};
-  gkAll().forEach(function(c){ g[c.genre || 'Unsorted'] = (g[c.genre || 'Unsorted'] || 0) + 1; });
-  return g;
-}
 
-/* ── spreadsheet import ── */
+/* ── spreadsheet import ─────────────────────────────────────────
+   The sheet is the source of truth. Questions and answers are copied
+   across exactly as written — nothing is rewritten or invented. You
+   pick which column is which; if it is all in one column, the AI is
+   asked only to split the line, never to compose it.
+   ─────────────────────────────────────────────────────────────── */
+var gkHeaders = [];
+
+function gkGuessColumn(headers, kind){
+  var want = (kind === 'q') ? /^(q|ques|question|prompt|front|term)\b/i : /^(a|ans|answer|response|back|definition|meaning)\b/i;
+  for (var i = 0; i < headers.length; i++){ if (want.test(String(headers[i]).trim())) return i; }
+  return (kind === 'q') ? 0 : (headers.length > 1 ? 1 : -1);
+}
 function gkFilePicked(ev){
   var file = ev.target.files && ev.target.files[0];
   if (!file) return;
@@ -4399,78 +4428,99 @@ function gkFilePicked(ev){
       var sheet = wb.Sheets[wb.SheetNames[0]];
       var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false });
       if (!rows.length) throw new Error('That sheet looks empty.');
-      var headers = rows[0].map(function(h, i){ return String(h || ('Column ' + (i + 1))); });
+      gkHeaders = (rows[0] || []).map(function(h, i){ return String(h || ('Column ' + (i + 1))); });
       gkRows = rows.slice(1).filter(function(r){ return r && r.join('').trim(); });
 
-      var sel = document.getElementById('gkColumn');
-      sel.innerHTML = '<option value="__all">Whole row</option>'
-        + headers.map(function(h, i){ return '<option value="' + i + '">' + escH(h) + '</option>'; }).join('');
-      sel.style.display = '';
-      document.getElementById('gkBuildBtn').style.display = '';
+      var opts = gkHeaders.map(function(h, i){ return '<option value="' + i + '">' + escH(h) + '</option>'; }).join('');
+      var qSel = document.getElementById('gkColQ');
+      var aSel = document.getElementById('gkColA');
+      qSel.innerHTML = opts;
+      aSel.innerHTML = opts + '<option value="__ai">Same column — let the AI split it</option>';
+      qSel.value = gkGuessColumn(gkHeaders, 'q');
+      var aGuess = gkGuessColumn(gkHeaders, 'a');
+      aSel.value = (aGuess >= 0) ? aGuess : '__ai';
+
+      document.getElementById('gkMapWrap').style.display = '';
       document.getElementById('gkProgress').textContent =
-        gkRows.length + ' row' + (gkRows.length === 1 ? '' : 's') + ' read. Pick the column holding the material, then build.';
+        gkRows.length + ' row' + (gkRows.length === 1 ? '' : 's') + ' read. Check the two columns, then add.';
     } catch(err){
       document.getElementById('gkProgress').textContent = 'Could not read that file: ' + err.message;
     }
   };
   reader.readAsArrayBuffer(file);
 }
-
-function gkRowText(row){
-  var sel = document.getElementById('gkColumn').value;
-  if (sel === '__all') return row.filter(function(c){ return c != null && String(c).trim(); }).join(' — ');
-  var v = row[parseInt(sel, 10)];
-  return v == null ? '' : String(v);
+function gkCell(row, idx){
+  var v = row[idx];
+  return (v == null) ? '' : String(v).trim();
+}
+function gkTopicName(){
+  var el = document.getElementById('gkTopicName');
+  var v = el ? el.value.trim() : '';
+  return v || 'Untitled';
 }
 
-function gkPrompt(items, existingGenres){
-  return 'Source material, one item per line:\n\n' + items.map(function(t, i){ return (i + 1) + '. ' + t; }).join('\n')
-    + '\n\nFor each item, write 2 to 4 flashcards for a CLAT candidate revising Current Affairs and General Knowledge.\n'
-    + 'Rules:\n'
-    + '- The question must be answerable in one or two sentences, and must stand alone without the source text.\n'
-    + '- Test what CLAT actually asks: who did what, when, under which article or scheme, which body, why it matters. Skip trivia with no exam value.\n'
-    + '- The answer must be self-contained and factual. No hedging, no "as mentioned above".\n'
-    + '- Where a fact has a date, number, article or case name, put it in the answer.\n'
-    + '- Give each card a broad genre. Reuse one of these where it fits: '
-    + (existingGenres.length ? existingGenres.join(', ') : 'none yet')
-    + '. Only invent a new genre if none fits, and keep new genres broad (for example "Polity & Constitution", "International Relations", "Economy & Banking", "Environment", "Awards & Honours", "Sports", "Science & Technology", "Judiciary & Landmark Cases").\n'
-    + '- Also give each card a short topic label, taken from the item it came from.\n\n'
-    + 'Reply ONLY with a valid JSON object, no markdown or preamble:\n'
-    + '{ "cards": [ { "q": string, "a": string, "topic": string, "genre": string } ] }';
+/* the only prompt left: split a line into its question and its answer,
+   word for word, with nothing added */
+function gkSplitPrompt(items){
+  return 'Lines from a spreadsheet, one per number:\n\n'
+    + items.map(function(t, i){ return (i + 1) + '. ' + t; }).join('\n')
+    + '\n\nEach line contains a question and its answer run together. Split each one.\n'
+    + 'Copy the text VERBATIM. Do not rewrite, rephrase, shorten, expand, correct or invent anything. '
+    + 'Do not add questions that are not there. Strip only a leading "Q:", "A:", "Question:", "Answer:" label or a leading number. '
+    + 'If a line has no answer in it, put the whole line in "q" and leave "a" empty.\n\n'
+    + 'Return exactly ' + items.length + ' objects, in the same order. Reply ONLY with valid JSON:\n'
+    + '{ "pairs": [ { "q": string, "a": string } ] }';
 }
 
 async function gkBuild(){
-  if (!gkRows.length){
-    document.getElementById('gkProgress').textContent = 'Choose a file first.';
-    return;
-  }
-  if (!getGroqKey()){
-    document.getElementById('gkProgress').textContent = 'Add a Groq key first — the pencil in the Word Bank panel.';
-    return;
-  }
-  var btn = document.getElementById('gkBuildBtn');
   var prog = document.getElementById('gkProgress');
+  if (!gkRows.length){ prog.textContent = 'Choose a file first.'; return; }
+
+  var topic = gkTopicName();
+  var qIdx = parseInt(document.getElementById('gkColQ').value, 10);
+  var aVal = document.getElementById('gkColA').value;
+  var btn = document.getElementById('gkBuildBtn');
   var bar = document.getElementById('gkBar');
   var fill = document.getElementById('gkBarFill');
-  btn.disabled = true;
-  bar.classList.add('visible');
 
-  var texts = gkRows.map(gkRowText).filter(function(t){ return t && t.trim().length > 12; });
-  if (!texts.length){
-    prog.textContent = 'That column has no usable text in it. Try "Whole row" or a different column.';
-    btn.disabled = false; bar.classList.remove('visible');
+  /* ── straight copy: two columns, no AI, no network ── */
+  if (aVal !== '__ai'){
+    var aIdx = parseInt(aVal, 10);
+    if (qIdx === aIdx){ prog.textContent = 'Question and answer cannot be the same column.'; return; }
+    var pairs = [];
+    gkRows.forEach(function(r){
+      var q = gkCell(r, qIdx);
+      if (q) pairs.push({ q: q, a: gkCell(r, aIdx) });
+    });
+    if (!pairs.length){ prog.textContent = 'That question column is empty.'; return; }
+    var res = gkIngest(pairs, topic);
+    prog.textContent = res.added + ' card' + (res.added === 1 ? '' : 's') + ' added to "' + topic + '"'
+      + (res.dupes ? ', ' + res.dupes + ' already there' : '') + '.';
+    renderGk();
+    flashToast(res.added + ' cards added');
     return;
   }
 
-  var BATCH = 5, made = 0, skipped = 0, failed = 0;
-  for (var i = 0; i < texts.length; i += BATCH){
-    var batch = texts.slice(i, i + BATCH);
-    prog.textContent = 'Writing cards for items ' + (i + 1) + '–' + Math.min(i + BATCH, texts.length) + ' of ' + texts.length + '…';
-    fill.style.width = Math.round(i / texts.length * 100) + '%';
+  /* ── one column: the AI only splits it ── */
+  if (!getGroqKey()){
+    prog.textContent = 'Splitting one column needs a Groq key — the pencil in the Word Bank panel. Otherwise pick an answer column.';
+    return;
+  }
+  var texts = gkRows.map(function(r){ return gkCell(r, qIdx); }).filter(function(t){ return t.length > 3; });
+  if (!texts.length){ prog.textContent = 'That column has no usable text in it.'; return; }
+
+  btn.disabled = true;
+  bar.classList.add('visible');
+  var BATCH = 12, made = 0, dupes = 0, failed = 0;
+  for (var k = 0; k < texts.length; k += BATCH){
+    var batch = texts.slice(k, k + BATCH);
+    prog.textContent = 'Splitting rows ' + (k + 1) + '–' + Math.min(k + BATCH, texts.length) + ' of ' + texts.length + '…';
+    fill.style.width = Math.round(k / texts.length * 100) + '%';
     try {
-      var parsed = await groqJSON(gkPrompt(batch, Object.keys(gkGenres())));
-      var res = gkIngest(parsed.cards || []);
-      made += res.added; skipped += res.dupes;
+      var parsed = await groqJSON(gkSplitPrompt(batch));
+      var got = (parsed.pairs || []).filter(function(p){ return p && p.q; });
+      var out = gkIngest(got, topic);
+      made += out.added; dupes += out.dupes;
     } catch(e){
       failed++;
       if (/rate limit/i.test(e.message || '')) await new Promise(function(r){ setTimeout(r, 4000); });
@@ -4478,30 +4528,30 @@ async function gkBuild(){
     renderGk();
   }
   fill.style.width = '100%';
-  prog.textContent = made + ' card' + (made === 1 ? '' : 's') + ' built'
-    + (skipped ? ', ' + skipped + ' skipped as duplicates' : '')
+  prog.textContent = made + ' card' + (made === 1 ? '' : 's') + ' added to "' + topic + '"'
+    + (dupes ? ', ' + dupes + ' already there' : '')
     + (failed ? ', ' + failed + ' batch' + (failed === 1 ? '' : 'es') + ' failed' : '') + '.';
   btn.disabled = false;
   setTimeout(function(){ bar.classList.remove('visible'); fill.style.width = '0%'; }, 1200);
   renderGk();
 }
 
-function gkIngest(cards){
+function gkIngest(pairs, topic){
   var list = gkAll();
   var seen = {};
   list.forEach(function(c){ seen[gkNorm(c.q)] = 1; });
   var added = 0, dupes = 0, now = Date.now();
-  cards.forEach(function(c, i){
-    if (!c || !c.q || !c.a) return;
-    var k = gkNorm(c.q);
-    if (seen[k]){ dupes++; return; }
-    seen[k] = 1;
+  pairs.forEach(function(c, i){
+    if (!c || !c.q) return;
+    var q = String(c.q).trim();
+    var key = gkNorm(q);
+    if (!key || seen[key]){ dupes++; return; }
+    seen[key] = 1;
     list.push({
       id: now + i,
-      q: String(c.q).trim(),
-      a: String(c.a).trim(),
-      topic: String(c.topic || '').trim(),
-      genre: String(c.genre || 'Unsorted').trim(),
+      q: q,
+      a: String(c.a || '').trim(),
+      topic: topic || 'Untitled',
       level: 0, due: todayKey(), reps: 0, lastGrade: 0, created: now
     });
     added++;
@@ -4522,10 +4572,6 @@ function gkExport(){
 }
 
 /* ── panel rendering ── */
-function gkSelectGenre(g){
-  gkActiveGenre = (gkActiveGenre === g) ? null : g;
-  renderGk();
-}
 function toggleFoundryImport(){
   var el = document.getElementById('gkImport');
   el.style.display = (el.style.display === 'none') ? '' : 'none';
@@ -4553,20 +4599,25 @@ function gkToggleItem(id){
   var el = document.getElementById('gkitem-' + id);
   if (el) el.classList.toggle('open');
 }
-/* genre filter + period filter + free-text search, all at once */
+function gkCardTopic(c){ return c.topic || c.genre || 'Untitled'; }
+function gkTopics(){
+  var t = {};
+  gkAll().forEach(function(c){ var k = gkCardTopic(c); t[k] = (t[k] || 0) + 1; });
+  return t;
+}
+/* period filter + free-text search */
 function gkFiltered(){
   var list = gkAll();
   var cut = gkPeriodCutoff();
   if (cut) list = list.filter(function(c){ return (c.created || 0) >= cut; });
-  if (gkActiveGenre) list = list.filter(function(c){ return (c.genre || 'Unsorted') === gkActiveGenre; });
+  if (gkActiveTopic) list = list.filter(function(c){ return gkCardTopic(c) === gkActiveTopic; });
   var el = document.getElementById('gkSearch');
   var q = el ? el.value.trim().toLowerCase() : '';
   if (q){
     list = list.filter(function(c){
       return (c.q || '').toLowerCase().indexOf(q) > -1
           || (c.a || '').toLowerCase().indexOf(q) > -1
-          || (c.topic || '').toLowerCase().indexOf(q) > -1
-          || (c.genre || '').toLowerCase().indexOf(q) > -1;
+          || gkCardTopic(c).toLowerCase().indexOf(q) > -1;
     });
   }
   return list;
@@ -4579,61 +4630,50 @@ function renderGk(){
   document.getElementById('gkDue').textContent = due.length;
   document.getElementById('gkMastered').textContent = list.filter(function(c){ return c.level === 5; }).length;
   document.getElementById('gkWeak').textContent = list.filter(function(c){ return c.level === 1 || c.level === 2; }).length;
+  document.getElementById('gkTopicCount').textContent = Object.keys(gkTopics()).length;
 
-  var genres = gkGenres();
-  var keys = Object.keys(genres).sort();
-  document.getElementById('gkGenreCount').textContent = keys.length;
-  document.getElementById('gkGenres').innerHTML = keys.length
-    ? keys.map(function(g){
-        var dueN = list.filter(function(c){ return (c.genre || 'Unsorted') === g && gkIsDue(c); }).length;
-        return '<button class="gk-genre' + (gkActiveGenre === g ? ' active' : '') + '" onclick="gkSelectGenre(' + JSON.stringify(g).replace(/"/g, '&quot;') + ')">'
-          + escH(g) + ' <span style="opacity:0.55;">' + genres[g] + '</span>'
-          + (dueN ? '<span class="gk-genre-due">&middot; ' + dueN + ' due</span>' : '') + '</button>';
-      }).join('')
-    : '<span class="field-note">No genres yet — build some cards and they will sort themselves.</span>';
-
-  /* the list itself: grouped by genre, collapsed until you open one */
+  /* grouped by topic, collapsed until opened */
   var shown = gkFiltered();
   var listEl = document.getElementById('gkList');
   var searching = (document.getElementById('gkSearch') || {}).value;
   if (!shown.length){
     listEl.innerHTML = '<p class="gk-empty">'
       + (searching ? 'Nothing matches that.'
-         : (gkPeriod !== 'all' ? 'No cards made in this period.'
-            : 'No cards yet. Export a sheet out of NotebookLM, open the ⊕ above, and the foundry will write them.'))
+         : (gkPeriod !== 'all' ? 'No cards added in this period.'
+            : 'No cards yet. Name a topic, choose your sheet, and they go in exactly as written.'))
       + '</p>';
   } else {
-    var byGenre = {};
+    var byTopic = {};
     shown.forEach(function(c){
-      var g = c.genre || 'Unsorted';
-      (byGenre[g] = byGenre[g] || []).push(c);
+      var t = gkCardTopic(c);
+      (byTopic[t] = byTopic[t] || []).push(c);
     });
-    /* a search should show its results, not make you open every group */
     var autoOpen = !!(searching && searching.trim());
-    listEl.innerHTML = Object.keys(byGenre).sort().map(function(g){
-      var items = byGenre[g].slice().sort(function(a, b){ return (a.level || 0) - (b.level || 0); });
+    listEl.innerHTML = Object.keys(byTopic).sort().map(function(t){
+      var items = byTopic[t].slice().sort(function(a, b){ return (a.level || 0) - (b.level || 0); });
       var dueN = items.filter(gkIsDue).length;
-      var open = autoOpen || gkOpenGroups[g];
+      var open = autoOpen || gkOpenGroups[t];
       return '<div class="gk-group' + (open ? ' open' : '') + '">'
-        + '<button class="gk-group-head" onclick="gkToggleGroup(' + JSON.stringify(g).replace(/"/g, '&quot;') + ')">'
+        + '<button class="gk-group-head" onclick="gkToggleGroup(' + JSON.stringify(t).replace(/"/g, '&quot;') + ')">'
         + '<span class="gk-chev">&#9656;</span>'
-        + '<span class="gk-group-name">' + escH(g) + '</span>'
+        + '<span class="gk-group-name">' + escH(t) + '</span>'
         + (dueN ? '<span class="gk-group-due">' + dueN + ' due</span>' : '')
         + '<span class="gk-group-count">' + items.length + '</span></button>'
         + '<div class="gk-group-body">'
+        + '<div class="gk-group-tools"><button class="pill-btn" onclick="gkStudyTopic(' + JSON.stringify(t).replace(/"/g, '&quot;') + ')">Study this topic</button></div>'
         + items.slice(0, 60).map(function(c){
             var lvl = c.level ? ('Level ' + c.level) : 'New';
             var cls = c.level === 5 ? 'l5' : (c.level && c.level <= 2 ? 'l1' : '');
             return '<div class="gk-item" id="gkitem-' + c.id + '">'
               + '<div class="gk-item-q" onclick="gkToggleItem(' + c.id + ')">'
               + '<span class="gk-chev">&#9656;</span><span>' + escH(c.q) + '</span></div>'
-              + '<div class="gk-item-a">' + escH(c.a)
-              + '<div class="gk-item-foot"><span class="gk-item-topic">' + escH(c.topic || '') + '</span>'
+              + '<div class="gk-item-a">' + (c.a ? escH(c.a) : '<em>No answer in the sheet.</em>')
+              + '<div class="gk-item-foot"><span class="gk-item-topic"></span>'
               + '<span class="gk-level ' + cls + '">' + lvl + '</span>'
               + '<button class="diary-del" onclick="gkDelete(' + c.id + ')" aria-label="Delete">&#10005;</button></div>'
               + '</div></div>';
           }).join('')
-        + (items.length > 60 ? '<p class="gk-list-more">' + (items.length - 60) + ' more in this genre — narrow it with the search box.</p>' : '')
+        + (items.length > 60 ? '<p class="gk-list-more">' + (items.length - 60) + ' more in this topic — narrow it with the search box.</p>' : '')
         + '</div></div>';
     }).join('');
   }
@@ -4647,10 +4687,16 @@ function gkDelete(id){
   gkStore(gkAll().filter(function(c){ return c.id !== id; }));
   renderGk();
 }
+function gkStudyTopic(t){
+  gkActiveTopic = t;
+  openGk();
+  gkActiveTopic = null;
+}
 
 /* ── study session ── */
 function openGk(){
   var pool = gkFiltered();
+  if (gkActiveTopic) pool = gkAll().filter(function(c){ return gkCardTopic(c) === gkActiveTopic; });
   var due = pool.filter(gkIsDue);
   gkQueue = (due.length ? due : pool).slice();
   /* weakest and longest-overdue first */
@@ -4689,7 +4735,7 @@ function renderGkCard(){
     document.getElementById('gkStudied').textContent = gkStudiedCount + ' graded';
     return;
   }
-  document.getElementById('gkCardGenre').textContent = (c.genre || 'Unsorted') + (c.topic ? ' · ' + c.topic : '')
+  document.getElementById('gkCardGenre').textContent = gkCardTopic(c)
     + (c.level ? ' · level ' + c.level : ' · new');
   document.getElementById('gkCardQ').textContent = c.q;
   document.getElementById('gkCardABody').textContent = c.a;
@@ -4733,9 +4779,13 @@ document.addEventListener('keydown', function(e){
   var tag = document.activeElement && document.activeElement.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (e.key === 'Escape'){ closeGk(); return; }
-  var graded = document.getElementById('gkGradeWrap').style.display !== 'none';
-  if (e.key === ' '){ e.preventDefault(); if (!graded) gkReveal(); return; }
-  if (graded && e.key >= '1' && e.key <= '5'){ gkGrade(parseInt(e.key, 10)); }
+  if (e.key === ' '){ e.preventDefault(); gkReveal(); return; }
+  if (e.key === 'ArrowRight'){ gkSkip(); return; }
+  /* 1-5 grades and advances whether or not the answer is showing —
+     numpad included, so you can run a deck one-handed */
+  var n = /^[1-5]$/.test(e.key) ? parseInt(e.key, 10)
+        : (/^Numpad[1-5]$/.test(e.code) ? parseInt(e.code.slice(6), 10) : 0);
+  if (n){ e.preventDefault(); gkGrade(n); }
 });
 
 
